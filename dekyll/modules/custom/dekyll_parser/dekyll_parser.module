@@ -7,6 +7,7 @@
 require DRUPAL_ROOT . '/profiles/dekyll/libraries/vendor/autoload.php';
 
 use GitWrapper\GitWrapper;
+use Symfony\Component\Finder\Finder;
 
 function dekyll_parser_init() {
   $wrapper = new GitWrapper();
@@ -19,5 +20,20 @@ function dekyll_parser_init() {
   }
 
   // Find files.
+  $finder = new Finder();
+  $finder
+    ->files()
+    ->in($path)
+    // @todo: Exclude directories with underscore except of _posts and _drafts
+    ->notPath('/^_.*/')
+    ->notPath('assets');
+
+
+  foreach ($finder as $file) {
+    if ($file->getFilename() === 'archive.html') {
+      dpm($file->getContents());
+      return;
+    }
+  }
 
 }
