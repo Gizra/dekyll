@@ -182,8 +182,7 @@ function dekyll_set_variables() {
     // Update the menu router information.
     'menu_rebuild_needed' => TRUE,
     'jquery_update_jquery_version' =>  '1.8',
-    'site_frontpage' => 'dictionary',
-    'site_name' => 'dekyll',
+    'site_name' => 'Drupal-Jekyll',
 
     // Facebook connect.
     'fboauth_id' => '487773171290610',
