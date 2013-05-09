@@ -1,0 +1,5 @@
+name = Dekyll Parser
+description = Read and Write Jekyll files
+core = 7.x
+
+

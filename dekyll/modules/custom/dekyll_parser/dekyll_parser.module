@@ -1,0 +1,23 @@
+<?php
+
+/**
+ * @file
+ * Read and Write Jekyll files.
+ */
+require DRUPAL_ROOT . '/profiles/dekyll/libraries/vendor/autoload.php';
+
+use GitWrapper\GitWrapper;
+
+function dekyll_parser_init() {
+  $wrapper = new GitWrapper();
+
+  $path = variable_get('file_public_path', conf_path() . '/files') . '/git';
+
+  $git = $wrapper->workingCopy($path);
+  if (!$git->isCloned()) {
+    $git->clone('git@github.com:amitaibu/jekyll-bootstrap.git');
+  }
+
+  // Find files.
+
+}
