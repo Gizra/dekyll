@@ -8,6 +8,7 @@ require DRUPAL_ROOT . '/profiles/dekyll/libraries/vendor/autoload.php';
 
 use GitWrapper\GitWrapper;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Yaml\Parser;
 
 function dekyll_parser_init() {
   $wrapper = new GitWrapper();
@@ -31,7 +32,17 @@ function dekyll_parser_init() {
 
   foreach ($finder as $file) {
     if ($file->getFilename() === 'archive.html') {
-      dpm($file->getContents());
+      $contents = $file->getContents();
+
+      // Get the values from the YAML front header.
+      $split_contents = explode("---\n", $contents);
+      $yaml_contents = $split_contents[1];
+
+
+      $yaml = new Parser();
+      $value = $yaml->parse($yaml_contents);
+      dpm($value);
+
       return;
     }
   }
