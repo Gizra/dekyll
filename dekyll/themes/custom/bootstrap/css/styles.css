@@ -1,0 +1,33 @@
+@import url(fontface.css);
+@import url(font-awesome.css);
+@import url(icomoon.css);
+@import url(base.css);
+@import url(header.css);
+@import url(main-content.css);
+@import url(sidebar.css);
+@import url(progress-bars.css);
+@import url(breadcrumb.css);
+@import url(pagination.css);
+@import url(alert-messages.css);
+@import url(gradients.css);
+@import url(buttons.css);
+@import url(dropdowns.css);
+@import url(tabs.css);
+@import url(form.css);
+@import url(widgets.css);
+
+/* plugins */
+@import url(jqplot.css);
+@import url(slider.css);
+@import url(redactor.css);
+@import url(google-maps.css);
+@import url(datepicker.css);
+@import url(timepicker.css);
+/* ./plugins */
+
+@import url(addon-styles.css);
+@import url(kuta-responsive.css);
+
+#main {
+  background: white;
+}

@@ -1,0 +1,75 @@
+.modal .alert {margin-bottom:0;}
+.alert-message {position:relative;}
+.alert-message.danger, 
+.alert-message.error, 
+.alert-message.success, 
+.alert-message.info {background-image:none!important;}
+.alert-message .close {
+	font-family: Arial, sans-serif;
+	line-height: 28px;
+}
+.alert-message.danger, 
+.alert-message.error {
+	color:#fad1cf;
+	text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+	border-color: #c43c35 #c43c35 #882a25;
+	border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+}
+.alert-message.success {
+	color: #224222;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+	border-color: #57a957 #57a957 #3d773d;
+	border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+}
+.alert-message.info {
+	color: #163f4a;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+	border-color: #339bb9 #339bb9 #22697d;
+	border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+}
+.alert-message.custom {
+	color:#454545;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+	border-color: #dbdbdb #dbdbdb #c6c6c6;
+	border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+}
+:root .alert-message {border-radius: 0 \0;}
+.alert-message {
+	position: relative;
+	padding: 7px 15px;
+	background-color: #eedc94;
+	font-size:16px;
+	color: #52471c;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+	border-color: #eedc94 #eedc94 #e4c652;
+	border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+	border-width: 1px;
+	border-style: solid;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+}
+.pillow-emboss2 .alert-message {
+	-webkit-border-radius: 50px;
+	-moz-border-radius: 50px;
+	border-radius: 50px;
+	padding:14px 30px;
+}
+.alert-message .close {
+	margin-top: -3px;
+	margin-right:-10px;
+}
+.pillow-emboss2 .alert-message .close {
+	margin-top: 0px;
+	margin-right:0px;
+}
+.alert-message a {text-decoration: none;}
+.alert-message.danger p a, 
+.alert-message.error p a, 
+.alert-message.success p a, 
+.alert-message.info p a {
+	color: #bccff8;
+	font-weight:bold;
+}
+.alert-message p a:hover {text-decoration: underline;}
+.alert-message p {margin-bottom: 0;}

@@ -1,0 +1,150 @@
+/*==================================================
+ * tabs
+ * ===============================================*/
+.tabs-custom {margin-bottom:40px;}
+.tabs-custom .nav.nav-tabs {
+	border:1px solid #cdcdcd;
+	margin-bottom:0px;
+}
+.tabs-custom .nav.nav-tabs.tabs-two {border:none;}
+.tabs-custom .nav-tabs > li > a {
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
+	margin-right:-1px;
+}
+.tabs-custom .nav-tabs > li > a, 
+.tabs-custom .nav-tabs > .active > a, 
+.tabs-custom .nav-tabs > .active > a:hover {
+	border-color:transparent;
+	border-left-color:#cdcdcd;
+}
+.tabs-custom .nav-tabs > li:first-child > a, 
+.tabs-custom .nav-tabs > li:first-child.active > a {border-left-color:transparent;}
+.tabs-custom .nav-tabs > li:last-child.active > a, 
+.tabs-custom .nav-tabs > li:last-child.active > a:hover {border-right-color:#cdcdcd;}
+.tabs-custom .tab-content {
+	background-color:#fff;
+	border:1px solid #cdcdcd;
+	border-top:none;
+}
+
+.tabs-custom.tabs-below .tab-content {
+	border-top:1px solid #cdcdcd;
+	border-bottom:none;
+}
+
+.tabs-custom.tabs-left > .nav-tabs {margin-right:-1px;}
+.tabs-custom.tabs-left .tab-content {border-top:1px solid #cdcdcd;}
+.tabs-custom.tabs-left .nav-tabs > li > a, 
+.tabs-custom.tabs-left .nav-tabs > .active > a, 
+.tabs-custom.tabs-left .nav-tabs > .active > a:hover {
+	border-left-color:transparent;
+	border-bottom-color:#cdcdcd;
+}
+.tabs-custom.tabs-left .nav-tabs > li:last-child > a, 
+.tabs-custom.tabs-left .nav-tabs > li:last-child.active > a, 
+.tabs-custom.tabs-left .nav-tabs > li:last-child.active > a:hover {
+	border-right-color:transparent;
+	border-bottom-color:transparent;
+}
+.tabs-custom.tabs-left .nav-tabs > li:last-child > a, 
+.tabs-custom.tabs-left .nav-tabs > li:last-child.active > a, 
+.tabs-custom.tabs-left .nav-tabs > li:last-child.active > a:hover {
+	border-right-color:transparent;
+	border-bottom-color:transparent;
+}
+
+.tabs-custom.tabs-right > .nav-tabs {margin-left:-1px;}
+.tabs-custom.tabs-right .tab-content {
+	border-top:1px solid #cdcdcd;
+	border-left:none;
+}
+.tabs-custom.tabs-right .nav-tabs > li > a,
+.tabs-custom.tabs-right .nav-tabs > li > a:hover,
+.tabs-custom.tabs-right .nav-tabs > .active > a,
+.tabs-custom.tabs-right .nav-tabs > .active > a:hover {
+	border-left-color:transparent;
+	border-bottom-color:#cdcdcd;
+	border-right-color:#cdcdcd;
+}
+.tabs-custom.tabs-right .nav-tabs > li:last-child > a, 
+.tabs-custom.tabs-right .nav-tabs > li:last-child.active > a, 
+.tabs-custom.tabs-right .nav-tabs > li:last-child.active > a:hover {border-bottom-color:transparent;}
+
+.tabs-custom .tab-content .tab-pane {margin:15px;}
+
+/*==================================================
+ * stacked tabs
+ * ===============================================*/
+.nav-tabs.nav-stacked {
+	margin:0px;
+	background:none;
+}
+.nav-tabs.nav-stacked > li {margin-bottom:0px;	}
+.nav-tabs.nav-stacked > li > a, 
+.nav-tabs.nav-stacked > li > a:hover {
+	color:#454545;
+	font-weight:bold;
+	border-left-color:transparent;
+	border-right-color:transparent;
+	border-bottom-color:transparent;
+	position:relative;
+}
+.nav-tabs.nav-stacked > li.active > a, 
+.nav-tabs.nav-stacked > li.active > a:hover {
+	color:#3a68b3;
+	background:#f9f9f9;
+}
+.nav-tabs.nav-stacked > li.active > a:after {
+	position: absolute;
+	width: 0;
+	height: 0;
+	top: -2px;
+	right: 10px;
+	margin-top: 10px;
+	border-top: 10px solid transparent;
+	border-bottom: 10px solid transparent;
+	border-left: 10px solid #3a68b3;
+	content: ' ';
+}
+.nav-tabs.nav-stacked > li:first-child > a {
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
+	border-top-color:transparent;
+}
+.nav-tabs.nav-stacked > li:last-child > a {
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
+	border-bottom-color:transparent;
+}
+
+/*==================================================
+ * custom tabs
+ * ===============================================*/
+.well .tabbable.btn-circle-panel {margin:-10px -10px 0 -10px;}
+.well .tabbable.btn-circle-panel .tab-content{padding:15px;}
+.nav-tabs.btn-circle {padding:15px 0px;}
+.nav-tabs.btn-circle > li {
+	margin-bottom:0;
+	float: none;
+}
+.nav-tabs.btn-circle > li > a {
+	padding: 0;
+	border:none;
+}
+.nav-tabs.btn-circle > .active > a, 
+.nav-tabs.btn-circle > .active > a:hover {border:none;}
+
+/*==================================================
+ * tabbed modal
+ * ===============================================*/
+.modal .tabs-custom {margin-bottom: 0;}
+.modal .tabs-custom .tab-content {border-bottom: none;}
+.modal .tabs-custom .nav.nav-tabs {
+	-webkit-border-radius: 6px 6px 0 0;
+	-moz-border-radius: 6px 6px 0 0;
+	border-radius: 6px 6px 0 0;
+}

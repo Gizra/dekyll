@@ -1,0 +1,34 @@
+@media (max-width: 979px){
+	.navbar .brand {margin: 0 0 0 -15px;}
+}
+@media (max-width: 767px) {
+	#sidebar.nav.nav-pills.nav-stacked {width:40px;	}
+	#sidebar.nav-pills > li > a {height:40px;}
+	#sidebar.nav-pills > li > a [class^="micon-"], 
+	#sidebar.nav-pills > li > a [class^="icon-"] {
+		padding:0;
+		font-size:18px;
+		line-height:40px;
+	}
+	#sidebar.nav-pills .dropdown .dropdown-menu {left: 40px;}
+	#left_layout #main_content.container-fluid {margin:0 10px 10px 40px;}
+	.page-heading {
+		height:45px;
+		line-height:45px;
+		padding:0;
+	}
+	.page-heading .page-title {
+		font-size:18px;
+		line-height:45px;
+	}
+	.page-heading .page-title [class^="micon-"], 
+	.page-heading .page-title [class^="icon-"] {
+		margin:-1px 10px 0 15px;
+		line-height:45px;
+	}
+	.action-wrapper .pull-left, .action-wrapper .pull-right {
+		float:none;
+		display:block;
+		margin-bottom:5px;
+	}
+}

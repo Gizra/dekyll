@@ -1,0 +1,35 @@
+@font-face {
+	font-family: 'FontAwesome';src: url('../fonts/fontawesome/fontawesome-webfont.eot');src: url('../fonts/fontawesome/fontawesome-webfont.eot?#iefix') format('embedded-opentype'), url('../fonts/fontawesome/fontawesome-webfont.woff') format('woff'), url('../fonts/fontawesome/fontawesome-webfont.ttf') format('truetype'), url('../fonts/fontawesome/fontawesome-webfont.svgz#FontAwesomeRegular') format('svg'), url('../fonts/fontawesome/fontawesome-webfont.svg#FontAwesomeRegular') format('svg');font-weight: normal;font-style: normal;
+}
+@font-face {
+	font-family: 'icomoon';src:url('../fonts/icomoon/icomoon.eot');src:url('../fonts/icomoon/icomoon.eot?#iefix') format('embedded-opentype'),url('../fonts/icomoon/icomoon.svg#icomoon') format('svg'),url('../fonts/icomoon/icomoon.woff') format('woff'),url('../fonts/icomoon/icomoon.ttf') format('truetype');font-weight: normal;font-style: normal;
+}
+@font-face {
+	font-family: 'BebasNeueRegular';src: url('../fonts/bebas-neue/BebasNeue-webfont.eot');src: url('../fonts/bebas-neue/BebasNeue-webfont.eot?#iefix') format('embedded-opentype'),url('../fonts/bebas-neue/BebasNeue-webfont.woff') format('woff'),url('../fonts/bebas-neue/BebasNeue-webfont.ttf') format('truetype'),url('../fonts/bebas-neue/BebasNeue-webfont.svg#BebasNeueRegular') format('svg');font-weight: normal;font-style: normal;
+}
+@font-face {
+	font-family: 'dekarregular';src: url('../fonts/dekkar/dekar-webfont.eot');src: url('../fonts/dekkar/dekar-webfont.eot?#iefix') format('embedded-opentype'),url('../fonts/dekkar/dekar-webfont.woff') format('woff'),url('../fonts/dekkar/dekar-webfont.ttf') format('truetype'),url('../fonts/dekkar/dekar-webfont.svg#dekarregular') format('svg');font-weight: normal;font-style: normal;
+}
+@font-face {
+    font-family: 'DroidSansRegular';
+    src: url('../fonts/droid-sans/DroidSans-webfont.eot');
+    src: url('../fonts/droid-sans/DroidSans-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/droid-sans/DroidSans-webfont.woff') format('woff'),
+         url('../fonts/droid-sans/DroidSans-webfont.ttf') format('truetype'),
+         url('../fonts/droid-sans/DroidSans-webfont.svg#DroidSansRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'DroidSansBold';
+    src: url('../fonts/droid-sans/DroidSans-Bold-webfont.eot');
+    src: url('../fonts/droid-sans/DroidSans-Bold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/droid-sans/DroidSans-Bold-webfont.woff') format('woff'),
+         url('../fonts/droid-sans/DroidSans-Bold-webfont.ttf') format('truetype'),
+         url('../fonts/droid-sans/DroidSans-Bold-webfont.svg#DroidSansBold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'YanoneKaffeesatzRegular'; src: url('../fonts/yanone-Kaffeesatz/YanoneKaffeesatz-Regular-webfont.eot'); src: url('../fonts/yanone-Kaffeesatz/YanoneKaffeesatz-Regular-webfont.eot?#iefix') format('embedded-opentype'), url('../fonts/yanone-Kaffeesatz/YanoneKaffeesatz-Regular-webfont.woff') format('woff'), url('../fonts/yanone-Kaffeesatz/YanoneKaffeesatz-Regular-webfont.ttf') format('truetype'), url('../fonts/yanone-Kaffeesatz/YanoneKaffeesatz-Regular-webfont.svg#YanoneKaffeesatzRegular') format('svg'); font-weight: normal; font-style: normal;
+}

@@ -1,0 +1,25 @@
+.breadcrumb li {text-shadow:0 1px 0 rgba(255,255,255,0.5);}
+.breadcrumb li a{color:rgba(0,0,0,0.4);}
+.breadcrumb .divider{color:rgba(0,0,0,0.2);}
+.breadcrumb.breadcrumb-info {background-color:#e7f5f9;}
+.breadcrumb.breadcrumb-info li{color:#1e5464;}
+.breadcrumb.breadcrumb-primary {background-color:#cfe0e8;}
+.breadcrumb.breadcrumb-primary li{color:#0f3f9d;}
+.breadcrumb.breadcrumb-success {background-color:#e7f7e7;}
+.breadcrumb.breadcrumb-success li{color:#397639;}
+.breadcrumb.breadcrumb-warning {background-color:#fcedd7;}
+.breadcrumb.breadcrumb-warning li{color:#aa6504;}
+.breadcrumb.breadcrumb-danger {background-color:#f9e2e2;}
+.breadcrumb.breadcrumb-danger li{color:#722521;}
+.breadcrumb.breadcrumb-inverse {background-color:#dadada;}
+.breadcrumb.breadcrumb-inverse li{color:#101010;}
+
+.breadcrumb.breadcrumb-main {
+	font-family: Helvetica, Arial, sans-serif;
+	font-size:11px;
+	margin:-15px -15px 20px -15px;
+	border-bottom:1px solid rgba(0,0,0,0.1);
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
+}

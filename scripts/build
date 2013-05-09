@@ -1,0 +1,36 @@
+#!/bin/bash
+set -xe
+
+# Drush executable.
+[[ $DRUSH && ${DRUSH-x} ]] || DRUSH=drush
+
+# Build the profile itself.
+(
+  cd dekyll
+  $DRUSH make --no-core --contrib-destination drupal-org.make .
+  cd ..
+)
+
+# Build core and move the profile in place.
+(
+  # Save the sites/default directory if it exists.
+  if [ -d www/sites/default ]; then
+    mv www/sites/default sites-backup
+  else
+    mkdir -p www/sites/default
+  fi
+  chmod +w www/sites/* || true
+  rm -Rf www || true
+
+  # Build core.
+  $DRUSH make dekyll/drupal-org-core.make www
+
+  # Restore the sites directory.
+  if [ -d sites-backup ]; then
+    rm -Rf www/sites/default
+    mv sites-backup/ www/sites/default
+  fi
+
+  # Move the profile in place.
+  ln -s ../../dekyll www/profiles/dekyll
+)

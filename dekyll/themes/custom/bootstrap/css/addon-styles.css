@@ -1,0 +1,140 @@
+/*==================================================
+ * paper pile effect
+ * ===============================================*/
+.paper-pile {
+	margin-bottom:40px;
+	box-shadow: 0 1px 1px rgba(0,0,0,0.3),
+		0 6px 0 -3px #f9f9f9,
+		0 7px 1px -3px rgba(0,0,0,0.3),
+		0 12px 0 -6px #f9f9f9,
+		0 13px 1px -6px rgba(0,0,0,0.3),
+		0 18px 0 -9px #f9f9f9,
+		0 19px 1px -9px rgba(0,0,0,0.3),
+		0 24px 0 -12px #f9f9f9,
+		0 25px 20px -8px rgba(0, 0, 0, 0.2);
+	-moz-box-shadow: 0 1px 1px rgba(0,0,0,0.3),
+		0 6px 0 -3px #f9f9f9,
+		0 7px 1px -3px rgba(0,0,0,0.3),
+		0 12px 0 -6px #f9f9f9,
+		0 13px 1px -6px rgba(0,0,0,0.3),
+		0 18px 0 -9px #f9f9f9,
+		0 19px 1px -9px rgba(0,0,0,0.3),
+		0 24px 0 -12px #f9f9f9,
+		0 25px 20px -8px rgba(0, 0, 0, 0.2);
+	-webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.3),
+		0 6px 0 -3px #f9f9f9,
+		0 7px 1px -3px rgba(0,0,0,0.3),
+		0 12px 0 -6px #f9f9f9,
+		0 13px 1px -6px rgba(0,0,0,0.3),
+		0 18px 0 -9px #f9f9f9,
+		0 19px 1px -9px rgba(0,0,0,0.3),
+		0 24px 0 -12px #f9f9f9,
+		0 25px 20px -8px rgba(0, 0, 0, 0.2);
+}
+.paper-pile2 {
+	margin-bottom:30px;
+	box-shadow: 0px 1px 0px 0px #fff,
+		0px 2px 0px 0px #ccc,
+		0px 3px 0px 0px #fff,
+		0px 4px 0px 0px #ccc,
+		0px 5px 0px 0px #fff,
+		0px 3px 5px 2px rgba(0,0,0,0.1);
+	-moz-box-shadow: 0px 1px 0px 0px #fff,
+		0px 2px 0px 0px #ccc,
+		0px 3px 0px 0px #fff,
+		0px 4px 0px 0px #ccc,
+		0px 5px 0px 0px #fff,
+		0px 3px 5px 2px rgba(0,0,0,0.1);
+	-webkit-box-shadow: 0px 1px 0px 0px #fff,
+		0px 2px 0px 0px #ccc,
+		0px 3px 0px 0px #fff,
+		0px 4px 0px 0px #ccc,
+		0px 5px 0px 0px #fff,
+		0px 3px 5px 2px rgba(0,0,0,0.1);
+}
+.paper-pile3 {
+	margin-bottom:40px;
+	margin-right:10px;
+	-webkit-box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.100),
+		3px 3px 0 rgba(255, 255, 255, 1.0),
+		4px 4px 0 rgba(0, 0, 0, 0.125),
+		6px 6px 0 rgba(255, 255, 255, 1.0),
+		7px 7px 0 rgba(0, 0, 0, 0.150),
+		9px 9px 0 rgba(255, 255, 255, 1.0),
+		10px 10px 0 rgba(0, 0, 0, 0.175);
+	-moz-box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.100),
+		3px 3px 0 rgba(255, 255, 255, 1.0),
+		4px 4px 0 rgba(0, 0, 0, 0.125),
+		6px 6px 0 rgba(255, 255, 255, 1.0),
+		7px 7px 0 rgba(0, 0, 0, 0.150),
+		9px 9px 0 rgba(255, 255, 255, 1.0),
+		10px 10px 0 rgba(0, 0, 0, 0.175);
+	box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.100),
+		3px 3px 0 rgba(255, 255, 255, 1.0),
+		4px 4px 0 rgba(0, 0, 0, 0.125),
+		6px 6px 0 rgba(255, 255, 255, 1.0),
+		7px 7px 0 rgba(0, 0, 0, 0.150),
+		9px 9px 0 rgba(255, 255, 255, 1.0),
+		10px 10px 0 rgba(0, 0, 0, 0.175);
+}
+
+/*==================================================
+ * pillow-emboss
+ * ===============================================*/
+.pillow-emboss {
+	margin-bottom:18px;
+	border-top: 1px solid #aaa;
+	border-bottom: 1px solid #fff;
+	padding:10px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	background: #dadada;
+	box-shadow: inset 0px 8px 24px #bbb;
+	-webkit-box-shadow: inset 0px 8px 24px #bbb;
+	-moz-box-shadow: inset 0px 8px 24px #bbb;
+}
+
+/*==================================================
+ * box shadow
+ * ===============================================*/
+.box-shadow, 
+.box-shadow-left, 
+.box-shadow-right {position:relative;}
+.box-shadow:before, 
+.box-shadow:after, 
+.box-shadow-left:before, 
+.box-shadow-left:after, 
+.box-shadow-right:before, 
+.box-shadow-right:after {
+	z-index: -1;
+	position: absolute;
+	content: "";
+	bottom: 15px;
+	left: 10px;
+	width: 50%;
+	top: 80%;
+	max-width:400px;
+	background: rgba(0, 0, 0, 0.5);
+	-webkit-box-shadow: 0 15px 10px rgba(0,0,0, 0.5);
+	-moz-box-shadow: 0 15px 10px rgba(0, 0, 0, 0.5);
+	box-shadow: 0 15px 10px rgba(0, 0, 0, 0.5);
+	-webkit-transform: rotate(-5deg);
+	-moz-transform: rotate(-5deg);
+	-o-transform: rotate(-5deg);
+	-ms-transform: rotate(-5deg);
+	transform: rotate(-5deg);
+}
+.box-shadow:after, 
+.box-shadow-left:after, 
+.box-shadow-right:after {
+	-webkit-transform: rotate(5deg);
+	-moz-transform: rotate(5deg);
+	-o-transform: rotate(5deg);
+	-ms-transform: rotate(5deg);
+	transform: rotate(5deg);
+	right: 10px;
+	left: auto;
+}
+.box-shadow-right:before, 
+.box-shadow-left:after {display:none;}

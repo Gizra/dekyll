@@ -1,0 +1,73 @@
+.pagination {font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
+.pagination [class^="icon-"], 
+.pagination [class*=" icon-"] {margin-top:0;}
+
+/*light blue pagination*/
+.pagination.pagination-info ul > li > a,
+.pagination.pagination-info ul > li > span {
+	color:#fdfdfd;
+	border-color: #2f96b4;
+}
+.pagination.pagination-info ul > .disabled > span,
+.pagination.pagination-info ul > .disabled > a,
+.pagination.pagination-info ul > .disabled > a:hover {
+	color: #206376;
+	background-color: transparent;
+	background-image:none;
+}
+
+/*blue pagination*/
+.pagination.pagination-primary ul > li > a,
+.pagination.pagination-primary ul > li > span {
+	color:#fdfdfd;
+	border-color: #0044cc;
+}
+.pagination.pagination-primary ul > .disabled > span,
+.pagination.pagination-primary ul > .disabled > a,
+.pagination.pagination-primary ul > .disabled > a:hover {
+	color: #006dcc;
+	background-color: transparent;
+	background-image:none;
+}
+
+/*green pagination*/
+.pagination.pagination-success ul > li > a,
+.pagination.pagination-success ul > li > span {
+	color:#fdfdfd;
+	border-color: #51a351;
+}
+.pagination.pagination-success ul > .disabled > span,
+.pagination.pagination-success ul > .disabled > a,
+.pagination.pagination-success ul > .disabled > a:hover {
+	color: #5bb75b;
+	background-color: transparent;
+	background-image:none;
+}
+
+/*yellow pagination*/
+.pagination.pagination-warning ul > li > a,
+.pagination.pagination-warning ul > li > span {
+	color:#fdfdfd;
+	border-color: #f89406;
+}
+.pagination.pagination-warning ul > .disabled > span,
+.pagination.pagination-warning ul > .disabled > a,
+.pagination.pagination-warning ul > .disabled > a:hover {
+	color: #faa732;
+	background-color: transparent;
+	background-image:none;
+}
+
+/*red pagination*/
+.pagination.pagination-danger ul > li > a,
+.pagination.pagination-danger ul > li > span {
+	color:#fdfdfd;
+	border-color: #bd362f;
+}
+.pagination.pagination-danger ul > .disabled > span,
+.pagination.pagination-danger ul > .disabled > a,
+.pagination.pagination-danger ul > .disabled > a:hover {
+	color: #da4f49;
+	background-color: transparent;
+	background-image:none;
+}

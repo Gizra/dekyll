@@ -1,0 +1,31 @@
+.progress, 
+.ui-slider-horizontal, 
+.ui-slider-vertical {
+	background-color: #e7e7e7;
+	background-image: -moz-linear-gradient(top, #e5e5e5, #e9e9e9);
+	background-image: -ms-linear-gradient(top, #e5e5e5, #e9e9e9);
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#e5e5e5), to(#e9e9e9));
+	background-image: -webkit-linear-gradient(top, #e5e5e5, #e9e9e9);
+	background-image: -o-linear-gradient(top, #e5e5e5, #e9e9e9);
+	background-image: linear-gradient(top, #e5e5e5, #e9e9e9);
+	border:1px solid #b2b2b2;
+	background-repeat: repeat-x;
+}
+.progress, 
+.ui-slider-horizontal {
+	border-bottom-color:#d5d5d5;
+	border-right-color:#d5d5d5;
+}
+.pillow-emboss .progress {
+	background-color: transparent;
+	border:none;
+	background-image:none;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+	margin:-3px;
+}
+.pillow-emboss .progress, 
+.pillow-emboss .progress .bar {height:15px;}
+.progress.mini, 
+.progress.mini .bar {height:5px;}

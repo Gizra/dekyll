@@ -1,0 +1,210 @@
+/*==================================================
+* custom dropdowns
+* ===============================================*/
+.custom .dropdown-menu li > a {
+	font-size:14px!important;	
+	font-weight:normal!important;	
+	line-height:30px!important;
+}
+.custom .dropdown-menu li > a i {
+	line-height:30px!important;
+	font-size:14px!important;
+	width:30px!important;
+	height:30px!important;
+	vertical-align:middle!important;
+	margin:0 10px 0 -10px!important;
+}
+
+.custom > .dropdown-menu:before, 
+.custom > .dropdown-menu:after {
+	display:none!important;
+}
+
+.custom > .dropdown-menu li > a, 
+.custom > .dropdown-menu li > a:hover, 
+.custom.open > .dropdown-toggle, 
+.custom.active > .dropdown-toggle, 
+.custom.open.active > .dropdown-toggle {
+	color:#dedede!important;
+	text-shadow:none!important;
+}
+
+li.dropdown.custom > .dropdown-menu {
+	border-top:none!important;
+	margin-left:0;
+}
+
+li.dropup.custom > .dropdown-menu {
+	border-bottom:none!important;
+	margin-left:0;
+	margin-bottom:-1px;
+	margin-right:-1px;
+	-webkit-box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2);
+	-moz-box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.nav.nav-pills .dropdown.custom .dropdown-menu {
+	margin-top:-6px;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
+}
+.navbar .nav > li.dropdown.custom > .dropdown-menu, 
+.btn-group.custom > .dropdown-menu {
+	border-top:none!important;
+	margin-top:-1px;
+}
+.custom > .dropdown-menu.pull-right {margin-right:0;margin-top:-3px;}
+
+/*dark background*/
+.dropdown-darkBg.custom.open > .dropdown-toggle, 
+.dropdown-darkBg.custom.active > .dropdown-toggle, 
+.dropdown-darkBg.custom.open.active > .dropdown-toggle, 
+.dropdown-darkBg.custom > .dropdown-menu {
+	background-color:#333333!important;
+	border-color:#333333!important;
+}
+
+.dropdown-darkBg.custom > .dropdown-menu li > a:hover {	background:#555555!important; }
+
+.dropdown-darkBg.custom > .dropdown-menu .active > a, 
+.dropdown-darkBg.custom > .dropdown-menu .active > a:hover {background:#444444!important;}
+
+.dropdown-darkBg.custom .dropdown-menu .divider {
+	background-color: #101010!important;
+	border-bottom: 1px solid #444444!important;
+}
+
+/*blueLight background*/
+.dropdown-blueLightBg.custom.open > .dropdown-toggle, 
+.dropdown-blueLightBg.custom.active > .dropdown-toggle, 
+.dropdown-blueLightBg.custom.open.active > .dropdown-toggle, 
+.dropdown-blueLightBg.custom > .dropdown-menu {
+	background-color:#2f96b4!important;
+	border-color:#2f96b4;
+}
+
+.dropdown-blueLightBg.custom > .dropdown-menu li > a:hover {background:#3ba7c7!important;}
+
+.dropdown-blueLightBg.custom > .dropdown-menu .active > a, 
+.dropdown-blueLightBg.custom > .dropdown-menu .active > a:hover {background:#297c94!important;}
+
+.dropdown-blueLightBg.custom .dropdown-menu .divider {
+	background-color: #246071!important;
+	border-bottom: 1px solid #48b0ce!important;
+}
+
+/*blue background*/
+.dropdown-blueBg.custom.open > .dropdown-toggle, 
+.dropdown-blueBg.custom.active > .dropdown-toggle, 
+.dropdown-blueBg.custom.open.active > .dropdown-toggle, 
+.dropdown-blueBg.custom > .dropdown-menu {
+	background-color:#006dcc!important;
+	border-color:#006dcc;
+}
+
+.dropdown-blueBg.custom > .dropdown-menu li > a:hover {background:#1e84de!important;}
+
+.dropdown-blueBg.custom > .dropdown-menu .active > a, 
+.dropdown-blueBg.custom > .dropdown-menu .active > a:hover {background:#044f91!important;}
+
+.dropdown-blueBg.custom .dropdown-menu .divider {
+	background-color: #03559c!important;
+	border-bottom: 1px solid #138efa!important;
+}
+
+/*green background*/
+.dropdown-greenBg.custom.open > .dropdown-toggle, 
+.dropdown-greenBg.custom.active > .dropdown-toggle, 
+.dropdown-greenBg.custom.open.active > .dropdown-toggle, 
+.dropdown-greenBg.custom > .dropdown-menu {
+	background-color:#51a351!important;
+	border-color:#51a351;
+}
+
+.dropdown-greenBg.custom > .dropdown-menu li > a:hover {background:#64b664!important;}
+
+.dropdown-greenBg.custom > .dropdown-menu .active > a, 
+.dropdown-greenBg.custom > .dropdown-menu .active > a:hover {background:#468246!important;}
+
+.dropdown-greenBg.custom .dropdown-menu .divider {
+	background-color: #487e48!important;
+	border-bottom: 1px solid #6bbe6b!important;
+}
+
+/*yellow background*/
+.dropdown-yellowBg.custom.open > .dropdown-toggle, 
+.dropdown-yellowBg.custom.active > .dropdown-toggle, 
+.dropdown-yellowBg.custom.open.active > .dropdown-toggle, 
+.dropdown-yellowBg.custom > .dropdown-menu {
+	background-color:#f89406!important;
+	border-color:#f89406;
+}
+
+.dropdown-yellowBg.custom > .dropdown-menu li > a:hover {background:#f5b559!important;}
+
+.dropdown-yellowBg.custom > .dropdown-menu .active > a, 
+.dropdown-yellowBg.custom > .dropdown-menu .active > a:hover {background:#d27e07!important;}
+
+.dropdown.dropdown-yellowBg.custom .dropdown-menu .divider {
+	background-color: #c27509!important;
+	border-bottom: 1px solid #fdad3d!important;
+}
+
+/*red background*/
+.dropdown-redBg.custom.open > .dropdown-toggle, 
+.dropdown-redBg.custom.active > .dropdown-toggle, 
+.dropdown-redBg.custom.open.active > .dropdown-toggle, 
+.dropdown-redBg.custom > .dropdown-menu{
+	background-color:#bd362f!important;
+	border-color:#bd362f;
+}
+
+.dropdown-redBg.custom > .dropdown-menu li > a:hover {background:#e1463e!important;}
+
+.dropdown-redBg.custom > .dropdown-menu .active > a, 
+.dropdown-redBg.custom > .dropdown-menu .active > a:hover {background:#a8322b!important;}
+
+.dropdown-redBg.custom .dropdown-menu .divider {
+	background-color: #8b2c26!important;
+	border-bottom: 1px solid #f44e44!important;
+}
+
+/*brown background*/
+.dropdown-brownBg.custom.open > .dropdown-toggle, 
+.dropdown-brownBg.custom.active > .dropdown-toggle, 
+.dropdown-brownBg.custom.open.active > .dropdown-toggle, 
+.dropdown-brownBg.custom > .dropdown-menu {
+	background-color:#613737!important;
+	border-color:#613737;
+}
+
+.dropdown-brownBg.custom > .dropdown-menu li > a:hover {background:#804c4c!important;}
+
+.dropdown-brownBg.custom > .dropdown-menu .active > a, 
+.dropdown-brownBg.custom > .dropdown-menu .active > a:hover {background:#502f2f!important;}
+
+.dropdown-brownBg.custom .dropdown-menu .divider {
+	background-color: #311d1d!important;
+	border-bottom: 1px solid #8f5b5b!important;
+}
+
+/*purple background*/
+.dropdown-purpleBg.custom.open > .dropdown-toggle, 
+.dropdown-purpleBg.custom.active > .dropdown-toggle, 
+.dropdown-purpleBg.custom.open.active > .dropdown-toggle, 
+.dropdown-purpleBg.custom > .dropdown-menu {
+	background-color:#533761!important;
+	border-color:#533761;
+}
+
+.dropdown-purpleBg.custom > .dropdown-menu li > a:hover {background:#794f8d!important;}
+
+.dropdown-purpleBg.custom > .dropdown-menu .active > a, 
+.dropdown-purpleBg.custom > .dropdown-menu .active > a:hover {background:#493055!important;}
+
+.dropdown-purpleBg.custom .dropdown-menu .divider {
+	background-color: #2e1f36!important;
+	border-bottom: 1px solid #805794!important;
+}

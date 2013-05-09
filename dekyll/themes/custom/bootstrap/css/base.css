@@ -1,0 +1,136 @@
+body {
+	font-family: 'DroidSansRegular', Helvetica, Arial, sans-serif;
+	margin:0;
+	padding:0;
+	background-color:#404040;
+}
+.button-action .btn, 
+.brand, 
+h1, 
+h2, 
+h3, 
+h4, 
+h5, 
+h6 {
+	font-family: 'BebasNeueRegular', Helvetica, Arial, sans-serif;
+	font-weight:normal;
+}
+h5 {font-size:16px;}
+h6 {font-size:14px;}
+hr {border-top-color: #dedede;}
+.lead {
+	font-family: 'dekarregular', Helvetica, Arial, sans-serif;
+	font-weight:normal;
+	font-size:24px;
+}
+.lead.center {text-align:center;}
+.nav-header {font-size: 16px;}
+blockquote p {
+	font-family: Georgia, Helvetica, Arial, sans-serif;
+	font-size:22px;
+	font-style:italic;
+}
+blockquote small {
+	font-family: Helvetica, Arial, sans-serif;
+	font-size:11px;
+}
+address strong {
+	font-family: 'YanoneKaffeesatzRegular', Helvetica, Arial, sans-serif;
+	font-weight:normal;
+	font-size:200%;
+}
+
+/*description list*/
+dt {
+	margin-top:10px;
+	font-family: 'YanoneKaffeesatzRegular', Helvetica, Arial, sans-serif;
+	font-weight:normal;
+	font-size:20px;
+}
+dd {
+	font-size:12px;
+	position:relative;
+}
+dl.dl-icon dt {margin-top:25px;}
+dl.dl-icon dt:first-child {margin-top:0;}
+
+dl.dl-icon dd {margin: 10px 0 10px 50px;}
+dl.dl-icon dd .icon-wrapper {
+	position:absolute;
+	left:-40px;
+	top:0;
+	font-size:26px;
+}
+dl.dl-icon dd .icon-wrapper.circle {
+	width:30px;
+	height:30px;
+	font-size:16px;
+	line-height:30px;
+	text-align:center;
+	color:#fefefe;
+	background-color:#454545;
+	-webkit-border-radius: 50%;
+	-moz-border-radius: 50%;
+	border-radius: 50%;
+}
+dl.dl-icon dd .icon-wrapper.circle [class^="icon-"], 
+dl.dl-icon dd .icon-wrapper.circle [class*=" icon-"], 
+dl.dl-icon dd .icon-wrapper.circle [class^="micon-"], 
+dl.dl-icon dd .icon-wrapper.circle [class*=" micon-"] {
+	line-height: inherit;
+	margin:0;
+	padding:0;
+}
+dl.dl-icon dd p {margin:0;}
+
+dl.dl-inline dt, dl.dl-inline dd {text-align:center;}
+dl.dl-inline dt {margin-bottom:10px;}
+dl.dl-inline [class^="icon-"], 
+dl.dl-inline [class*=" icon-"], 
+dl.dl-inline [class^="micon-"], 
+dl.dl-inline [class*=" micon-"] {
+	display:block;
+	text-align:center;
+	font-size:35px;
+	margin:0;
+	padding:0;
+}
+
+/***************/
+
+input, 
+button, 
+select, 
+textarea {font-family: 'DroidSansRegular', Helvetica, Arial, sans-serif;}
+
+/*table*/
+.table thead th {
+	font-family: 'YanoneKaffeesatzRegular', Helvetica, Arial, sans-serif;
+	font-weight:normal;
+	font-size:20px;
+}
+.table-striped tbody tr:nth-child(odd) td, 
+.table-striped tbody tr:nth-child(odd) th,
+.table-hover tbody tr:hover td, 
+.table-hover tbody tr:hover th {background-color: rgba(0,0,0,0.04);}
+/* ******** */
+
+.table-bordered, 
+.dropdown-menu {
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
+}
+
+/*for demo*/
+ul.listing {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+ul.listing li {
+	display: inline-block;
+	margin: 0 5px 10px 0;
+}
+ul.listing.icons li {width:200px;}
+.btn-group {white-space: normal;}

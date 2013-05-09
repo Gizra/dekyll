@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+
+ROOT=$(git rev-parse --show-toplevel)
+cd $ROOT
+
+curl -s https://code.commerceguys.com/tools/hooks/commit-msg > .git/hooks/commit-msg
+chmod +x .git/hooks/commit-msg
+
+echo "Successfully installed commit-msg hook."
