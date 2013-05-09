@@ -44,6 +44,9 @@ projects[field_collection][version] = "1.0-beta5"
 projects[flag][subdir] = "contrib"
 projects[flag][version] = "2.0"
 
+projects[git_wrapper][subdir] = "contrib"
+projects[git_wrapper][version] = "1.0-rc2"
+
 projects[jquery_update][subdir] = "contrib"
 projects[jquery_update][version] = "2.3"
 
@@ -94,8 +97,3 @@ projects[views][version] = "3.5"
 
 projects[views_bulk_operations][subdir] = "contrib"
 projects[views_bulk_operations][version] = "3.1"
-
-; Libraries.
-libraries[php-git][type] = "libraries"
-libraries[php-git][download][type] = "git"
-libraries[php-git][download][url] = "git://github.com/teqneers/PHP-Stream-Wrapper-for-Git.git"
