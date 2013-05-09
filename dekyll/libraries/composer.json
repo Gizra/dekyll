@@ -2,6 +2,6 @@
     "require": {
         "cpliakas/git-wrapper": "1.0.0-RC1",
         "symfony/finder": "v2.3.0-BETA1",
-        "symfony/finder": "2.2.*"
+        "symfony/yaml": "v2.3.0-BETA1"
     }
 }
