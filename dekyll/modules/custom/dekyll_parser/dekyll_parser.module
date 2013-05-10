@@ -18,49 +18,107 @@ use Symfony\Component\Yaml\Dumper;
 
 function dekyll_parser_init() {
   $wrapper = new GitWrapper();
-
   $path = variable_get('file_public_path', conf_path() . '/files') . '/git';
-
   $git = $wrapper->workingCopy($path);
   if (!$git->isCloned()) {
     $git->clone('git@github.com:amitaibu/jekyll-bootstrap.git');
   }
+}
 
-  // Find files.
-  $finder = new Finder();
-  $finder
-    ->files()
-    ->in($path)
-    // @todo: Exclude directories with underscore except of _posts and _drafts
-    ->notPath('/^_.*|!_posts|!_drafts/')
-    ->notPath('assets');
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Add a setting to group content fields, to determine whether they will be
+ * displayed on the mini node form of the browsing widget.
+ */
+function dekyll_parser_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
+  $instance = $form['#instance'];
+  $form['instance']['settings']['jekyll_map'] = array(
+    '#title' => t('Jekyll variable name'),
+    '#description' => t("Map this field to a Jekyll YAML variable (e.g Drupal's <code>field_tags</code> will map to Jekyll's <code>tags</code>)."),
+    '#type' => 'textfield',
+    '#default_value' => !empty($instance['settings']['jekyll_map']) ? $instance['settings']['jekyll_map'] : '',
+  );
+}
 
+/**
+ * Implements hook_node_update().
+ */
+function dekyll_parser_node_update($node) {
+  if ($node->type != 'post') {
+    return;
+  }
 
-  foreach ($finder as $file) {
-    if ($file->getFilename() === 'archive.html') {
-      $contents = $file->getContents();
+  $wrapper = entity_metadata_wrapper('node', $node);
+  $overrides = array();
 
-      // Get the values from the YAML front header.
-      $split_contents = explode(YAML_SEPARATOR, $contents, 3);
-      $yaml_contents = $split_contents[1];
-      $text = $split_contents[2];
+  foreach (field_info_instances('node', 'post') as $field_name => $instance) {
+    if (empty($instance['settings']['jekyll_map'])) {
+      continue;
+    }
 
-      $yaml = new Parser();
-      $yaml_parsed = $yaml->parse($yaml_contents);
+    // The Jekyll variable name.
+    $jekyll = $instance['settings']['jekyll_map'];
+    $field = field_info_field($field_name);
 
-      $dumper = new Dumper();
-
-      $dump = array(
-        YAML_SEPARATOR,
-        // Dump the YAML expanded, and not inline.
-        $dumper->dump($yaml_parsed, 2) . "\n",
-        YAML_SEPARATOR,
-        $text,
-      );
-
-      // file_put_contents($file->getRealpath(), implode('', $dump));
-      return;
+    switch ($field['type']) {
+      case 'entityreference':
+      case 'taxonomy_term':
+        if ($field['cardinality'] == 1) {
+          $overrides[$jekyll] = $wrapper->{$field_name}->label();
+        }
+        else {
+          foreach ($wrapper->{$field_name} as $sub_wrapper) {
+            $overrides[$jekyll][] = $sub_wrapper->label();
+          }
+        }
+        break;
+      default:
+        if ($field['cardinality'] == 1) {
+          $overrides[$jekyll] = $wrapper->{$field_name}->value();
+        }
+        else {
+          foreach ($wrapper->{$field_name} as $sub_wrapper) {
+            $overrides[$jekyll][] = $sub_wrapper->value();
+          }
+        }
+        break;
     }
   }
 
+  $overrides['title'] = $wrapper->label();
+
+  $path = variable_get('file_public_path', conf_path() . '/files') . '/git';
+  $git_wrapper = new GitWrapper();
+  $git = $git_wrapper ->workingCopy($path);
+
+  $full_path = $path . '/' . $wrapper->field_full_path->value();
+
+  $contents = file_get_contents($full_path);
+
+  // Get the values from the YAML front header.
+  $split_contents = explode(YAML_SEPARATOR, $contents, 3);
+  $yaml_contents = $split_contents[1];
+  $text = $split_contents[2];
+
+  $yaml = new Parser();
+  $yaml_parsed = $yaml->parse($yaml_contents);
+
+  // Add the overrides.
+  $overrides = array_merge($yaml_parsed, $overrides);
+
+  $dumper = new Dumper();
+
+  $dump = array(
+    YAML_SEPARATOR,
+    // Dump the YAML expanded, and not inline.
+    $dumper->dump($overrides, 2) . "\n",
+    YAML_SEPARATOR,
+    $text,
+  );
+
+  file_put_contents($full_path, implode('', $dump));
+  $git
+    ->commit('Changes of file.')
+    ->push();
 }
