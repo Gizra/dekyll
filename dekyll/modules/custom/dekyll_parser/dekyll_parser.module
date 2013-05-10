@@ -48,19 +48,15 @@ function dekyll_parser_init() {
       $yaml = new Parser();
       $yaml_parsed = $yaml->parse($yaml_contents);
 
-      $yaml_parsed['title'] .= time();
-
       $dumper = new Dumper();
-
 
       $dump = array(
         YAML_SEPARATOR,
-        $dumper->dump($yaml_parsed) . "\n",
+        // Dump the YAML expanded, and not inline.
+        $dumper->dump($yaml_parsed, 2) . "\n",
         YAML_SEPARATOR,
         $text,
       );
-
-      dpm(implode('', $dump));
 
       // file_put_contents($file->getRealpath(), implode('', $dump));
       return;
