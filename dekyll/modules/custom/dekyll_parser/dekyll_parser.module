@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * Define the YAML front header separator.
+ */
+define('YAML_SEPARATOR', "---\n");
+
+/**
  * @file
  * Read and Write Jekyll files.
  */
@@ -9,6 +14,7 @@ require DRUPAL_ROOT . '/profiles/dekyll/libraries/vendor/autoload.php';
 use GitWrapper\GitWrapper;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Parser;
+use Symfony\Component\Yaml\Dumper;
 
 function dekyll_parser_init() {
   $wrapper = new GitWrapper();
@@ -26,7 +32,7 @@ function dekyll_parser_init() {
     ->files()
     ->in($path)
     // @todo: Exclude directories with underscore except of _posts and _drafts
-    ->notPath('/^_.*/')
+    ->notPath('/^_.*|!_posts|!_drafts/')
     ->notPath('assets');
 
 
@@ -35,14 +41,28 @@ function dekyll_parser_init() {
       $contents = $file->getContents();
 
       // Get the values from the YAML front header.
-      $split_contents = explode("---\n", $contents);
+      $split_contents = explode(YAML_SEPARATOR, $contents, 3);
       $yaml_contents = $split_contents[1];
-
+      $text = $split_contents[2];
 
       $yaml = new Parser();
-      $value = $yaml->parse($yaml_contents);
-      dpm($value);
+      $yaml_parsed = $yaml->parse($yaml_contents);
 
+      $yaml_parsed['title'] .= time();
+
+      $dumper = new Dumper();
+
+
+      $dump = array(
+        YAML_SEPARATOR,
+        $dumper->dump($yaml_parsed) . "\n",
+        YAML_SEPARATOR,
+        $text,
+      );
+
+      dpm(implode('', $dump));
+
+      // file_put_contents($file->getRealpath(), implode('', $dump));
       return;
     }
   }
