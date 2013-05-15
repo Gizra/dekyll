@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Dekyll Post feature.
+ */
+
+include_once 'dekyll_post.features.inc';
