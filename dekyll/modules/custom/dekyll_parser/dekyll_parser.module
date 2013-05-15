@@ -9,7 +9,9 @@ define('YAML_SEPARATOR', "---\n");
  * @file
  * Read and Write Jekyll files.
  */
-require DRUPAL_ROOT . '/profiles/dekyll/libraries/vendor/autoload.php';
+
+// @todo: Move under profile?
+require DRUPAL_ROOT . '/sites/all/libraries/composer/autoload.php';
 
 use GitWrapper\GitWrapper;
 use Symfony\Component\Finder\Finder;

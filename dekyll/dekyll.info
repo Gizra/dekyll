@@ -56,5 +56,5 @@ dependencies[] = views_ui
 dependencies[] = views_bulk_operations
 
 ; Custom modules
-dependencies[] = dekyll_parser
+; dependencies[] = dekyll_parser
 dependencies[] = dekyll_post
