@@ -57,7 +57,7 @@ function dekyll_install_tasks() {
  * Task callback; Setup blocks.
  */
 function dekyll_setup_blocks() {
-  $default_theme = 'bootstrap';
+  $default_theme = 'bartik';
 
   $blocks = array();
 
@@ -164,7 +164,7 @@ function dekyll_set_permissions() {
 function dekyll_set_variables() {
   $variables = array(
     // Set the default theme.
-    'theme_default' => 'bootstrap',
+    'theme_default' => 'bartik',
     'admin_theme' => 'seven',
     // Date/Time settings.
     'date_default_timezone' => 'Asia/Jerusalem',

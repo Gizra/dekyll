@@ -10,15 +10,15 @@ define('YAML_SEPARATOR', "---\n");
  * Read and Write Jekyll files.
  */
 
-// @todo: Move under profile?
-require DRUPAL_ROOT . '/sites/all/libraries/composer/autoload.php';
-
 use GitWrapper\GitWrapper;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Dumper;
 
 function dekyll_parser_init() {
+// @todo: Move under profile?
+  require DRUPAL_ROOT . '/sites/all/libraries/composer/autoload.php';
+  
   $wrapper = new GitWrapper();
   $path = variable_get('file_public_path', conf_path() . '/files') . '/git';
   $git = $wrapper->workingCopy($path);
