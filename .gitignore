@@ -1,0 +1,7 @@
+www/
+dekyll/modules/contrib/
+dekyll/modules/themes/
+
+dekyll/libraries/vendor/
+composer.lock
+composer.phar
