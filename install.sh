@@ -8,10 +8,9 @@ cd www
 mkdir sites/default/files
 chmod -R 777 sites/default/files
 
-# todo: Move this to a better place
-drush dl composer-8.x-1.0-alpha10 -n
-drush vset composer_manager_vendor_dir profiles/dekyll/libraries/composer
-drush composer-manager install
+# Get composer
+curl -sS https://getcomposer.org/installer | php
+php composer.phar install --working-dir="./libraries"
 
 drush si -y dekyll --account-pass=admin --db-url=mysql://root:root@localhost/dekyll
-drush mi --all --user=1
+drush vset dekyll_git_repository 'git@github.com:amitaibu/jekyll-bootstrap.git'

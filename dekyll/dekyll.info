@@ -28,7 +28,6 @@ dependencies[] = taxonomy
 ; Contrib modules
 dependencies[] = admin_menu_toolbar
 dependencies[] = admin_views
-dependencies[] = composer_manager
 dependencies[] = ctools
 dependencies[] = date
 dependencies[] = devel
