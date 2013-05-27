@@ -230,13 +230,15 @@ function drush_jekyll_file_to_node($file_path, $nid = NULL) {
 
   $text = $split_contents[2];
 
+  // @todo: Be smarter about the type.
+  $bundle = 'post';
+
   if ($nid) {
     $wrapper = entity_metadata_wrapper('node', $nid);
   }
   else {
     $node = (object) array(
-      // @todo: Be smarter about the type.
-      'type' => 'post',
+      'type' => $bundle,
       // @todo: Set to another user.
       'uid' => 1,
     );
@@ -266,6 +268,79 @@ function drush_jekyll_file_to_node($file_path, $nid = NULL) {
   // Add the text to the body field.
   $wrapper->body->set(array('value' => $text, 'format' => 'full_html'));
   $wrapper->field_full_path->set($file_path);
+
+
+  // Set the layout.
+  $layout = !empty($yaml_parsed['layout']) ? $yaml_parsed['layout'] : 'default';
+
+  // Get the term of the layout, or add a new one if doesn't exist.
+  // @todo: Make more generic.
+  // Check if the vocabulary exists, or create a new one.
+  $vocab_name = 'layout';
+
+  $field_name = 'field_' . $vocab_name;
+
+  if (!$vocabulary = taxonomy_vocabulary_machine_name_load($vocab_name)) {
+    // Create a vocabulary.
+    $vocabulary = new stdClass();
+    $vocabulary->name = $vocab_name;
+    $vocabulary->machine_name = trim(drupal_strtolower(str_replace(' ', '_', $vocab_name)));
+    taxonomy_vocabulary_save($vocabulary);
+
+    // Attach a taxonomy term field to the bundle.
+    if (!field_info_field($field_name)) {
+      $field = array(
+        'field_name' => $field_name,
+        'type' => 'taxonomy_term_reference',
+        // @todo: Be smarter about cardinality.
+        'cardinality' => 1,
+        'settings' => array(
+          'allowed_values' => array(
+            array(
+              'vocabulary' => $vocab_name,
+              'parent' => 0,
+            ),
+          ),
+        ),
+      );
+      field_create_field($field);
+    }
+
+    if (!field_info_instance('node', $field_name, $bundle)) {
+      $instance = array(
+        'field_name' => $field_name,
+        'entity_type' => 'node',
+        'label' => $layout,
+        'bundle' => $bundle,
+        'widget' => array(
+          'type' => 'select',
+          'weight' => -4,
+        ),
+        'display' => array(
+          'default' => array(
+            'type' => 'taxonomy_term_reference_link',
+            'weight' => 10,
+          ),
+          'teaser' => array(
+            'type' => 'taxonomy_term_reference_link',
+            'weight' => 10,
+          ),
+        ),
+      );
+      field_create_instance($instance);
+    }
+  }
+
+  if (!$term = taxonomy_get_term_by_name($layout, $vocab_name)) {
+    $values = array(
+      'name' => $layout,
+      'vid' => $vocabulary->vid,
+    );
+    $term = entity_create('taxonomy_term', $values);
+    taxonomy_term_save($term);
+  }
+
+  $wrapper->{$field_name}->set($term);
   $wrapper->save();
 
   return $wrapper->value();
