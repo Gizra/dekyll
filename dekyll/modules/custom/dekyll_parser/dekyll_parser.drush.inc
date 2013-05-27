@@ -219,7 +219,9 @@ function drush_jekyll_file_to_node($file_path, $nid = NULL) {
   $contents = file_get_contents($path . '/' . $file_path);
 
   // Get the values from the YAML front header.
-  $split_contents = explode(YAML_SEPARATOR, $contents, 3);
+  // @todo: Isn't there a line break?
+  $split_contents = explode('---', $contents, 3);
+
   $text = $split_contents[2];
 
   if ($nid) {
@@ -241,6 +243,7 @@ function drush_jekyll_file_to_node($file_path, $nid = NULL) {
 
   // Add the text to the body field.
   $wrapper->body->set(array('value' => $text, 'text_format' => 'full_html'));
+  $wrapper->field_full_path->set($file_path);
   $wrapper->save();
 
   return $wrapper->value();
