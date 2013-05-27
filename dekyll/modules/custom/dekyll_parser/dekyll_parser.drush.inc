@@ -22,6 +22,9 @@ function dekyll_parser_drush_command() {
 
   $items['dekyll-sync'] = array(
     'description' => dt('Sync Drupal with Jekyll.'),
+    'options' => array(
+      'force' => dt('Optional. Force re-sync even if the file did not change.'),
+    ),
   );
 
   $items['dekyll-clone'] = array(
@@ -147,6 +150,7 @@ function drush_dekyll_parser_dekyll_write_file() {
 function drush_dekyll_parser_dekyll_sync() {
   $path = variable_get('file_public_path', conf_path() . '/files') . '/git';
 
+
   $git_wrapper = new GitWrapper();
   $git = $git_wrapper->workingCopy($path);
 
@@ -171,11 +175,13 @@ function drush_dekyll_parser_dekyll_sync() {
     ->path('_posts')
     ->notPath('assets');
 
+  $force_sync = drush_get_option('force');
+
   foreach ($finder as $file) {
     // Check if we have this file in the map.
     $file_path = $file->getRelativePathname();
     $hash = trim($git->run(array('hash-object ' . $file_path)));
-    if (!empty($map[$file_path])) {
+    if (!empty($map[$file_path]) && !$force_sync) {
       // Check if the hash changed.
       if ($hash == $map[$file_path]['hash']) {
         // File didn't change.
@@ -229,8 +235,6 @@ function drush_jekyll_file_to_node($file_path, $nid = NULL) {
   }
   else {
     $node = (object) array(
-      // @todo: Put the real title.
-      'title' => $file_path,
       // @todo: Be smarter about the type.
       'type' => 'post',
       // @todo: Set to another user.
@@ -241,8 +245,26 @@ function drush_jekyll_file_to_node($file_path, $nid = NULL) {
     $wrapper = entity_metadata_wrapper('node', $node);
   }
 
+  //
+  $yaml = new Parser();
+  $yaml_parsed = $yaml->parse($split_contents[1]);
+
+  if (!empty($yaml_parsed['title'])) {
+    $title = $yaml_parsed['title'];
+  }
+  elseif (!empty($yaml_parsed['tagline'])) {
+    // No title found, try the tagline.
+    $title = $yaml_parsed['tagline'];
+  }
+  else {
+    // Fallback to the file path.
+    $title = $file_path;
+  }
+
+  $wrapper->title->set($title);
+
   // Add the text to the body field.
-  $wrapper->body->set(array('value' => $text, 'text_format' => 'full_html'));
+  $wrapper->body->set(array('value' => $text, 'format' => 'full_html'));
   $wrapper->field_full_path->set($file_path);
   $wrapper->save();
 
