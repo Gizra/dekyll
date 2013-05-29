@@ -42,7 +42,7 @@ projects[flag][subdir] = "contrib"
 projects[flag][version] = "2.0"
 
 projects[github_connect][subdir] = "contrib"
-projects[github_connect][version] = "2.0"
+projects[github_connect][version] = "1.1"
 
 projects[jquery_update][subdir] = "contrib"
 projects[jquery_update][version] = "2.3"
