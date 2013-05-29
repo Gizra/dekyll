@@ -196,7 +196,7 @@ function drush_dekyll_parser_dekyll_sync() {
       }
     }
 
-    $nid = !empty($map[$file_path]['nid']) ? $map[$file_path]['nid'] : NULL;
+    $nid = !empty($map[$file_path]['nid']) && !$force_sync ? $map[$file_path]['nid'] : NULL;
 
     // Create node.
     $node = drush_jekyll_file_to_node($file_path, $gid, $nid);
