@@ -149,7 +149,8 @@ function drush_dekyll_parser_dekyll_write_file() {
  * Sync Drupal with Jekyll.
  *
  * Iterate over all the files and create or update a node to link to them.
- * We use _dekyll.yml file to hold each file, its hash and the related node ID.
+ * We use .dekyll/node_map.yml file to hold each file, its hash and the related
+ * node ID.
  */
 function drush_dekyll_parser_dekyll_sync() {
   if (!$gid = drush_get_option('id')) {
@@ -163,9 +164,10 @@ function drush_dekyll_parser_dekyll_sync() {
 
   // Map file path to the node ID.
   $map = array();
-  if (file_exists($path . '/_dekyll.yml')) {
+  $map_path = $path . '/.dekyll/node_map.yml';
+  if (file_exists($map_path)) {
     // Open the _dekyll.yml and get the map.
-    $contents = file_get_contents($path . '/_dekyll.yml');
+    $contents = file_get_contents($map_path);
 
     // Get the map.
     $yaml = new Parser();
@@ -197,22 +199,21 @@ function drush_dekyll_parser_dekyll_sync() {
     $nid = !empty($map[$file_path]['nid']) && !$force_sync ? $map[$file_path]['nid'] : NULL;
 
     // Create node.
-    $node = drush_jekyll_file_to_node($file_path, $gid, $nid);
-    $map[$file_path] = array(
-      'hash' => $hash,
-      'nid' => $node->nid,
-    );
+    if ($node = drush_jekyll_file_to_node($file_path, $gid, $nid)) {
+      $map[$file_path] = array(
+        'hash' => $hash,
+        'nid' => $node->nid,
+      );
+    }
   }
 
   // Write the map to file.
-  $dumper = new Dumper();
-  file_put_contents($path . '/_dekyll.yml', $dumper->dump($map, 2));
-
-  if ($git->hasChanges()) {
-    $git->add('./_dekyll.yml')
-      ->commit('Update _dekyll.yml file')
-      ->push();
+  if (!file_exists($path . '/.dekyll')) {
+    drupal_mkdir($path . '/.dekyll');
   }
+
+  $dumper = new Dumper();
+  file_put_contents($map_path, $dumper->dump($map, 2));
 
   return TRUE;
 }
@@ -229,10 +230,14 @@ function drush_jekyll_file_to_node($file_path, $gid, $nid = NULL) {
   $path = dekyll_og_get_repo_path($gid);
   $contents = file_get_contents($path . '/' . $file_path);
 
+  if (strpos($contents, '---') !== 0) {
+    // File doesn't have YAML front matter.
+    return;
+  }
+
   // Get the values from the YAML front header.
   // @todo: Isn't there a line break?
   $split_contents = explode('---', $contents, 3);
-
   $text = $split_contents[2];
 
   // @todo: Be smarter about the type.
