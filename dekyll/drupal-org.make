@@ -29,9 +29,6 @@ projects[entityreference][version] = "1.0"
 projects[entityreference_prepopulate][subdir] = "contrib"
 projects[entityreference_prepopulate][version] = "1.3"
 
-projects[fboauth][subdir] = "contrib"
-projects[fboauth][version] = "1.6"
-
 projects[features][subdir] = "contrib"
 projects[features][version] = "1.0"
 
@@ -43,6 +40,9 @@ projects[field_collection][version] = "1.0-beta5"
 
 projects[flag][subdir] = "contrib"
 projects[flag][version] = "2.0"
+
+projects[github_connect][subdir] = "contrib"
+projects[github_connect][version] = "2.0"
 
 projects[jquery_update][subdir] = "contrib"
 projects[jquery_update][version] = "2.3"

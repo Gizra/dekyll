@@ -76,8 +76,8 @@ function dekyll_setup_blocks() {
   );
 
   $blocks[] = array(
-    'module' => 'fboauth',
-    'delta' => 'login',
+    'module' => 'github_connect',
+    'delta' => 'github_connect-login',
     'theme' => $default_theme,
     'status' => 1,
     'weight' => 0,
