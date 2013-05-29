@@ -5,3 +5,5 @@ dekyll/modules/themes/
 dekyll/libraries/vendor/
 composer.lock
 composer.phar
+
+install.sh
