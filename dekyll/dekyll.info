@@ -39,13 +39,15 @@ dependencies[] = entityreference_prepopulate
 dependencies[] = fboauth
 dependencies[] = features
 dependencies[] = field_collection
-dependencies[] = git_wrapper
 dependencies[] = jquery_update
+dependencies[] = libraries
 dependencies[] = message_notify
 dependencies[] = migrate_ui
 dependencies[] = module_filter
-dependencies[] = libraries
 dependencies[] = nodequeue
+dependencies[] = og_context
+dependencies[] = og_ui
+dependencies[] = og_vocab
 dependencies[] = strongarm
 dependencies[] = title
 dependencies[] = token
@@ -55,5 +57,6 @@ dependencies[] = views_ui
 dependencies[] = views_bulk_operations
 
 ; Custom modules
-; dependencies[] = dekyll_parser
+dependencies[] = dekyll_parser
+dependencies[] = dekyll_og
 dependencies[] = dekyll_post

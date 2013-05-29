@@ -1,0 +1,40 @@
+<?php
+/**
+ * @file
+ * Code for the Dekyll OG feature.
+ */
+
+include_once 'dekyll_og.features.inc';
+
+/**
+ * Implements hook_node_insert()
+ *
+ * Add queue item to clone repo.
+ */
+function dekyll_og_node_insert($node) {
+  if ($node->type != 'repository') {
+    return;
+  }
+
+  $queue = DrupalQueue::get('dekyll_clone');
+  $data = array(
+    'gid' => $node->nid,
+  );
+  $queue->createItem($data);
+}
+
+/**
+ * Return the repository path.
+ *
+ * @param $gid
+ *   The group ID.
+ *
+ * @return
+ *   The relative path.
+ */
+function dekyll_og_get_repo_path($gid) {
+  $wrapper = entity_metadata_wrapper('node', $gid);
+
+  $repository = str_replace(array('http://', 'https://'), '', $wrapper->field_url->value());
+  return variable_get('file_public_path', conf_path() . '/files') . '/' . $repository;
+}

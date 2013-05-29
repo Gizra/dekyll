@@ -24,6 +24,8 @@ function dekyll_parser_drush_command() {
     'description' => dt('Sync Drupal with Jekyll.'),
     'options' => array(
       'force' => dt('Optional. Force re-sync even if the file did not change.'),
+      // @todo: Allow passing multiple IDs?
+      'id' => dt('The node ID of the repository, to sync'),
     ),
   );
 
@@ -44,7 +46,9 @@ function drush_dekyll_parser_dekyll_write_file() {
   }
 
   // "git pull" before writing the file.
-  $path = variable_get('file_public_path', conf_path() . '/files') . '/git';
+  $gid = $queue_item->data['gid'];
+  $path = dekyll_og_get_repo_path($gid);
+
   $git_wrapper = new GitWrapper();
   $git = $git_wrapper ->workingCopy($path);
 
@@ -148,8 +152,11 @@ function drush_dekyll_parser_dekyll_write_file() {
  * We use _dekyll.yml file to hold each file, its hash and the related node ID.
  */
 function drush_dekyll_parser_dekyll_sync() {
-  $path = variable_get('file_public_path', conf_path() . '/files') . '/git';
+  if (!$gid = drush_get_option('id')) {
+    return;
+  }
 
+  $path = dekyll_og_get_repo_path($gid);
 
   $git_wrapper = new GitWrapper();
   $git = $git_wrapper->workingCopy($path);
@@ -192,7 +199,7 @@ function drush_dekyll_parser_dekyll_sync() {
     $nid = !empty($map[$file_path]['nid']) ? $map[$file_path]['nid'] : NULL;
 
     // Create node.
-    $node = drush_jekyll_file_to_node($file_path, $nid);
+    $node = drush_jekyll_file_to_node($file_path, $gid, $nid);
     $map[$file_path] = array(
       'hash' => $hash,
       'nid' => $node->nid,
@@ -220,8 +227,8 @@ function drush_dekyll_parser_dekyll_sync() {
  * @param $file_path
  *   The file full path.
  */
-function drush_jekyll_file_to_node($file_path, $nid = NULL) {
-  $path = variable_get('file_public_path', conf_path() . '/files') . '/git';
+function drush_jekyll_file_to_node($file_path, $gid, $nid = NULL) {
+  $path = dekyll_og_get_repo_path($gid);
   $contents = file_get_contents($path . '/' . $file_path);
 
   // Get the values from the YAML front header.
@@ -247,7 +254,6 @@ function drush_jekyll_file_to_node($file_path, $nid = NULL) {
     $wrapper = entity_metadata_wrapper('node', $node);
   }
 
-  //
   $yaml = new Parser();
   $yaml_parsed = $yaml->parse($split_contents[1]);
 
@@ -278,57 +284,23 @@ function drush_jekyll_file_to_node($file_path, $nid = NULL) {
   // Check if the vocabulary exists, or create a new one.
   $vocab_name = 'layout';
 
-  $field_name = 'field_' . $vocab_name;
+  // Prefix the machine name with the group ID.
+  $machine_name = trim(drupal_strtolower(str_replace(' ', '_', $vocab_name))) . '_' . $gid;
 
-  if (!$vocabulary = taxonomy_vocabulary_machine_name_load($vocab_name)) {
+  if (!$vocabulary = taxonomy_vocabulary_machine_name_load($machine_name)) {
     // Create a vocabulary.
     $vocabulary = new stdClass();
     $vocabulary->name = $vocab_name;
-    $vocabulary->machine_name = trim(drupal_strtolower(str_replace(' ', '_', $vocab_name)));
+    $vocabulary->machine_name = $machine_name;
     taxonomy_vocabulary_save($vocabulary);
 
-    // Attach a taxonomy term field to the bundle.
-    if (!field_info_field($field_name)) {
-      $field = array(
-        'field_name' => $field_name,
-        'type' => 'taxonomy_term_reference',
-        // @todo: Be smarter about cardinality.
-        'cardinality' => 1,
-        'settings' => array(
-          'allowed_values' => array(
-            array(
-              'vocabulary' => $vocab_name,
-              'parent' => 0,
-            ),
-          ),
-        ),
-      );
-      field_create_field($field);
-    }
+    // Associate with the group.
+    $vid = $vocabulary->vid;
+    og_vocab_relation_save($vid, 'node', $gid);
 
-    if (!field_info_instance('node', $field_name, $bundle)) {
-      $instance = array(
-        'field_name' => $field_name,
-        'entity_type' => 'node',
-        'label' => $layout,
-        'bundle' => $bundle,
-        'widget' => array(
-          'type' => 'select',
-          'weight' => -4,
-        ),
-        'display' => array(
-          'default' => array(
-            'type' => 'taxonomy_term_reference_link',
-            'weight' => 10,
-          ),
-          'teaser' => array(
-            'type' => 'taxonomy_term_reference_link',
-            'weight' => 10,
-          ),
-        ),
-      );
-      field_create_instance($instance);
-    }
+    // Create an OG-vocab.
+    $og_vocab = og_vocab_create_og_vocab($vid, 'node', $bundle);
+    $og_vocab->save();
   }
 
   if (!$term = taxonomy_get_term_by_name($layout, $vocab_name)) {
@@ -340,7 +312,16 @@ function drush_jekyll_file_to_node($file_path, $nid = NULL) {
     taxonomy_term_save($term);
   }
 
-  $wrapper->{$field_name}->set($term);
+  $term = is_array($term) ? reset($term) : $term;
+
+  $terms = array();
+  $terms[] = $term;
+
+  // Add term to the OG-Vocab field.
+  $wrapper->{OG_VOCAB_FIELD}->set($terms);
+
+  // Set the group.
+  $wrapper->{OG_AUDIENCE_FIELD}->set($gid);
   $wrapper->save();
 
   return $wrapper->value();
@@ -350,14 +331,28 @@ function drush_jekyll_file_to_node($file_path, $nid = NULL) {
  * Clone a Git repository.
  */
 function drush_dekyll_parser_dekyll_clone() {
-  if (!$repository = variable_get('dekyll_git_repository')) {
-    throw new Exception('Git repository does not exist.');
+  $queue = DrupalQueue::get('dekyll_clone');
+  if (!$queue_item = $queue->claimItem()) {
+    return;
   }
 
-  $wrapper = new GitWrapper();
-  $path = variable_get('file_public_path', conf_path() . '/files') . '/git';
-  $git = $wrapper->workingCopy($path);
-  if (!$git->isCloned() && !$git->clone($repository)) {
-    throw new Exception(format_string('Git repository @repo could not be cloned.', array('@repo' => $repository)));
+  $gid = $queue_item->data['gid'];
+  $wrapper = entity_metadata_wrapper('node', $gid);
+  $credentials = $wrapper->field_git_credentials->value();
+  $path = dekyll_og_get_repo_path($gid);
+
+  $git_wrapper = new GitWrapper();
+  $git = $git_wrapper->workingCopy($path);
+
+  if ($git->isCloned()) {
+    return;
   }
+
+  if (!$git->clone($credentials)) {
+    throw new Exception(format_string('Git repository could not be cloned with @credentials.', array('@credentials' => $credentials)));
+  }
+
+  // Save clone status.
+  $wrapper->field_repo_status->set('cloned');
+  $wrapper->save();
 }

@@ -51,8 +51,11 @@ function dekyll_parser_write_file($node) {
     return;
   }
 
+  $wrapper = entity_metadata_wrapper('node', $node);
+
   $queue = DrupalQueue::get('dekyll_write');
   $data = array(
+    'gid' => $wrapper->{OG_AUDIENCE_FIELD}->value(array('identifier' => TRUE)),
     'nid' => $node->nid,
     // @todo: Remove hardcoding and use a varabile that has all branches we care
     // about.
@@ -61,3 +64,5 @@ function dekyll_parser_write_file($node) {
   );
   $queue->createItem($data);
 }
+
+

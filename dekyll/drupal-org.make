@@ -44,9 +44,6 @@ projects[field_collection][version] = "1.0-beta5"
 projects[flag][subdir] = "contrib"
 projects[flag][version] = "2.0"
 
-projects[git_wrapper][subdir] = "contrib"
-projects[git_wrapper][version] = "1.0-rc2"
-
 projects[jquery_update][subdir] = "contrib"
 projects[jquery_update][version] = "2.3"
 
@@ -76,6 +73,12 @@ projects[module_filter][version] = 1.7
 
 projects[nodequeue][subdir] = "contrib"
 projects[nodequeue][version] = "2.0-beta1"
+
+projects[og][subdir] = "contrib"
+projects[og][version] = "2.2"
+
+projects[og_vocab][subdir] = "contrib"
+projects[og_vocab][version] = "1.1"
 
 projects[pathauto][subdir] = "contrib"
 projects[pathauto][version] = "1.1"

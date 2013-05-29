@@ -161,11 +161,11 @@ function dekyll_post_field_default_fields() {
       'entity_types' => array(),
       'field_name' => 'field_layout',
       'foreign keys' => array(
-        'node' => array(
+        'taxonomy_term_data' => array(
           'columns' => array(
-            'target_id' => 'nid',
+            'target_id' => 'tid',
           ),
-          'table' => 'node',
+          'table' => 'taxonomy_term_data',
         ),
       ),
       'indexes' => array(
@@ -252,11 +252,210 @@ function dekyll_post_field_default_fields() {
     ),
   );
 
+  // Exported field: 'node-post-og_group_ref'.
+  $fields['node-post-og_group_ref'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'og_group_ref',
+      'foreign keys' => array(
+        'node' => array(
+          'columns' => array(
+            'target_id' => 'nid',
+          ),
+          'table' => 'node',
+        ),
+      ),
+      'indexes' => array(
+        'target_id' => array(
+          0 => 'target_id',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'entityreference',
+      'settings' => array(
+        'handler' => 'og',
+        'handler_settings' => array(
+          'behaviors' => array(
+            'og_behavior' => array(
+              'status' => TRUE,
+            ),
+            'views-select-list' => array(
+              'status' => 0,
+            ),
+          ),
+          'membership_type' => 'og_membership_type_default',
+          'sort' => array(
+            'type' => 'none',
+          ),
+          'target_bundles' => array(
+            'repository' => 'repository',
+          ),
+        ),
+        'handler_submit' => 'Change handler',
+        'target_type' => 'node',
+      ),
+      'target_type' => 'node',
+      'translatable' => '0',
+      'type' => 'entityreference',
+    ),
+    'field_instance' => array(
+      'bundle' => 'post',
+      'default_value' => NULL,
+      'default_value_function' => 'entityreference_prepopulate_field_default_value',
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'og_ui',
+          'settings' => array(),
+          'type' => 'og_list_default',
+          'weight' => 3,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'og_group_ref',
+      'label' => 'Repository',
+      'required' => 1,
+      'settings' => array(
+        'behaviors' => array(
+          'og_widget' => array(
+            'admin' => array(
+              'widget_type' => 'entityreference_autocomplete',
+            ),
+            'default' => array(
+              'widget_type' => 'options_select',
+            ),
+            'status' => TRUE,
+          ),
+          'prepopulate' => array(
+            'action' => 'hide',
+            'action_on_edit' => 1,
+            'fallback' => 'redirect',
+            'og_context' => 1,
+            'skip_perm' => '0',
+            'status' => 1,
+          ),
+        ),
+        'user_register_form' => FALSE,
+      ),
+      'view modes' => array(
+        'full' => array(
+          'custom settings' => FALSE,
+          'label' => 'Full',
+          'type' => 'og_list_default',
+        ),
+        'teaser' => array(
+          'custom settings' => FALSE,
+          'label' => 'Teaser',
+          'type' => 'og_list_default',
+        ),
+      ),
+      'widget' => array(
+        'active' => 0,
+        'module' => 'og',
+        'settings' => array(),
+        'type' => 'og_complex',
+        'weight' => -1,
+      ),
+    ),
+  );
+
+  // Exported field: 'node-post-og_vocabulary'.
+  $fields['node-post-og_vocabulary'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '-1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'og_vocabulary',
+      'foreign keys' => array(
+        'taxonomy_term_data' => array(
+          'columns' => array(
+            'target_id' => 'tid',
+          ),
+          'table' => 'taxonomy_term_data',
+        ),
+      ),
+      'indexes' => array(
+        'target_id' => array(
+          0 => 'target_id',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'entityreference',
+      'settings' => array(
+        'handler' => 'base',
+        'handler_settings' => array(
+          'behaviors' => array(
+            'og_vocab' => array(
+              'status' => TRUE,
+            ),
+            'taxonomy-index' => array(
+              'status' => TRUE,
+            ),
+          ),
+          'target_bundles' => array(),
+        ),
+        'target_type' => 'taxonomy_term',
+      ),
+      'translatable' => '0',
+      'type' => 'entityreference',
+    ),
+    'field_instance' => array(
+      'bundle' => 'post',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'og_vocab',
+          'settings' => array(
+            'concatenate' => FALSE,
+          ),
+          'type' => 'og_vocab',
+          'weight' => 4,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'og_vocabulary',
+      'label' => 'OG vocabulary',
+      'required' => FALSE,
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'module' => 'og_vocab',
+        'settings' => array(),
+        'type' => 'og_vocab_complex',
+        'weight' => 0,
+      ),
+    ),
+  );
+
   // Translatables
   // Included for use with string extractors like potx.
   t('Body');
   t('Full path');
   t('Layout');
+  t('OG vocabulary');
+  t('Repository');
 
   return $fields;
 }
