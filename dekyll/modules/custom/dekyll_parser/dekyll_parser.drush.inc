@@ -177,7 +177,6 @@ function drush_dekyll_parser_dekyll_sync() {
   $finder
     ->files()
     ->in($path)
-    // @todo: Exclude directories with underscore except of _posts and _drafts
     ->notPath('/^_(?!posts|drafts)/')
     ->notPath('assets');
 
