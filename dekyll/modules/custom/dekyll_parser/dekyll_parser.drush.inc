@@ -344,11 +344,7 @@ function drush_dekyll_parser_dekyll_clone() {
   $git_wrapper = new GitWrapper();
   $git = $git_wrapper->workingCopy($path);
 
-  if ($git->isCloned()) {
-    return;
-  }
-
-  if (!$git->clone($credentials)) {
+  if (!$git->isCloned() && !$git->clone($credentials)) {
     throw new Exception(format_string('Git repository could not be cloned with @credentials.', array('@credentials' => $credentials)));
   }
 
