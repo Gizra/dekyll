@@ -338,7 +338,7 @@ function drush_dekyll_parser_dekyll_clone() {
 
   $gid = $queue_item->data['gid'];
   $wrapper = entity_metadata_wrapper('node', $gid);
-  $credentials = $wrapper->field_git_credentials->value();
+  $credentials = $wrapper->field_repo_credentials->value();
   $path = dekyll_og_get_repo_path($gid);
 
   $git_wrapper = new GitWrapper();

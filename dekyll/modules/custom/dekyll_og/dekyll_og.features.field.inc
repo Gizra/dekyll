@@ -10,14 +10,14 @@
 function dekyll_og_field_default_fields() {
   $fields = array();
 
-  // Exported field: 'node-repository-field_git_credentials'.
-  $fields['node-repository-field_git_credentials'] = array(
+  // Exported field: 'node-repository-field_repo_credentials'.
+  $fields['node-repository-field_repo_credentials'] = array(
     'field_config' => array(
       'active' => '1',
       'cardinality' => '1',
       'deleted' => '0',
       'entity_types' => array(),
-      'field_name' => 'field_git_credentials',
+      'field_name' => 'field_repo_credentials',
       'foreign keys' => array(
         'format' => array(
           'columns' => array(
@@ -60,7 +60,7 @@ function dekyll_og_field_default_fields() {
         ),
       ),
       'entity_type' => 'node',
-      'field_name' => 'field_git_credentials',
+      'field_name' => 'field_repo_credentials',
       'label' => 'Credentials',
       'required' => 1,
       'settings' => array(
