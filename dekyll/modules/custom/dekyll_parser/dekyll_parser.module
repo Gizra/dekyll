@@ -11,6 +11,102 @@ define('YAML_SEPARATOR', "---\n");
  */
 
 /**
+ * Implements hook_ctools_plugin_directory().
+ */
+function dekyll_parser_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'dekyll_parser') {
+    return 'plugins/' . $plugin;
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function dekyll_parser_ctools_plugin_api($module, $api) {
+  if ($module == 'dekyll_parser' && in_array($api, 'config_sync', 'content_sync')) {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_type().
+ */
+function dekyll_parser_ctools_plugin_type() {
+  $plugins['config_sync'] = array(
+    'classes' => array('class'),
+    'process' => 'dekyll_parser_config_sync_plugin_process',
+  );
+
+  $plugins['content_sync'] = array(
+    'classes' => array('class'),
+    'process' => 'dekyll_parser_content_sync_plugin_process',
+  );
+  return $plugins;
+}
+
+/**
+ * Add defaults values to the notifier plugins.
+ */
+function dekyll_parser_config_sync_plugin_process(&$plugin, $info) {
+  $plugin += array(
+    'description' => '',
+    'options' => array(),
+  );
+
+  $plugin['options'] += array();
+}
+
+/**
+ * Helper function to include CTools plugins and get a notifier plguin.
+ *
+ * @param $plugin_name
+ *   The plugin that should be laoded.
+ */
+function dekyll_parser_get_config_sync($plugin_name) {
+  ctools_include('plugins');
+  return ctools_get_plugins('dekyll_parser', 'config_sync', $plugin_name);
+}
+
+/**
+ * Helper function to include CTools plugins and get all notifier plugins.
+ */
+function dekyll_parser_get_config_syncs() {
+  ctools_include('plugins');
+  return ctools_get_plugins('dekyll_parser', 'config_sync');
+}
+
+/**
+ * Add defaults values to the notifier plugins.
+ */
+function dekyll_parser_content_sync_plugin_process(&$plugin, $info) {
+  $plugin += array(
+    'description' => '',
+    'options' => array(),
+  );
+
+  $plugin['options'] += array();
+}
+
+/**
+ * Helper function to include CTools plugins and get a notifier plguin.
+ *
+ * @param $plugin_name
+ *   The plugin that should be laoded.
+ */
+function dekyll_parser_get_content_sync($plugin_name) {
+  ctools_include('plugins');
+  return ctools_get_plugins('dekyll_parser', 'content_sync', $plugin_name);
+}
+
+/**
+ * Helper function to include CTools plugins and get all notifier plugins.
+ */
+function dekyll_parser_get_content_syncs() {
+  ctools_include('plugins');
+  return ctools_get_plugins('dekyll_parser', 'content_sync');
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  *
  * Add a setting to group content fields, to determine whether they will be

@@ -2,4 +2,6 @@ name = Dekyll Parser
 description = Read and Write Jekyll files
 core = 7.x
 
+files[] = plugins/config_sync/abstract.inc
+
 

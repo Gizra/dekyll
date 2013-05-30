@@ -157,6 +157,14 @@ function drush_dekyll_parser_dekyll_sync() {
     return;
   }
 
+  // Config sync.
+  foreach (dekyll_parser_get_config_syncs() as $plugin) {
+    $class = ctools_plugin_load_class('dekyll_parser', 'config_sync', $plugin['name'], 'class');
+    $config_sync = new $class($plugin, $gid);
+    $config_sync->import();
+  }
+
+  // Content sync.
   $path = dekyll_og_get_repo_path($gid);
 
   $git_wrapper = new GitWrapper();
@@ -166,7 +174,7 @@ function drush_dekyll_parser_dekyll_sync() {
   $map = array();
   $map_path = $path . '/.dekyll/node_map.yml';
   if (file_exists($map_path)) {
-    // Open the _dekyll.yml and get the map.
+    // Open the node_map.yml and get the map.
     $contents = file_get_contents($map_path);
 
     // Get the map.
@@ -282,29 +290,12 @@ function drush_jekyll_file_to_node($file_path, $gid, $nid = NULL) {
   // Set the layout.
   $layout = !empty($yaml_parsed['layout']) ? $yaml_parsed['layout'] : 'default';
 
-  // Get the term of the layout, or add a new one if doesn't exist.
   // @todo: Make more generic.
-  // Check if the vocabulary exists, or create a new one.
   $vocab_name = 'layout';
 
   // Prefix the machine name with the group ID.
   $machine_name = trim(drupal_strtolower(str_replace(' ', '_', $vocab_name))) . '_' . $gid;
-
-  if (!$vocabulary = taxonomy_vocabulary_machine_name_load($machine_name)) {
-    // Create a vocabulary.
-    $vocabulary = new stdClass();
-    $vocabulary->name = $vocab_name;
-    $vocabulary->machine_name = $machine_name;
-    taxonomy_vocabulary_save($vocabulary);
-
-    // Associate with the group.
-    $vid = $vocabulary->vid;
-    og_vocab_relation_save($vid, 'node', $gid);
-
-    // Create an OG-vocab.
-    $og_vocab = og_vocab_create_og_vocab($vid, 'node', $bundle);
-    $og_vocab->save();
-  }
+  $vocabulary = taxonomy_vocabulary_machine_name_load($machine_name);
 
   if (!$term = taxonomy_get_term_by_name($layout, $vocab_name)) {
     $values = array(
