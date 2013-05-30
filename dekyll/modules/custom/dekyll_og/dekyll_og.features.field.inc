@@ -10,6 +10,76 @@
 function dekyll_og_field_default_fields() {
   $fields = array();
 
+  // Exported field: 'node-repository-field_repo_cloned'.
+  $fields['node-repository-field_repo_cloned'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_repo_cloned',
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          0 => 'value',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'list',
+      'settings' => array(
+        'allowed_values' => array(
+          0 => '',
+          1 => '',
+        ),
+        'allowed_values_function' => '',
+      ),
+      'translatable' => '0',
+      'type' => 'list_boolean',
+    ),
+    'field_instance' => array(
+      'bundle' => 'repository',
+      'default_value' => array(
+        0 => array(
+          'value' => 0,
+        ),
+      ),
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'list',
+          'settings' => array(),
+          'type' => 'list_default',
+          'weight' => 5,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_repo_cloned',
+      'label' => 'Cloned',
+      'required' => 0,
+      'settings' => array(
+        'jekyll_map' => '',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'options',
+        'settings' => array(
+          'display_label' => 1,
+        ),
+        'type' => 'options_onoff',
+        'weight' => '5',
+      ),
+    ),
+  );
+
   // Exported field: 'node-repository-field_repo_credentials'.
   $fields['node-repository-field_repo_credentials'] = array(
     'field_config' => array(
@@ -75,88 +145,19 @@ function dekyll_og_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '3',
-      ),
-    ),
-  );
-
-  // Exported field: 'node-repository-field_repo_status'.
-  $fields['node-repository-field_repo_status'] = array(
-    'field_config' => array(
-      'active' => '1',
-      'cardinality' => '1',
-      'deleted' => '0',
-      'entity_types' => array(),
-      'field_name' => 'field_repo_status',
-      'foreign keys' => array(),
-      'indexes' => array(
-        'value' => array(
-          0 => 'value',
-        ),
-      ),
-      'locked' => '0',
-      'module' => 'list',
-      'settings' => array(
-        'allowed_values' => array(
-          'not_cloned' => 'Not cloned',
-          'cloned' => 'Cloned',
-          'cloned_no_write' => 'Cloned but no write access',
-        ),
-        'allowed_values_function' => '',
-      ),
-      'translatable' => '0',
-      'type' => 'list_text',
-    ),
-    'field_instance' => array(
-      'bundle' => 'repository',
-      'default_value' => array(
-        0 => array(
-          'value' => 'not_cloned',
-        ),
-      ),
-      'deleted' => '0',
-      'description' => '',
-      'display' => array(
-        'default' => array(
-          'label' => 'above',
-          'module' => 'list',
-          'settings' => array(),
-          'type' => 'list_default',
-          'weight' => 4,
-        ),
-        'teaser' => array(
-          'label' => 'above',
-          'settings' => array(),
-          'type' => 'hidden',
-          'weight' => 0,
-        ),
-      ),
-      'entity_type' => 'node',
-      'field_name' => 'field_repo_status',
-      'label' => 'Status',
-      'required' => 0,
-      'settings' => array(
-        'jekyll_map' => '',
-        'user_register_form' => FALSE,
-      ),
-      'widget' => array(
-        'active' => 1,
-        'module' => 'options',
-        'settings' => array(),
-        'type' => 'options_select',
         'weight' => '4',
       ),
     ),
   );
 
-  // Exported field: 'node-repository-field_url'.
-  $fields['node-repository-field_url'] = array(
+  // Exported field: 'node-repository-field_repo_url'.
+  $fields['node-repository-field_repo_url'] = array(
     'field_config' => array(
       'active' => '1',
       'cardinality' => '1',
       'deleted' => '0',
       'entity_types' => array(),
-      'field_name' => 'field_url',
+      'field_name' => 'field_repo_url',
       'foreign keys' => array(
         'format' => array(
           'columns' => array(
@@ -182,14 +183,14 @@ function dekyll_og_field_default_fields() {
       'bundle' => 'repository',
       'default_value' => NULL,
       'deleted' => '0',
-      'description' => 'Repository URL',
+      'description' => '',
       'display' => array(
         'default' => array(
           'label' => 'above',
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => 2,
+          'weight' => 8,
         ),
         'teaser' => array(
           'label' => 'above',
@@ -199,10 +200,11 @@ function dekyll_og_field_default_fields() {
         ),
       ),
       'entity_type' => 'node',
-      'field_name' => 'field_url',
+      'field_name' => 'field_repo_url',
       'label' => 'URL',
       'required' => 1,
       'settings' => array(
+        'jekyll_map' => '',
         'text_processing' => '0',
         'user_register_form' => FALSE,
       ),
@@ -214,6 +216,76 @@ function dekyll_og_field_default_fields() {
         ),
         'type' => 'text_textfield',
         'weight' => '2',
+      ),
+    ),
+  );
+
+  // Exported field: 'node-repository-field_repo_write_access'.
+  $fields['node-repository-field_repo_write_access'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_repo_write_access',
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          0 => 'value',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'list',
+      'settings' => array(
+        'allowed_values' => array(
+          0 => '',
+          1 => '',
+        ),
+        'allowed_values_function' => '',
+      ),
+      'translatable' => '0',
+      'type' => 'list_boolean',
+    ),
+    'field_instance' => array(
+      'bundle' => 'repository',
+      'default_value' => array(
+        0 => array(
+          'value' => 0,
+        ),
+      ),
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'list',
+          'settings' => array(),
+          'type' => 'list_default',
+          'weight' => 7,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_repo_write_access',
+      'label' => 'Write access',
+      'required' => 0,
+      'settings' => array(
+        'jekyll_map' => '',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'options',
+        'settings' => array(
+          'display_label' => 1,
+        ),
+        'type' => 'options_onoff',
+        'weight' => '6',
       ),
     ),
   );
@@ -297,19 +369,19 @@ function dekyll_og_field_default_fields() {
           'og_hide' => TRUE,
         ),
         'type' => 'options_onoff',
-        'weight' => '0',
+        'weight' => '1',
       ),
     ),
   );
 
   // Translatables
   // Included for use with string extractors like potx.
+  t('Cloned');
   t('Credentials');
   t('Determine if this is an OG group.');
   t('Group');
-  t('Repository URL');
-  t('Status');
   t('URL');
+  t('Write access');
 
   return $fields;
 }

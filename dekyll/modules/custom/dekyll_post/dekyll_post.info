@@ -16,7 +16,6 @@ features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:1
 features[field][] = node-post-body
 features[field][] = node-post-field_full_path
-features[field][] = node-post-field_layout
 features[field][] = node-post-og_group_ref
 features[field][] = node-post-og_vocabulary
 features[node][] = post

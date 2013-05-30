@@ -352,6 +352,9 @@ function drush_dekyll_parser_dekyll_clone() {
   }
 
   // Save clone status.
-  $wrapper->field_repo_status->set('cloned');
+  $wrapper->field_repo_cloned->set(TRUE);
+
+  // @todo: Can we check write access?
+  $wrapper->field_repo_cloned->set(TRUE);
   $wrapper->save();
 }

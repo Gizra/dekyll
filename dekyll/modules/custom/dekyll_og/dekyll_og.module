@@ -35,6 +35,6 @@ function dekyll_og_node_insert($node) {
 function dekyll_og_get_repo_path($gid) {
   $wrapper = entity_metadata_wrapper('node', $gid);
 
-  $repository = str_replace(array('http://', 'https://'), '', $wrapper->field_url->value());
+  $repository = str_replace(array('http://', 'https://'), '', $wrapper->field_repo_url->value());
   return variable_get('file_public_path', conf_path() . '/files') . '/' . $repository;
 }
