@@ -1,0 +1,23 @@
+dekyll:
+  metadata:
+    # Define the fields and properties in the "Post" content type.
+    content_types:
+      post:
+        # This definition will create a "layout" taxonomy vocabulary.
+        - name: "layout"
+          type: "taxonomy"
+          config:
+            # This maps to the settings of OG-vocab.
+            required: true
+            cardinality: 1
+            # Select one of_dekyll.yml the 3 widgets "autocomplete", "select", "tags",
+            widget: "select"
+        - name: "tags"
+          type: "taxonomy"
+          config:
+            required: false
+            # Set cardinality to -1, to indicate we can have unlimited values.
+            cardinality: -1
+            # Tags is an autocomplete field, that allows entering new values on
+            # the fly.
+            widget: "tags"
