@@ -290,29 +290,31 @@ function drush_jekyll_file_to_node($file_path, $gid, $nid = NULL) {
   // Set the layout.
   $layout = !empty($yaml_parsed['layout']) ? $yaml_parsed['layout'] : 'default';
 
-  // @todo: Make more generic.
-  $vocab_name = 'layout';
+  if ($layout != 'nil') {
+    // @todo: Make more generic.
+    $vocab_name = 'layout';
 
-  // Prefix the machine name with the group ID.
-  $machine_name = trim(drupal_strtolower(str_replace(' ', '_', $vocab_name))) . '_' . $gid;
-  $vocabulary = taxonomy_vocabulary_machine_name_load($machine_name);
+    // Prefix the machine name with the group ID.
+    $machine_name = trim(drupal_strtolower(str_replace(' ', '_', $vocab_name))) . '_' . $gid;
+    $vocabulary = taxonomy_vocabulary_machine_name_load($machine_name);
 
-  if (!$term = taxonomy_get_term_by_name($layout, $vocab_name)) {
-    $values = array(
-      'name' => $layout,
-      'vid' => $vocabulary->vid,
-    );
-    $term = entity_create('taxonomy_term', $values);
-    taxonomy_term_save($term);
+    if (!$term = taxonomy_get_term_by_name($layout, $machine_name)) {
+      $values = array(
+        'name' => $layout,
+        'vid' => $vocabulary->vid,
+      );
+      $term = entity_create('taxonomy_term', $values);
+      taxonomy_term_save($term);
+    }
+
+    $term = is_array($term) ? reset($term) : $term;
+
+    $terms = array();
+    $terms[] = $term;
+
+    // Add term to the OG-Vocab field.
+    $wrapper->{OG_VOCAB_FIELD}->set($terms);
   }
-
-  $term = is_array($term) ? reset($term) : $term;
-
-  $terms = array();
-  $terms[] = $term;
-
-  // Add term to the OG-Vocab field.
-  $wrapper->{OG_VOCAB_FIELD}->set($terms);
 
   // Set the group.
   $wrapper->{OG_AUDIENCE_FIELD}->set($gid);
