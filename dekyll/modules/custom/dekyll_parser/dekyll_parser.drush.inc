@@ -355,6 +355,6 @@ function drush_dekyll_parser_dekyll_clone() {
   $wrapper->field_repo_cloned->set(TRUE);
 
   // @todo: Can we check write access?
-  $wrapper->field_repo_cloned->set(TRUE);
+  $wrapper->field_repo_write_access->set(TRUE);
   $wrapper->save();
 }
