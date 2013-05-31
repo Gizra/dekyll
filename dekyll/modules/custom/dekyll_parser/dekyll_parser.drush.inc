@@ -19,6 +19,11 @@ use Symfony\Component\Yaml\Dumper;
 function dekyll_parser_drush_command() {
   $items['dekyll-write-file'] = array(
     'description' => dt('Write an item form the queue into the Jekyll file.'),
+    'options' => array(
+      // @todo: Allow passing multiple IDs?
+      'id' => dt('The node ID to write to Jekyll file.'),
+      'branch' => dt('The git branch to write the file to.'),
+    ),
   );
 
   $items['dekyll-sync'] = array(
@@ -49,20 +54,31 @@ function dekyll_parser_drush_command() {
  * Write an item form the queue into the Jekyll file.
  */
 function drush_dekyll_parser_dekyll_write_file() {
-  $queue = DrupalQueue::get('dekyll_write');
-  if (!$queue_item = $queue->claimItem()) {
-    return;
+  if ($nid = drush_get_option('id')) {
+    $branch = drush_get_option('branch', 'master');
+  }
+  else {
+    // Get ID from queue.
+    $queue = DrupalQueue::get('dekyll_write');
+    if (!$queue_item = $queue->claimItem()) {
+      return;
+    }
+
+    $nid = $queue_item->data['nid'];
+    $branch = $queue_item['branch'];
   }
 
+  $wrapper = entity_metadata_wrapper('node', $nid);
+  $gid = $wrapper->{OG_AUDIENCE_FIELD}->value(array('identifier' => TRUE));
+
   // "git pull" before writing the file.
-  $gid = $queue_item->data['gid'];
   $path = dekyll_og_get_repo_path($gid);
 
   $git_wrapper = new GitWrapper();
   $git = $git_wrapper ->workingCopy($path);
 
   // Checkout to the needed branch.
-  $git->checkout($queue_item['branch']);
+  $git->checkout($branch);
 
   // Get the HEAD version.
   $hash = $git->run(array('rev-parse --verify HEAD'));
@@ -73,55 +89,15 @@ function drush_dekyll_parser_dekyll_write_file() {
 
   if ($hash != $git->run(array('rev-parse --verify HEAD'))) {
     // The latest commit hash changed, so we need to re-sync.
-    if (!$sync = drush_dekyll_parser_dekyll_sync()) {
-      // We can't write the file, as we have sync problems.
-      return;
-    }
+    // @todo: Don't overwrite conflicting nodes, just mark them as conflicts.
+    // maybe drush_dekyll_parser_dekyll_sync()?
+    // We can't write the file, as we have sync problems.
+    return;
   }
-
-  $nid = $queue_item['nid'];
 
   // Write the file.
-  $wrapper = entity_metadata_wrapper('node', $nid);
-  $overrides = array();
-
-  foreach (field_info_instances('node', 'post') as $field_name => $instance) {
-    if (empty($instance['settings']['jekyll_map'])) {
-      continue;
-    }
-
-    // The Jekyll variable name.
-    $jekyll = $instance['settings']['jekyll_map'];
-    $field = field_info_field($field_name);
-
-    switch ($field['type']) {
-      case 'entityreference':
-      case 'taxonomy_term':
-        if ($field['cardinality'] == 1) {
-          $overrides[$jekyll] = $wrapper->{$field_name}->label();
-        }
-        else {
-          foreach ($wrapper->{$field_name} as $sub_wrapper) {
-            $overrides[$jekyll][] = $sub_wrapper->label();
-          }
-        }
-        break;
-      default:
-        if ($field['cardinality'] == 1) {
-          $overrides[$jekyll] = $wrapper->{$field_name}->value();
-        }
-        else {
-          foreach ($wrapper->{$field_name} as $sub_wrapper) {
-            $overrides[$jekyll][] = $sub_wrapper->value();
-          }
-        }
-        break;
-    }
-  }
-
-  $overrides['title'] = $wrapper->label();
-
-  $full_path = $path . '/' . $wrapper->field_full_path->value();
+  $file_path = $wrapper->field_full_path->value();
+  $full_path = $path . '/' . $file_path;
   $contents = file_get_contents($full_path);
 
   // Get the values from the YAML front header.
@@ -132,15 +108,21 @@ function drush_dekyll_parser_dekyll_write_file() {
   $yaml = new Parser();
   $yaml_parsed = $yaml->parse($yaml_contents);
 
-  // Add the overrides.
-  $overrides = array_merge($yaml_parsed, $overrides);
+  // Content sync, allow each plugin to change the node.
+  foreach (dekyll_parser_get_content_syncs() as $plugin) {
+    $class = ctools_plugin_load_class('dekyll_parser', 'content_sync', $plugin['name'], 'class');
+    $config_sync = new $class($plugin, $gid, $file_path);
+
+    // YAML and text are passed by reference.
+    $config_sync->export($wrapper, $yaml_parsed, $text);
+  }
 
   $dumper = new Dumper();
 
   $dump = array(
     YAML_SEPARATOR,
     // Dump the YAML expanded, and not inline.
-    $dumper->dump($overrides, 2) . "\n",
+    $dumper->dump($yaml_parsed, 10) . "\n",
     YAML_SEPARATOR,
     $text,
   );
@@ -148,9 +130,16 @@ function drush_dekyll_parser_dekyll_write_file() {
   file_put_contents($full_path, implode('', $dump));
 
   // Commit and push.
-  $git
-    ->commit('Changes of file.')
-    ->push();
+  // @todo: Move to a single function.
+  try {
+    $git
+      ->commit('Changes of file.')
+      ->push();
+  }
+  catch (GitException $e){
+
+  }
+
 }
 
 
@@ -357,7 +346,7 @@ function drush_jekyll_file_to_node($file_path, $gid, $nid = NULL) {
   $yaml = new Parser();
   $yaml_parsed = $yaml->parse($split_contents[1]);
 
-  // Config sync, allow each plugin to change the node.
+  // Content sync, allow each plugin to change the node.
   foreach (dekyll_parser_get_content_syncs() as $plugin) {
     $class = ctools_plugin_load_class('dekyll_parser', 'content_sync', $plugin['name'], 'class');
     $config_sync = new $class($plugin, $gid, $file_path);

@@ -24,4 +24,11 @@ class ContentSyncTitle extends ContentSyncBase {
 
     $wrapper->title->set($title);
   }
+
+  /**
+   * Export node title.
+   */
+  public function export(EntityDrupalWrapper $wrapper, &$yaml = array(), &$text = '') {
+    $yaml['title'] = $wrapper->label();
+  }
 }

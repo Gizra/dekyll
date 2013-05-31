@@ -25,7 +25,6 @@ class ContentSyncOgVocab extends ContentSyncBase {
 
     $vocabularies = taxonomy_vocabulary_load_multiple($vids);
 
-
     // The terms to save into the OG-vocab field.
     $terms = array();
 
@@ -55,5 +54,51 @@ class ContentSyncOgVocab extends ContentSyncBase {
 
     // Add term to the OG-Vocab field.
     $wrapper->{OG_VOCAB_FIELD}->set($terms);
+  }
+
+
+  /**
+   * Export OG-vocab
+   */
+  public function export(EntityDrupalWrapper $wrapper, &$yaml = array(), &$text = '') {
+    if (!$terms = $wrapper->{OG_VOCAB_FIELD}->value()) {
+      return;
+    }
+
+    // Re-group terms by their vocabulary.
+    $values = array();
+    foreach ($terms as $term) {
+      $values[$term->vid][] = $term->name;
+    }
+
+    $vids = array_keys($values);
+
+    $vocabularies = taxonomy_vocabulary_load_multiple($vids);
+
+    // Get the related OG-vocabs, to know if the values are array or not.
+    $query = new EntityFieldQuery();
+    $result = $query->entityCondition('entity_type', 'og_vocab')
+      ->propertyCondition('vid', $vids, 'IN')
+      ->execute();
+
+    $og_vocabs = entity_load('og_vocab', array_keys($result['og_vocab']));
+
+    // Normalize the data that we want, the vocabulary ID as the key, and TRUE
+    // if the value should be an array.
+    $value_types = array();
+    foreach ($og_vocabs as $og_vocab) {
+      $value_types[$og_vocab->vid] = $og_vocab->settings['cardinality'] != 1;
+    }
+
+    foreach ($values as $vid => $vocab_terms) {
+      // Populate the YAML.
+      $vocab_name = $vocabularies[$vid]->name;
+
+      if (!$value_types[$vid]) {
+        $vocab_terms = $vocab_terms[0];
+      }
+
+      $yaml[$vocab_name] = $vocab_terms;
+    }
   }
 }
