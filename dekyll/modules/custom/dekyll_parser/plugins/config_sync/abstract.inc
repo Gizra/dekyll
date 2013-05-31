@@ -7,7 +7,7 @@ use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Dumper;
 
 /**
- * DekyllConfig Sync interface
+ * Dekyll Config Sync interface
  */
 interface ConfigSyncInterface {
 

@@ -8,6 +8,7 @@
 require DRUPAL_ROOT . '/profiles/dekyll/libraries/vendor/autoload.php';
 
 use GitWrapper\GitWrapper;
+use GitWrapper\GitException;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Dumper;
@@ -203,7 +204,7 @@ function drush_dekyll_parser_dekyll_sync() {
       }
     }
 
-    $nid = !empty($map[$file_path]['nid']) && !$force_sync ? $map[$file_path]['nid'] : NULL;
+    $nid = !empty($map[$file_path]['nid']) ? $map[$file_path]['nid'] : NULL;
 
     // Create node.
     if ($node = drush_jekyll_file_to_node($file_path, $gid, $nid)) {
@@ -213,7 +214,6 @@ function drush_dekyll_parser_dekyll_sync() {
       );
     }
   }
-
 
   drush_dekyll_parser_save_yml($gid, '.dekyll/node_map.yml', $map);
 }
@@ -294,11 +294,25 @@ function drush_dekyll_parser_save_yml($gid, $file_name, $data = array(), $commit
   $dumper = new Dumper();
   file_put_contents($file_path, $dumper->dump($data, 10));
 
+  $commit_message = $commit_message ? $commit_message : 'Commit ' . $file_name;
+
   // Push to git.
-  $git
-    ->add($file_name)
-    ->commit($commit_message ? $commit_message : 'Commit ' . $file_name)
-    ->push();
+  try {
+    $git
+      ->commit($file_name, array('m' => $commit_message));
+  }
+  catch(GitException $e) {
+    // File didn't change, we can return;
+    return;
+  }
+
+  try {
+    $git->push();
+  }
+  catch(GitException $e) {
+    // @todo: We couldn't push. Handle this (need to pull, not internet
+    // connection, etc'.)
+  }
 }
 
 /**
@@ -318,7 +332,7 @@ function drush_jekyll_file_to_node($file_path, $gid, $nid = NULL) {
     return;
   }
 
-  // Get the values from the YAML front header.
+  // Get the values from the YAML front matter.
   // @todo: Isn't there a line break?
   $split_contents = explode('---', $contents, 3);
   $text = $split_contents[2];
@@ -343,53 +357,18 @@ function drush_jekyll_file_to_node($file_path, $gid, $nid = NULL) {
   $yaml = new Parser();
   $yaml_parsed = $yaml->parse($split_contents[1]);
 
-  if (!empty($yaml_parsed['title'])) {
-    $title = $yaml_parsed['title'];
-  }
-  elseif (!empty($yaml_parsed['tagline'])) {
-    // No title found, try the tagline.
-    $title = $yaml_parsed['tagline'];
-  }
-  else {
-    // Fallback to the file path.
-    $title = $file_path;
+  // Config sync, allow each plugin to change the node.
+  foreach (dekyll_parser_get_content_syncs() as $plugin) {
+    $class = ctools_plugin_load_class('dekyll_parser', 'content_sync', $plugin['name'], 'class');
+    $config_sync = new $class($plugin, $gid, $file_path);
+    $config_sync->import($wrapper, $yaml_parsed, $text);
   }
 
-  $wrapper->title->set($title);
 
   // Add the text to the body field.
+  // @todo: Is it worth a plugin?
   $wrapper->body->set(array('value' => $text, 'format' => 'full_html'));
   $wrapper->field_full_path->set($file_path);
-
-
-  // Set the layout.
-  $layout = !empty($yaml_parsed['layout']) ? $yaml_parsed['layout'] : 'default';
-
-  if ($layout != 'nil') {
-    // @todo: Make more generic.
-    $vocab_name = 'layout';
-
-    // Prefix the machine name with the group ID.
-    $machine_name = trim(drupal_strtolower(str_replace(' ', '_', $vocab_name))) . '_' . $gid;
-    $vocabulary = taxonomy_vocabulary_machine_name_load($machine_name);
-
-    if (!$term = taxonomy_get_term_by_name($layout, $machine_name)) {
-      $values = array(
-        'name' => $layout,
-        'vid' => $vocabulary->vid,
-      );
-      $term = entity_create('taxonomy_term', $values);
-      taxonomy_term_save($term);
-    }
-
-    $term = is_array($term) ? reset($term) : $term;
-
-    $terms = array();
-    $terms[] = $term;
-
-    // Add term to the OG-Vocab field.
-    $wrapper->{OG_VOCAB_FIELD}->set($terms);
-  }
 
   // Set the group.
   $wrapper->{OG_AUDIENCE_FIELD}->set($gid);
