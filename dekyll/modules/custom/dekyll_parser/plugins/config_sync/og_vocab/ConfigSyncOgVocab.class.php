@@ -5,26 +5,27 @@
  */
 class ConfigSyncOgVocab extends ConfigSyncBase {
 
+  /**
+   * Import OG-vocabs.
+   */
   public function import() {
-    if (empty($this->config['content_types'])) {
+    if (empty($this->config['content_types']['taxonomy'])) {
       return;
     }
 
-    foreach ($this->config['content_types'] as $bundle => $configs) {
-      foreach ($configs as $config) {
-        if ($config['type'] != 'taxonomy') {
-          continue;
-        }
-
+    foreach ($this->config['content_types']['taxonomy'] as $bundle => $configs) {
+      foreach ($configs as $vocab_name => $config) {
         $gid = $this->gid;
+
+        $vocab_name = trim($vocab_name);
 
         // Check if vocabulary already exists.
         // Suffix the machine name with the group ID.
-        $machine_name = trim(drupal_strtolower(str_replace(' ', '_', $config['name']))) . '_' . $gid;
+        $machine_name = trim(drupal_strtolower(str_replace(' ', '_', $vocab_name))) . '_' . $gid;
         if (!$vocabulary = taxonomy_vocabulary_machine_name_load($machine_name)) {
           // Create a vocabulary.
           $vocabulary = new stdClass();
-          $vocabulary->name = trim($config['name']);
+          $vocabulary->name = trim($vocab_name);
           $vocabulary->machine_name = $machine_name;
           taxonomy_vocabulary_save($vocabulary);
 
@@ -58,7 +59,58 @@ class ConfigSyncOgVocab extends ConfigSyncBase {
 
         $og_vocab->save();
       }
+    }
+  }
 
+  /**
+   * Export OG-vocabs.
+   */
+  public function export(&$config) {
+    $gid = $this->gid;
+
+    // Get all Vocabularies and OG-vocabs of the group.
+    if (!$relations = og_vocab_relation_get_by_group('node', $gid)) {
+      return;
+    }
+
+    $vids = array();
+    foreach ($relations as $relation) {
+      $vids[] = $relation->vid;
+    }
+
+    $vocabularies = taxonomy_vocabulary_load_multiple($vids);
+
+    $query = new EntityFieldQuery();
+    $result = $query->entityCondition('entity_type', 'og_vocab')
+      ->propertyCondition('vid', $vids, 'IN')
+      ->execute();
+
+    $og_vocabs = entity_load('og_vocab', array_keys($result['og_vocab']));
+
+    foreach ($og_vocabs as $og_vocab) {
+      $vocabulary = $vocabularies[$og_vocab->vid];
+
+      $settings = $og_vocab->settings;
+
+      switch ($settings['widget_type']) {
+        case 'autocomplete':
+          $widget_type = 'autocomplete';
+          break;
+
+        case 'autocomplete_tags':
+          $widget_type = 'tags';
+          break;
+
+        case 'options_select':
+        default:
+          $widget_type = 'select';
+      }
+
+      $config['content_type'][$og_vocab->bundle]['taxonomy'][$vocabulary->name] = array(
+        'required' => $settings['required'],
+        'cardinality' => $settings['cardinality'],
+        'widget' => $widget_type,
+      );
     }
   }
 

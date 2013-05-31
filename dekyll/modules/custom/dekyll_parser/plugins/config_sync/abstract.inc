@@ -28,13 +28,7 @@ interface ConfigSyncInterface {
   /**
    * Prepare export config to _dekyll.yml
    */
-  public function export();
-
-  /**
-   * Save the config to _dekyll.yml
-   */
-  public function postExport();
-
+  public function export(&$config);
 }
 
 /**
@@ -88,7 +82,7 @@ abstract class ConfigSyncBase implements ConfigSyncInterface {
 
   public function import() {}
 
-  public function export() {}
+  public function export(&$config) {}
 
   /**
    * Save the config to _dekyll.yml
