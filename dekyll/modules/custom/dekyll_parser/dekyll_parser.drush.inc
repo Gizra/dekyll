@@ -65,7 +65,7 @@ function drush_dekyll_parser_dekyll_write_file() {
     }
 
     $nid = $queue_item->data['nid'];
-    $branch = $queue_item['branch'];
+    $branch = $queue_item->data['branch'];
   }
 
   $wrapper = entity_metadata_wrapper('node', $nid);
