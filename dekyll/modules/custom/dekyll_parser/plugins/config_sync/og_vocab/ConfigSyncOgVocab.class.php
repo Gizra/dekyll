@@ -37,7 +37,7 @@ class ConfigSyncOgVocab extends ConfigSyncBase {
         $og_vocab = og_vocab_load_og_vocab($vocabulary->vid, 'node', $bundle, OG_VOCAB_FIELD, TRUE);
 
         // @todo: Add validation for user's data.
-        switch ($config['config']['widget']) {
+        switch ($config['widget']) {
           case 'autocomplete':
             $widget_type = 'autocomplete';
             break;
@@ -52,8 +52,8 @@ class ConfigSyncOgVocab extends ConfigSyncBase {
         }
 
         $og_vocab->settings = array(
-          'required' => $config['config']['required'],
-          'cardinality' => $config['config']['cardinality'],
+          'required' => $config['required'],
+          'cardinality' => $config['cardinality'],
           'widget_type' => $widget_type,
         );
 
@@ -106,7 +106,7 @@ class ConfigSyncOgVocab extends ConfigSyncBase {
           $widget_type = 'select';
       }
 
-      $config['content_types'][$og_vocab->bundle]['taxonomy'][$vocabulary->name] = array(
+      $config['content_types']['taxonomy'][$og_vocab->bundle][$vocabulary->name] = array(
         'required' => $settings['required'],
         'cardinality' => $settings['cardinality'],
         'widget' => $widget_type,
