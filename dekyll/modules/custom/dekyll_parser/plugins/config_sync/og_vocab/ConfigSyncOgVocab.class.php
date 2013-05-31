@@ -106,7 +106,7 @@ class ConfigSyncOgVocab extends ConfigSyncBase {
           $widget_type = 'select';
       }
 
-      $config['content_type'][$og_vocab->bundle]['taxonomy'][$vocabulary->name] = array(
+      $config['content_types'][$og_vocab->bundle]['taxonomy'][$vocabulary->name] = array(
         'required' => $settings['required'],
         'cardinality' => $settings['cardinality'],
         'widget' => $widget_type,

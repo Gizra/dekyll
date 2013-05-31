@@ -295,8 +295,8 @@ function drush_dekyll_parser_save_yml($gid, $file_name, $data = array(), $commit
   file_put_contents($file_path, $dumper->dump($data, 2));
 
   // Push to git.
-  $gid
-    ->add($file_path)
+  $git
+    ->add($file_name)
     ->commit($commit_message ? $commit_message : 'Commit ' . $file_name)
     ->push();
 }
