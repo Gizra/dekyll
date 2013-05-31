@@ -29,6 +29,14 @@ function dekyll_parser_drush_command() {
     ),
   );
 
+  $items['dekyll-config-update'] = array(
+    'description' => dt('Sync Jekyll configuration file (_dekyll.yml) with the Drupal configuration.'),
+    'options' => array(
+      // @todo: Allow passing multiple IDs?
+      'id' => dt('The node ID of the repository, to sync'),
+    ),
+  );
+
   $items['dekyll-clone'] = array(
     'description' => dt('Clone a Git repository.'),
   );
@@ -171,16 +179,7 @@ function drush_dekyll_parser_dekyll_sync() {
   $git = $git_wrapper->workingCopy($path);
 
   // Map file path to the node ID.
-  $map = array();
-  $map_path = $path . '/.dekyll/node_map.yml';
-  if (file_exists($map_path)) {
-    // Open the node_map.yml and get the map.
-    $contents = file_get_contents($map_path);
-
-    // Get the map.
-    $yaml = new Parser();
-    $map = $yaml->parse($contents);
-  }
+  $map = drush_dekyll_parser_get_yml($gid, '.dekyll/node_map.yml');
 
   // Iterate over all the valid files, and compare them to the map value.
   $finder = new Finder();
@@ -215,15 +214,91 @@ function drush_dekyll_parser_dekyll_sync() {
     }
   }
 
-  // Write the map to file.
-  if (!file_exists($path . '/.dekyll')) {
-    drupal_mkdir($path . '/.dekyll');
+
+  drush_dekyll_parser_save_yml($gid, '.dekyll/node_map.yml', $map);
+}
+
+/**
+ * Sync Jekyll configuration file (_dekyll.yml) with the Drupal configuration.
+ */
+function drush_dekyll_parser_dekyll_config_update() {
+  if (!$gid = drush_get_option('id')) {
+    return;
+  }
+
+  // Get the YAML file.
+  $config = $original_config = drush_dekyll_parser_get_yml($gid, '_dekyll.yml');
+
+  // Config sync.
+  foreach (dekyll_parser_get_config_syncs() as $plugin) {
+    $class = ctools_plugin_load_class('dekyll_parser', 'config_sync', $plugin['name'], 'class');
+    $config_sync = new $class($plugin, $gid);
+    $config_sync->export($config);
+  }
+
+  if ($config == $original_config) {
+    // Config didn't change.
+    return;
+  }
+
+  // Write the YAML file.
+  drush_dekyll_parser_save_yml($gid, '_dekyll.yml', $config);
+}
+
+/**
+ * @param $gid
+ *   The group ID.
+ * @param $file_name
+ *   The file name.
+ *
+ * @return array
+ *   The parsed YAML, or empty YAML if file doesn't exist.
+ */
+function drush_dekyll_parser_get_yml($gid, $file_name) {
+  $path = dekyll_og_get_repo_path($gid);
+
+  $file_path = $path . '/' . $file_name;
+  if (!file_exists($file_path)) {
+    return array();
+  }
+
+  // Open the YAML file .
+  $contents = file_get_contents($file_path);
+
+  // Parse the contents..
+  $yaml = new Parser();
+  return $yaml->parse($contents);
+}
+
+/**
+ * @param $gid
+ *   The group ID.
+ * @param $file_name
+ *   The file name.
+ * @param $data
+ *   The array to dump into the file.
+ */
+function drush_dekyll_parser_save_yml($gid, $file_name, $data = array(), $commit_message = '') {
+  // Content sync.
+  $path = dekyll_og_get_repo_path($gid);
+
+  $git_wrapper = new GitWrapper();
+  $git = $git_wrapper->workingCopy($path);
+
+  $file_path = $path . '/' . $file_name;
+
+  if (!file_exists($file_path)) {
+    drupal_mkdir($file_path);
   }
 
   $dumper = new Dumper();
-  file_put_contents($map_path, $dumper->dump($map, 2));
+  file_put_contents($file_path, $dumper->dump($data, 2));
 
-  return TRUE;
+  // Push to git.
+  $gid
+    ->add($file_path)
+    ->commit($commit_message ? $commit_message : 'Commit ' . $file_name)
+    ->push();
 }
 
 /**
