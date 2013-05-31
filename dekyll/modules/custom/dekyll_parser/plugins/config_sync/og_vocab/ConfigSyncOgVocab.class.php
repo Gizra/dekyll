@@ -39,11 +39,11 @@ class ConfigSyncOgVocab extends ConfigSyncBase {
         // @todo: Add validation for user's data.
         switch ($config['widget']) {
           case 'autocomplete':
-            $widget_type = 'autocomplete';
+            $widget_type = 'entityreference_autocomplete';
             break;
 
           case 'tags':
-            $widget_type = 'autocomplete_tags';
+            $widget_type = 'entityreference_autocomplete_tags';
             break;
 
           case 'select':
@@ -93,11 +93,11 @@ class ConfigSyncOgVocab extends ConfigSyncBase {
       $settings = $og_vocab->settings;
 
       switch ($settings['widget_type']) {
-        case 'autocomplete':
+        case 'entityreference_autocomplete':
           $widget_type = 'autocomplete';
           break;
 
-        case 'autocomplete_tags':
+        case 'entityreference_autocomplete_tags':
           $widget_type = 'tags';
           break;
 
