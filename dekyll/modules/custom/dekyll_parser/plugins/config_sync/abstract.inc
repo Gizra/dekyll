@@ -52,17 +52,24 @@ abstract class ConfigSyncBase implements ConfigSyncInterface {
    */
   protected $config = array(
     'content_types' => array(
-      'post' => array(
-        'name' => 'layout',
-        'type' => 'taxonomy',
-        'config' => array(
-          'required' => TRUE,
-          'cardinality' => 1,
-          'widget' => 'select',
+      'taxonomy' => array(
+        'post' => array(
+          'tags' => array(
+            'required' => FALSE,
+            'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+            'widget' => 'tags',
+          ),
+          'layout' => array(
+            'required' => TRUE,
+            'cardinality' => 1,
+            'widget' => 'select',
+          ),
         ),
       ),
     ),
   );
+
+
 
   public function __construct($plugin, $gid) {
     $this->plugin = $plugin;
