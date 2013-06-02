@@ -163,10 +163,6 @@ function drush_dekyll_parser_dekyll_sync() {
   }
 
   // Content sync.
-  $path = dekyll_og_get_repo_path($gid);
-
-  $git_wrapper = new GitWrapper();
-  $git = $git_wrapper->workingCopy($path);
 
   // Map file path to the node ID.
   $map = drush_dekyll_parser_get_yml($gid, '.dekyll/node_map.yml');
