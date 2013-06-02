@@ -103,7 +103,9 @@ function drush_dekyll_parser_dekyll_write_file() {
   // Get the values from the YAML front header.
   $split_contents = explode(YAML_SEPARATOR, $contents, 3);
   $yaml_contents = $split_contents[1];
-  $text = $split_contents[2];
+
+  // Get the text from the node.
+  $text = $wrapper->body->value() ? $wrapper->body->value->value() : '';
 
   $yaml = new Parser();
   $yaml_parsed = $yaml->parse($yaml_contents);
@@ -277,7 +279,8 @@ function drush_dekyll_parser_save_yml($gid, $file_name, $data = array(), $commit
   $file_path = $path . '/' . $file_name;
 
   if (!file_exists($file_path)) {
-    drupal_mkdir($file_path);
+    $path_parts = pathinfo($file_path);
+    drupal_mkdir($path_parts['dirname']);
   }
 
   $dumper = new Dumper();
@@ -356,7 +359,7 @@ function drush_jekyll_file_to_node($file_path, $gid, $nid = NULL) {
 
   // Add the text to the body field.
   // @todo: Is it worth a plugin?
-  $wrapper->body->set(array('value' => $text, 'format' => 'full_html'));
+  $wrapper->body->set(array('value' => $text, 'format' => 'dekyll_plain'));
   $wrapper->field_full_path->set($file_path);
 
   // Set the group.

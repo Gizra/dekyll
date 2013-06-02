@@ -4,4 +4,18 @@
  * Implements hook_install().
  */
 function dekyll_install() {
+  // Add text formats.
+  $plain_format = array(
+    'format' => 'dekyll_plain',
+    'name' => 'Dekyll Plain Text',
+    'weight' => 0,
+    'filters' => array(),
+  );
+
+  $plain_format = (object) $plain_format;
+  filter_format_save($plain_format);
+
+  // Enable default permissions for system roles.
+  $plain_format = filter_permission_name($plain_format);
+  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('access content', 'access comments', 'post comments', 'skip comment approval', $plain_format));
 }
