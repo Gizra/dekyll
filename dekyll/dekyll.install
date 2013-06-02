@@ -18,4 +18,11 @@ function dekyll_install() {
   // Enable default permissions for system roles.
   $plain_format = filter_permission_name($plain_format);
   user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('access content', 'access comments', 'post comments', 'skip comment approval', $plain_format));
+
+  // Create a unique identifier for the site. We don't really need a guid, so
+  // we just make sure it's unique "enough".
+  // @todo: We can have an option in the install to use site's URL instead,
+  // in order to make the YAML more readable.
+  $guid = md5(time() . base_path());
+  variable_set('dekyll_guid', $guid);
 }

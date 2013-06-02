@@ -183,23 +183,26 @@ function drush_dekyll_parser_dekyll_sync() {
 
   $force_sync = drush_get_option('force');
 
+  // Get the current installation global unique identifier.
+  $dekyll_guid = variable_get('dekyll_guid');
+
   foreach ($finder as $file) {
     // Check if we have this file in the map.
     $file_path = $file->getRelativePathname();
     $hash = trim($git->run(array('hash-object ' . $file_path)));
-    if (!empty($map[$file_path]) && !$force_sync) {
+    if (!empty($map[$file_path][$dekyll_guid]) && !$force_sync) {
       // Check if the hash changed.
-      if ($hash == $map[$file_path]['hash']) {
+      if ($hash == $map[$file_path][$dekyll_guid]['hash']) {
         // File didn't change.
         continue;
       }
     }
 
-    $nid = !empty($map[$file_path]['nid']) ? $map[$file_path]['nid'] : NULL;
+    $nid = !empty($map[$file_path][$dekyll_guid]['nid']) ? $map[$file_path][$dekyll_guid]['nid'] : NULL;
 
     // Create node.
     if ($node = drush_jekyll_file_to_node($file_path, $gid, $nid)) {
-      $map[$file_path] = array(
+      $map[$file_path][$dekyll_guid] = array(
         'hash' => $hash,
         'nid' => $node->nid,
       );
