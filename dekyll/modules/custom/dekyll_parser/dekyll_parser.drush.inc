@@ -71,7 +71,6 @@ function drush_dekyll_parser_dekyll_write_file() {
   $wrapper = entity_metadata_wrapper('node', $nid);
   $gid = $wrapper->{OG_AUDIENCE_FIELD}->value(array('identifier' => TRUE));
 
-  // "git pull" before writing the file.
   $path = dekyll_og_get_repo_path($gid);
 
   $git_wrapper = new GitWrapper();
@@ -79,21 +78,6 @@ function drush_dekyll_parser_dekyll_write_file() {
 
   // Checkout to the needed branch.
   $git->checkout($branch);
-
-  // Get the HEAD version.
-  $hash = $git->run(array('rev-parse --verify HEAD'));
-  drush_log(dt('Latest commit before pull is @hash', array('@hash' => $hash)));
-
-  $git->pull();
-  drush_log(dt('git pull'));
-
-  if ($hash != $git->run(array('rev-parse --verify HEAD'))) {
-    // The latest commit hash changed, so we need to re-sync.
-    // @todo: Don't overwrite conflicting nodes, just mark them as conflicts.
-    // maybe drush_dekyll_parser_dekyll_sync()?
-    // We can't write the file, as we have sync problems.
-    return;
-  }
 
   // Write the file.
   $file_path = $wrapper->field_full_path->value();
@@ -139,7 +123,8 @@ function drush_dekyll_parser_dekyll_write_file() {
       ->push();
   }
   catch (GitException $e){
-
+    // If we couldn't push, we might need to push. So re-sync.
+    // drush_dekyll_parser_dekyll_sync();
   }
 
 }
@@ -155,6 +140,19 @@ function drush_dekyll_parser_dekyll_write_file() {
 function drush_dekyll_parser_dekyll_sync() {
   if (!$gid = drush_get_option('id')) {
     return;
+  }
+
+  $path = dekyll_og_get_repo_path($gid);
+
+  $git_wrapper = new GitWrapper();
+  $git = $git_wrapper->workingCopy($path);
+
+  try {
+    $git->pull();
+  }
+  catch (GitException $e){
+    // @todo: Handle merge conflicts (Don't overwrite conflicting nodes, just
+    // mark them as conflicts).
   }
 
   // Config sync.
