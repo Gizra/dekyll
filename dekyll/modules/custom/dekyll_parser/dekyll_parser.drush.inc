@@ -80,11 +80,16 @@ function drush_dekyll_parser_dekyll_write_file($queue_item = NULL) {
   // Write the file.
   $file_path = $wrapper->field_file_path->value();
   $full_path = $path . '/' . $file_path;
-  $contents = file_get_contents($full_path);
 
-  // Get the values from the YAML front header.
-  $split_contents = explode(YAML_SEPARATOR, $contents, 3);
-  $yaml_contents = $split_contents[1];
+  $yaml_contents = array();
+  if (file_exists($full_path)) {
+    $contents = file_get_contents($full_path);
+
+    // Get the values from the YAML front header.
+    $split_contents = explode(YAML_SEPARATOR, $contents, 3);
+    $yaml_contents = $split_contents[1];
+  }
+
 
   // Get the text from the node.
   $text = $wrapper->body->value() ? $wrapper->body->value->value() : '';
@@ -112,6 +117,12 @@ function drush_dekyll_parser_dekyll_write_file($queue_item = NULL) {
   );
 
   drush_log(dt('Writing node ID @nid to @file', array('@nid' => $nid, '@file' => $file_path)));
+
+  if (!file_exists($full_path)) {
+    $path_parts = pathinfo($full_path);
+    drupal_mkdir($path_parts['dirname']);
+  }
+
   file_put_contents($full_path, implode('', $dump));
 
   // Commit and push.
