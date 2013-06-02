@@ -205,7 +205,7 @@ function dekyll_post_field_default_fields() {
     'field_instance' => array(
       'bundle' => 'page',
       'default_value' => NULL,
-      'default_value_function' => '',
+      'default_value_function' => 'entityreference_prepopulate_field_default_value',
       'deleted' => '0',
       'description' => '',
       'display' => array(
@@ -239,7 +239,12 @@ function dekyll_post_field_default_fields() {
             'status' => TRUE,
           ),
           'prepopulate' => array(
-            'status' => 0,
+            'action' => 'hide',
+            'action_on_edit' => 1,
+            'fallback' => 'form_error',
+            'og_context' => 1,
+            'skip_perm' => '0',
+            'status' => 1,
           ),
         ),
         'jekyll_map' => '',
