@@ -53,19 +53,17 @@ function dekyll_parser_drush_command() {
 /**
  * Write an item form the queue into the Jekyll file.
  */
-function drush_dekyll_parser_dekyll_write_file() {
-  if ($nid = drush_get_option('id')) {
+function drush_dekyll_parser_dekyll_write_file($queue_item = NULL) {
+  if (!empty($queue_item)) {
+    $nid = $queue_item['nid'];
+    $branch = $queue_item['branch'];
+  }
+  elseif ($nid = drush_get_option('id')) {
     $branch = drush_get_option('branch', 'master');
   }
-  else {
-    // Get ID from queue.
-    $queue = DrupalQueue::get('dekyll_write');
-    if (!$queue_item = $queue->claimItem()) {
-      return;
-    }
 
-    $nid = $queue_item->data['nid'];
-    $branch = $queue_item->data['branch'];
+  if (!$nid) {
+    return;
   }
 
   $wrapper = entity_metadata_wrapper('node', $nid);
@@ -113,6 +111,7 @@ function drush_dekyll_parser_dekyll_write_file() {
     $text,
   );
 
+  drush_log(dt('Writing node ID @nid to @file', array('@nid' => $nid, '@file' => $file_path)));
   file_put_contents($full_path, implode('', $dump));
 
   // Commit and push.
@@ -124,7 +123,8 @@ function drush_dekyll_parser_dekyll_write_file() {
   }
   catch (GitException $e){
     // If we couldn't push, we might need to push. So re-sync.
-    // drush_dekyll_parser_dekyll_sync();
+    // @todo: Check if we have connection first, and throw error if not?
+    // drush_dekyll_parser_dekyll_sync(array('gid' => $gid));
   }
 
 }
@@ -137,8 +137,11 @@ function drush_dekyll_parser_dekyll_write_file() {
  * We use .dekyll/node_map.yml file to hold each file, its hash and the related
  * node ID.
  */
-function drush_dekyll_parser_dekyll_sync() {
-  if (!$gid = drush_get_option('id')) {
+function drush_dekyll_parser_dekyll_sync($queue_item = NULL) {
+  if (!empty($queue_item)) {
+    $gid = $queue_item['gid'];
+  }
+  elseif (!$gid = drush_get_option('id')) {
     return;
   }
 
@@ -161,6 +164,8 @@ function drush_dekyll_parser_dekyll_sync() {
     $config_sync = new $class($plugin, $gid);
     $config_sync->import();
   }
+
+  drush_log(dt('Synced config of group ID @gid', array('@gid' => $gid)));
 
   // Content sync.
 
@@ -195,7 +200,8 @@ function drush_dekyll_parser_dekyll_sync() {
     $nid = !empty($map[$file_path][$dekyll_guid]['nid']) ? $map[$file_path][$dekyll_guid]['nid'] : NULL;
 
     // Create node.
-    if ($node = drush_jekyll_file_to_node($file_path, $gid, $nid)) {
+    if ($node = drush_jekyll_file_to_node($file_path, $gid, $nid, TRUE)) {
+      drush_log(dt('Synced content of file @file to node ID @nid', array('@file' => $file_path, '@nid' => $node->nid)));
       $map[$file_path][$dekyll_guid] = array(
         'hash' => $hash,
         'nid' => $node->nid,
@@ -312,7 +318,7 @@ function drush_dekyll_parser_save_yml($gid, $file_name, $data = array(), $commit
  * @param $file_path
  *   The file full path.
  */
-function drush_jekyll_file_to_node($file_path, $gid, $nid = NULL) {
+function drush_jekyll_file_to_node($file_path, $gid, $nid = NULL, $sync = FALSE) {
   $path = dekyll_og_get_repo_path($gid);
   $contents = file_get_contents($path . '/' . $file_path);
 
@@ -361,6 +367,10 @@ function drush_jekyll_file_to_node($file_path, $gid, $nid = NULL) {
 
   // Set the group.
   $wrapper->{OG_AUDIENCE_FIELD}->set($gid);
+
+  // Prevent from synced nodes to be written back to files.
+  $node = $wrapper->value();
+  $node->_dekyll_sync = $sync;
   $wrapper->save();
 
   return $wrapper->value();
@@ -369,13 +379,16 @@ function drush_jekyll_file_to_node($file_path, $gid, $nid = NULL) {
 /**
  * Clone a Git repository.
  */
-function drush_dekyll_parser_dekyll_clone() {
-  $queue = DrupalQueue::get('dekyll_clone');
-  if (!$queue_item = $queue->claimItem()) {
+function drush_dekyll_parser_dekyll_clone($queue_item = NULL) {
+  if (!empty($queue_item)) {
+    $gid = $queue_item['gid'];
+  }
+  elseif (!$gid = drush_get_option('id')) {
     return;
   }
 
-  $gid = $queue_item->data['gid'];
+  drush_log(dt('Cloning group ID @id', array('@id' => $gid)));
+
   $wrapper = entity_metadata_wrapper('node', $gid);
   $credentials = $wrapper->field_repo_credentials->value();
   $path = dekyll_og_get_repo_path($gid);
@@ -393,4 +406,7 @@ function drush_dekyll_parser_dekyll_clone() {
   // @todo: Can we check write access?
   $wrapper->field_repo_write_access->set(TRUE);
   $wrapper->save();
+
+  // Sync.
+  drush_dekyll_parser_dekyll_sync(array('gid' => $gid));
 }

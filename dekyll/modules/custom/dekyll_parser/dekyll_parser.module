@@ -147,9 +147,14 @@ function dekyll_parser_write_file($node) {
     return;
   }
 
+  if (!empty($node->_dekyll_sync)) {
+    // Node is created or updated on sync.
+    return;
+  }
+
   $wrapper = entity_metadata_wrapper('node', $node);
 
-  $queue = DrupalQueue::get('dekyll_write');
+  $queue = DrupalQueue::get('dekyll_write_file');
   $data = array(
     'gid' => $wrapper->{OG_AUDIENCE_FIELD}->value(array('identifier' => TRUE)),
     'nid' => $node->nid,
@@ -161,4 +166,29 @@ function dekyll_parser_write_file($node) {
   $queue->createItem($data);
 }
 
+
+
+/**
+ * Implements hook_cron_queue_info().
+ *
+ * @todo: Move worker callbacks into the module?
+ */
+function dekyll_parser_cron_queue_info() {
+  $queues['dekyll_clone'] = array(
+    'worker callback' => 'drush_dekyll_parser_dekyll_clone',
+    'time' => 60,
+  );
+
+  $queues['dekyll_sync'] = array(
+    'worker callback' => 'drush_dekyll_parser_dekyll_sync',
+    'time' => 60,
+  );
+
+  $queues['dekyll_write_file'] = array(
+    'worker callback' => 'drush_dekyll_parser_dekyll_write_file',
+    'time' => 60,
+  );
+
+  return $queues;
+}
 

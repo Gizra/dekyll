@@ -100,3 +100,9 @@ projects[views][version] = "3.5"
 
 projects[views_bulk_operations][subdir] = "contrib"
 projects[views_bulk_operations][version] = "3.1"
+
+; Use git until there is a release
+; @see https://drupal.org/node/2010080
+projects[waiting_queue][subdir] = "contrib"
+projects[waiting_queue][download][type] = git
+projects[waiting_queue][download][branch] = 7.x-1.x
