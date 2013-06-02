@@ -78,7 +78,7 @@ function drush_dekyll_parser_dekyll_write_file($queue_item = NULL) {
   $git->checkout($branch);
 
   // Write the file.
-  $file_path = $wrapper->field_full_path->value();
+  $file_path = $wrapper->field_file_path->value();
   $full_path = $path . '/' . $file_path;
   $contents = file_get_contents($full_path);
 
@@ -316,7 +316,7 @@ function drush_dekyll_parser_save_yml($gid, $file_name, $data = array(), $commit
  * @todo: Do actually field mapping.
  *
  * @param $file_path
- *   The file full path.
+ *   The file path.
  */
 function drush_jekyll_file_to_node($file_path, $gid, $nid = NULL, $sync = FALSE) {
   $path = dekyll_og_get_repo_path($gid);
@@ -333,7 +333,7 @@ function drush_jekyll_file_to_node($file_path, $gid, $nid = NULL, $sync = FALSE)
   $text = $split_contents[2];
 
   // @todo: Be smarter about the type.
-  $bundle = 'post';
+  $bundle = strpos($file_path, '_posts') === 0 ? 'post' : 'page';
 
   if ($nid) {
     $wrapper = entity_metadata_wrapper('node', $nid);
@@ -341,11 +341,11 @@ function drush_jekyll_file_to_node($file_path, $gid, $nid = NULL, $sync = FALSE)
   else {
     $node = (object) array(
       'type' => $bundle,
-      // @todo: Set to another user.
-      'uid' => 1,
     );
 
     node_object_prepare($node);
+
+    // @todo: Save the node using the group manager?
     $wrapper = entity_metadata_wrapper('node', $node);
   }
 
@@ -363,7 +363,7 @@ function drush_jekyll_file_to_node($file_path, $gid, $nid = NULL, $sync = FALSE)
   // Add the text to the body field.
   // @todo: Is it worth a plugin?
   $wrapper->body->set(array('value' => $text, 'format' => 'dekyll_plain'));
-  $wrapper->field_full_path->set($file_path);
+  $wrapper->field_file_path->set($file_path);
 
   // Set the group.
   $wrapper->{OG_AUDIENCE_FIELD}->set($gid);

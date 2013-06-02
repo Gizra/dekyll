@@ -19,6 +19,14 @@ function dekyll_post_ctools_plugin_api() {
  */
 function dekyll_post_node_info() {
   $items = array(
+    'page' => array(
+      'name' => t('Page'),
+      'base' => 'node_content',
+      'description' => '',
+      'has_title' => '1',
+      'title_label' => t('Title'),
+      'help' => '',
+    ),
     'post' => array(
       'name' => t('Post'),
       'base' => 'node_content',
