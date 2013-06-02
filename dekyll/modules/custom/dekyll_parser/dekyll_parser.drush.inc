@@ -118,8 +118,8 @@ function drush_dekyll_parser_dekyll_write_file($queue_item = NULL) {
 
   drush_log(dt('Writing node ID @nid to @file', array('@nid' => $nid, '@file' => $file_path)));
 
-  if (!file_exists($full_path)) {
-    $path_parts = pathinfo($full_path);
+  if (!file_exists($file_path)) {
+    $path_parts = pathinfo($file_path);
     drupal_mkdir($path_parts['dirname']);
   }
 
