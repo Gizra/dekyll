@@ -1,0 +1,38 @@
+.prefix-float,
+.suffix-float {
+  float: left;
+  padding: 0 10px;
+  height: 30px;
+  margin-top: 5px;
+}
+
+.field-name-field-file-path select {
+  height: 25px;
+}
+
+.form-item-field-file-path-und-0-directory,
+.field-name-field-file-path .container-inline-date,
+.form-item-field-file-path-und-0-value,
+.form-item-field-file-path-und-0-extension {
+  float: left;
+}
+.field-name-field-file-path .container-inline-date {
+  clear: none;
+}
+
+.field-name-field-file-path .container-inline-date > .form-item {
+  margin-right: 0;
+}
+
+.field-name-field-file-path .container-inline-date .description {
+  display: none;
+}
+
+.field-name-field-file-path .container-inline-date .date-padding {
+  padding: 0;
+}
+
+#edit-field-file-path-und-0-value:disabled {
+  background: rgb(245, 245, 245);
+}
+

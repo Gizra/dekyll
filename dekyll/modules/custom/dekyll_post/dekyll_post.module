@@ -5,3 +5,79 @@
  */
 
 include_once 'dekyll_post.features.inc';
+
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Help the file name creation for post content type.
+ *
+ * @todo: Add validate to make sure file is under _posts.
+ */
+function dekyll_post_form_post_node_form_alter(&$form, $form_state, $form_id) {
+  $file_path_parts = array();
+
+  if ($default_value = &$form['field_file_path'][LANGUAGE_NONE][0]['value']['#default_value']) {
+    $file_path_parts = explode('/', $default_value, 2);
+    $default_value = substr($file_path_parts[1], 11);
+  }
+
+  // Add elements to select the directory and date prefix of the post file.
+  $element = array();
+  $element['directory'] = array(
+    '#title' => t('Directory'),
+    '#title_display' => 'invisible',
+    '#type' => 'select',
+    '#options' => array(
+      '_posts' => '_posts',
+      '_drafts' => '_drafts',
+    ),
+    '#weight' => -10,
+    '#default_value' => !empty($file_path_parts) ? $file_path_parts[0] : '_posts',
+  );
+
+  $element['file_date'] = array(
+    '#title' => t('File date'),
+    '#title_display' => 'invisible',
+    '#date_label_position' => 'invisible',
+    '#type' => 'date_popup',
+    '#date_format' => 'Y-m-d',
+    '#weight' => -5,
+    '#default_value' => !empty($file_path_parts) ? substr($file_path_parts[1], 0, 10) : date('Y-m-d'),
+    '#size' => 10,
+    '#prefix' => '<div class="prefix-float">/</div>',
+    '#suffix' => '<div class="suffix-float">-</div>',
+  );
+
+  $element['extension'] = array(
+    '#title' => t('Extension'),
+    '#title_display' => 'invisible',
+    '#type' => 'select',
+    '#options' => array(
+      'md' => 'md',
+      'html' => 'html',
+    ),
+    '#weight' => 10,
+    '#prefix' => '<div class="prefix-float">.</div>',
+  );
+
+  $form['field_file_path'][LANGUAGE_NONE][0] += $element;
+  $form['field_file_path'][LANGUAGE_NONE][0]['value']['#title_display'] = 'invisible';
+  $form['field_file_path'][LANGUAGE_NONE][0]['value']['#attached']['js'][] = drupal_get_path('module', 'dekyll_post') . '/js/dekyll_post.js';
+  $form['field_file_path'][LANGUAGE_NONE][0]['value']['#attached']['css'][] = drupal_get_path('module', 'dekyll_post') . '/css/dekyll_post.css';
+
+  // Allow floating the inner elements.
+  $form['field_file_path']['#attributes']['class'][] = 'clearfix';
+
+  $form['field_file_path'][LANGUAGE_NONE][0]['value']['#element_validate'][] = 'dekyll_post_field_file_path_element_validate';
+}
+
+/**
+ * Element validate; Prefix the file name with "_posts".
+ */
+function dekyll_post_field_file_path_element_validate($element, &$form_state) {
+  $values = $form_state['values']['field_file_path'][LANGUAGE_NONE][0];
+
+  $file_path = $values['directory'] . '/' . $values['file_date']['date'] . '-' . $values['value'] . '.' . $values['extension'];
+  form_set_value($element, $file_path, $form_state);
+}

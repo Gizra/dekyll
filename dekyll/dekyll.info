@@ -30,6 +30,7 @@ dependencies[] = admin_menu_toolbar
 dependencies[] = admin_views
 dependencies[] = ctools
 dependencies[] = date
+dependencies[] = date_popup
 dependencies[] = devel
 dependencies[] = diff
 dependencies[] = entity
