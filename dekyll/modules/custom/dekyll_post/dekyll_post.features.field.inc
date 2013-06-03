@@ -78,7 +78,7 @@ function dekyll_post_field_default_fields() {
           'summary_rows' => 5,
         ),
         'type' => 'text_textarea_with_summary',
-        'weight' => '1',
+        'weight' => '2',
       ),
     ),
   );
@@ -148,7 +148,7 @@ function dekyll_post_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '5',
+        'weight' => '1',
       ),
     ),
   );
@@ -267,7 +267,7 @@ function dekyll_post_field_default_fields() {
         'module' => 'og',
         'settings' => array(),
         'type' => 'og_complex',
-        'weight' => '2',
+        'weight' => '3',
       ),
     ),
   );
@@ -361,7 +361,7 @@ function dekyll_post_field_default_fields() {
         'module' => 'og_vocab',
         'settings' => array(),
         'type' => 'og_vocab_complex',
-        'weight' => '3',
+        'weight' => '4',
       ),
     ),
   );
@@ -434,7 +434,7 @@ function dekyll_post_field_default_fields() {
           'summary_rows' => 5,
         ),
         'type' => 'text_textarea_with_summary',
-        'weight' => '-4',
+        'weight' => '2',
       ),
     ),
   );
@@ -622,7 +622,7 @@ function dekyll_post_field_default_fields() {
         'module' => 'og',
         'settings' => array(),
         'type' => 'og_complex',
-        'weight' => '-1',
+        'weight' => '3',
       ),
     ),
   );
@@ -716,7 +716,7 @@ function dekyll_post_field_default_fields() {
         'module' => 'og_vocab',
         'settings' => array(),
         'type' => 'og_vocab_complex',
-        'weight' => 0,
+        'weight' => '4',
       ),
     ),
   );
