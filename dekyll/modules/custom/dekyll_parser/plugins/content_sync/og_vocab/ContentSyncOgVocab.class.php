@@ -35,25 +35,45 @@ class ContentSyncOgVocab extends ContentSyncBase {
         continue;
       }
 
-      $values = is_array($yaml[$name]) ? $yaml[$name] : array($yaml[$name]);
+      $term_names = is_array($yaml[$name]) ? $yaml[$name] : array($yaml[$name]);
 
-      foreach ($values as $value) {
-        if (!$term = taxonomy_get_term_by_name($value, $vocabulary->machine_name)) {
-          $values = array(
-            'name' => $value,
-            'vid' => $vocabulary->vid,
-          );
-          $term = entity_create('taxonomy_term', $values);
-          taxonomy_term_save($term);
-        }
+      foreach ($term_names as $term_name) {
+        $terms[] = $this->getTerm($term_name, $vocabulary);
       }
-
-      $term = is_array($term) ? reset($term) : $term;
-      $terms[] = $term;
     }
+
+    // Add the branch name from git.
+    $vocabulary = taxonomy_vocabulary_machine_name_load('branch_' . $this->gid);
+    $branch_name = $this->git->run(array('rev-parse --abbrev-ref HEAD'))->getOutput();
+    $terms[] = $this->getTerm($branch_name, $vocabulary);
 
     // Add term to the OG-Vocab field.
     $wrapper->{OG_VOCAB_FIELD}->set($terms);
+  }
+
+  /**
+   * Helper function to create or get an existing term.
+   *
+   * @param $term_name
+   *   The term name.
+   * @param $vocabulary
+   *   The vocabulary object.
+   *
+   * @return
+   *   A taxonomy term object.
+   */
+  private function getTerm($term_name, $vocabulary) {
+    if (!$term = taxonomy_get_term_by_name($term_name, $vocabulary->machine_name)) {
+      $values = array(
+        'name' => $term_name,
+        'vid' => $vocabulary->vid,
+      );
+      $term = entity_create('taxonomy_term', $values);
+      taxonomy_term_save($term);
+    }
+
+    // taxonomy_get_term_by_name() returns an array, so normalize it.
+    return is_array($term) ? reset($term) : $term;
   }
 
 

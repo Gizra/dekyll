@@ -16,6 +16,7 @@ function dekyll_og_node_insert($node) {
     return;
   }
 
+  // When cloning, the default branch will be auto-created.
   $queue = DrupalQueue::get('dekyll_clone');
   $data = array(
     'gid' => $node->nid,

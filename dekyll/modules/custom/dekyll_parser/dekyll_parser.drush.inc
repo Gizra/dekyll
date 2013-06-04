@@ -8,6 +8,7 @@
 require DRUPAL_ROOT . '/profiles/dekyll/libraries/vendor/autoload.php';
 
 use GitWrapper\GitWrapper;
+use GitWrapper\GitWorkingCopy;
 use GitWrapper\GitException;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Parser;
@@ -172,7 +173,7 @@ function drush_dekyll_parser_dekyll_sync($queue_item = NULL) {
   // Config sync.
   foreach (dekyll_parser_get_config_syncs() as $plugin) {
     $class = ctools_plugin_load_class('dekyll_parser', 'config_sync', $plugin['name'], 'class');
-    $config_sync = new $class($plugin, $gid);
+    $config_sync = new $class($plugin, $gid, $git);
     $config_sync->import();
   }
 
@@ -211,7 +212,7 @@ function drush_dekyll_parser_dekyll_sync($queue_item = NULL) {
     $nid = !empty($map[$file_path][$dekyll_guid]['nid']) ? $map[$file_path][$dekyll_guid]['nid'] : NULL;
 
     // Create node.
-    if ($node = drush_jekyll_file_to_node($file_path, $gid, $nid, TRUE)) {
+    if ($node = drush_jekyll_file_to_node($file_path, $gid, $git, $nid, TRUE)) {
       drush_log(dt('Synced content of file @file to node ID @nid', array('@file' => $file_path, '@nid' => $node->nid)));
       $map[$file_path][$dekyll_guid] = array(
         'hash' => $hash,
@@ -234,10 +235,15 @@ function drush_dekyll_parser_dekyll_config_update() {
   // Get the YAML file.
   $config = $original_config = drush_dekyll_parser_get_yml($gid, '_dekyll.yml');
 
+  $path = dekyll_og_get_repo_path($gid);
+
+  $git_wrapper = new GitWrapper();
+  $git = $git_wrapper ->workingCopy($path);
+
   // Config sync.
   foreach (dekyll_parser_get_config_syncs() as $plugin) {
     $class = ctools_plugin_load_class('dekyll_parser', 'config_sync', $plugin['name'], 'class');
-    $config_sync = new $class($plugin, $gid);
+    $config_sync = new $class($plugin, $gid, $git);
     $config_sync->export($config);
   }
 
@@ -329,7 +335,7 @@ function drush_dekyll_parser_save_yml($gid, $file_path, $data = array(), $commit
  * @param $file_path
  *   The file path.
  */
-function drush_jekyll_file_to_node($file_path, $gid, $nid = NULL, $sync = FALSE) {
+function drush_jekyll_file_to_node($file_path, $gid, GitWorkingCopy $git, $nid = NULL, $sync = FALSE) {
   $path = dekyll_og_get_repo_path($gid);
   $contents = file_get_contents($path . '/' . $file_path);
 
@@ -366,7 +372,7 @@ function drush_jekyll_file_to_node($file_path, $gid, $nid = NULL, $sync = FALSE)
   // Content sync, allow each plugin to change the node.
   foreach (dekyll_parser_get_content_syncs() as $plugin) {
     $class = ctools_plugin_load_class('dekyll_parser', 'content_sync', $plugin['name'], 'class');
-    $config_sync = new $class($plugin, $gid, $file_path);
+    $config_sync = new $class($plugin, $gid, $file_path, $git);
     $config_sync->import($wrapper, $yaml_parsed, $text);
   }
 

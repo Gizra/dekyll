@@ -6,6 +6,51 @@
 
 include_once 'dekyll_post.features.inc';
 
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function dekyll_post_form_node_form_alter(&$form, $form_state, $form_id) {
+  $node = $form['#node'];
+  if (!og_is_group_content_type('node', $node->type)) {
+    return;
+  }
+
+  _dekyll_post_disable_branch($form, $form_state);
+
+}
+
+/**
+ * Disable the "branch" field to prevent it from changing on existing nodes.
+ */
+function _dekyll_post_disable_branch(&$form, $form_state) {
+  $node = $form['#node'];
+
+  if (empty($node->nid)) {
+    return;
+  }
+
+  $element = &$form[OG_VOCAB_FIELD][LANGUAGE_NONE][0];
+
+  // Get the "branch" vocabulary.
+  $vids = array();
+  foreach (array_keys($element) as $key) {
+    if (is_numeric($key)) {
+      $vids[] = $key;
+    }
+  }
+
+  $vocabularies = taxonomy_vocabulary_load_multiple($vids);
+  foreach ($vocabularies as $vocabulary) {
+    if ($vocabulary->name != 'branch') {
+      continue;
+    }
+
+    $element[$vocabulary->vid]['#disabled'] = TRUE;
+    // We can return.
+    return;
+  }
+
+}
 
 /**
  * Implements hook_form_FORM_ID_alter().

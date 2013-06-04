@@ -3,6 +3,7 @@
 require DRUPAL_ROOT . '/profiles/dekyll/libraries/vendor/autoload.php';
 
 use GitWrapper\GitWrapper;
+use GitWrapper\GitWorkingCopy;
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Dumper;
 
@@ -14,7 +15,7 @@ interface ContentSyncInterface {
   /**
    * Constructor for the Content sync class.
    */
-  public function __construct($plugin, $gid, $file_path);
+  public function __construct($plugin, $gid, $file_path, GitWorkingCopy $git);
 
   /**
    * Import content from Jekyll file.
@@ -47,10 +48,16 @@ abstract class ContentSyncBase implements ContentSyncInterface {
    */
   protected $filePath;
 
-  public function __construct($plugin, $gid, $file_path) {
+  /**
+   * The GitWrapper\GitWorkingCopy object.
+   */
+  protected $git;
+
+  public function __construct($plugin, $gid, $file_path, GitWorkingCopy $git) {
     $this->plugin = $plugin;
     $this->gid = $gid;
     $this->filePath = $file_path;
+    $this->git = $git;
   }
 
   public function import(EntityDrupalWrapper $wrapper, $yaml = array(), $text = '') {}

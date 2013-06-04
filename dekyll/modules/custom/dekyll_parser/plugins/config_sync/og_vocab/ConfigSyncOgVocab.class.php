@@ -1,5 +1,7 @@
 <?php
 
+use GitWrapper\GitWorkingCopy;
+
 /**
  * OG-vocab config sync.
  */
@@ -89,6 +91,12 @@ class ConfigSyncOgVocab extends ConfigSyncBase {
 
     foreach ($og_vocabs as $og_vocab) {
       $vocabulary = $vocabularies[$og_vocab->vid];
+
+      if ($vocabulary->name == 'branch') {
+        // We don't export this special vocabulary.
+        // @see ConfigSyncBranch::import().
+        continue;
+      }
 
       $settings = $og_vocab->settings;
 

@@ -3,6 +3,7 @@
 require DRUPAL_ROOT . '/profiles/dekyll/libraries/vendor/autoload.php';
 
 use GitWrapper\GitWrapper;
+use GitWrapper\GitWorkingCopy;
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Dumper;
 
@@ -12,13 +13,9 @@ use Symfony\Component\Yaml\Dumper;
 interface ConfigSyncInterface {
 
   /**
-   * Constructor for the notifier.
-   *
-   * @param $plugin
-   *   The notifier plugin object. Note the "options" values might have
-   *   been overriden in message_notify_send_message().
+   * Constructor for the Config sync.
    */
-  public function __construct($plugin, $gid);
+  public function __construct($plugin, $gid, GitWorkingCopy $git);
 
   /**
    * Import config from _dekyll.yml
@@ -47,6 +44,11 @@ abstract class ConfigSyncBase implements ConfigSyncInterface {
   protected $gid;
 
   /**
+   * The GitWrapper\GitWorkingCopy object.
+   */
+  protected $git;
+
+  /**
    * Array with the parsed YAML from _dekyll.yml, or default array() values if
    * file doesn't exist.
    */
@@ -69,11 +71,10 @@ abstract class ConfigSyncBase implements ConfigSyncInterface {
     ),
   );
 
-
-
-  public function __construct($plugin, $gid) {
+  public function __construct($plugin, $gid, GitWorkingCopy $git) {
     $this->plugin = $plugin;
     $this->gid = $gid;
+    $this->git = $git;
 
     $path = dekyll_og_get_repo_path($gid) . '/_dekyll.yml';
 
