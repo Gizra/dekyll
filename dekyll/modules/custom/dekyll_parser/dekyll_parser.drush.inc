@@ -118,9 +118,9 @@ function drush_dekyll_parser_dekyll_write_file($queue_item = NULL) {
 
   drush_log(dt('Writing node ID @nid to @file', array('@nid' => $nid, '@file' => $file_path)));
 
-  if (!file_exists($file_path)) {
-    $path_parts = pathinfo($file_path);
-    drupal_mkdir($path_parts['dirname']);
+  if (!file_exists($full_path)) {
+    $path_parts = pathinfo($full_path);
+    drupal_mkdir($path_parts['dirname'], NULL, TRUE);
   }
 
   file_put_contents($full_path, implode('', $dump));
@@ -283,29 +283,29 @@ function drush_dekyll_parser_get_yml($gid, $file_name) {
  * @param $data
  *   The array to dump into the file.
  */
-function drush_dekyll_parser_save_yml($gid, $file_name, $data = array(), $commit_message = '') {
+function drush_dekyll_parser_save_yml($gid, $file_path, $data = array(), $commit_message = '') {
   // Content sync.
   $path = dekyll_og_get_repo_path($gid);
 
   $git_wrapper = new GitWrapper();
   $git = $git_wrapper->workingCopy($path);
 
-  $file_path = $path . '/' . $file_name;
+  $full_path = $path . '/' . $file_path;
 
-  if (!file_exists($file_path)) {
-    $path_parts = pathinfo($file_path);
-    drupal_mkdir($path_parts['dirname']);
+  if (!file_exists($full_path)) {
+    $path_parts = pathinfo($full_path);
+    drupal_mkdir($path_parts['dirname'], NULL, TRUE);
   }
 
   $dumper = new Dumper();
-  file_put_contents($file_path, $dumper->dump($data, 10));
+  file_put_contents($full_path, $dumper->dump($data, 10));
 
-  $commit_message = $commit_message ? $commit_message : 'Commit ' . $file_name;
+  $commit_message = $commit_message ? $commit_message : 'Commit ' . $file_path;
 
   // Push to git.
   try {
     $git
-      ->commit($file_name, array('m' => $commit_message));
+      ->commit($file_path, array('m' => $commit_message));
   }
   catch(GitException $e) {
     // File didn't change, we can return;
