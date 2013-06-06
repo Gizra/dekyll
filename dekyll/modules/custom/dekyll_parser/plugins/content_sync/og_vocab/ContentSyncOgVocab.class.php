@@ -114,6 +114,10 @@ class ContentSyncOgVocab extends ContentSyncBase {
       // Populate the YAML.
       $vocab_name = $vocabularies[$vid]->name;
 
+      if ($vocab_name == 'branch') {
+        continue;
+      }
+
       if (!$value_types[$vid]) {
         $vocab_terms = $vocab_terms[0];
       }
