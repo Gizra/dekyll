@@ -64,7 +64,14 @@ function dekyll_post_form_post_node_form_alter(&$form, $form_state, $form_id) {
 
   if ($default_value = &$form['field_file_path'][LANGUAGE_NONE][0]['value']['#default_value']) {
     $file_path_parts = explode('/', $default_value, 2);
-    $default_value = substr($file_path_parts[1], 11);
+
+    $path_info = pathinfo(substr($file_path_parts[1], 11));
+
+    $default_value = $path_info['filename'];
+    $extension = $path_info['extension'];
+  }
+  else {
+    $extension = 'md';
   }
 
   // Add elements to select the directory and date prefix of the post file.
@@ -102,6 +109,7 @@ function dekyll_post_form_post_node_form_alter(&$form, $form_state, $form_id) {
       'md' => 'md',
       'html' => 'html',
     ),
+    '#default_value' => $extension,
     '#weight' => 10,
     '#prefix' => '<div class="prefix-float">.</div>',
   );
