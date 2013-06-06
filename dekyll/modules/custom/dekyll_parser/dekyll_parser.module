@@ -158,12 +158,27 @@ function dekyll_parser_write_file($node) {
   $data = array(
     'gid' => $wrapper->{OG_AUDIENCE_FIELD}->value(array('identifier' => TRUE)),
     'nid' => $node->nid,
-    // @todo: Remove hardcoding and use a varabile that has all branches we care
-    // about.
-    'branch' => 'master',
+    // Get the branch of the node.
+    'branch' => dekyll_parser_get_git_branch($node),
     'commit_message' => '',
   );
   $queue->createItem($data);
+}
+
+/**
+ * Get the branch name from a group content.
+ */
+function dekyll_parser_get_git_branch($node) {
+  $wrapper = entity_metadata_wrapper('node', $node);
+
+  $gid = $wrapper->{OG_AUDIENCE_FIELD}->value(array('identifier' => TRUE));
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load('branch_' . $gid);
+  foreach ($wrapper->{OG_VOCAB_FIELD}->value() as $term) {
+    if ($term->vid == $vocabulary->vid) {
+      return $term->name;
+    }
+  }
 }
 
 

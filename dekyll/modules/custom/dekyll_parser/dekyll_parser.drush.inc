@@ -101,7 +101,7 @@ function drush_dekyll_parser_dekyll_write_file($queue_item = NULL) {
   // Content sync, allow each plugin to change the node.
   foreach (dekyll_parser_get_content_syncs() as $plugin) {
     $class = ctools_plugin_load_class('dekyll_parser', 'content_sync', $plugin['name'], 'class');
-    $config_sync = new $class($plugin, $gid, $file_path);
+    $config_sync = new $class($plugin, $gid, $file_path, $git);
 
     // YAML and text are passed by reference.
     $config_sync->export($wrapper, $yaml_parsed, $text);
