@@ -125,4 +125,18 @@ class ContentSyncOgVocab extends ContentSyncBase {
       $yaml[$vocab_name] = $vocab_terms;
     }
   }
+
+  /**
+   * Access callback.
+   */
+  public function access($op, $field = NULL, $instance = NULL) {
+    if ($op == 'settings') {
+      return og_vocab_is_og_vocab_field($instance['entity_type'], $field['field_name'], $instance['bundle']);
+    }
+    elseif (in_array($op, array('import', 'export'))) {
+      $plugin_name = $this->plugin['name'];
+      $sync_map = $this->syncMap[$plugin_name];
+      return in_array(OG_VOCAB_FIELD, $sync_map);
+    }
+  }
 }

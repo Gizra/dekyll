@@ -99,6 +99,15 @@ function dekyll_post_form_post_node_form_alter(&$form, $form_state, $form_id) {
     '#size' => 10,
     '#prefix' => '<div class="prefix-float">/</div>',
     '#suffix' => '<div class="suffix-float">-</div>',
+
+    // Hide this field, if "_drafts" folder is selected, as the date isn't
+    // needed on that folder (since the post isn't published yet).
+    '#states' => array(
+      'visible' => array(   // action to take.
+        ':input[name="field_file_path[und][0][directory]"]' => array('value' => '_posts'),
+      ),
+    ),
+
   );
 
   $element['extension'] = array(
@@ -131,6 +140,7 @@ function dekyll_post_form_post_node_form_alter(&$form, $form_state, $form_id) {
 function dekyll_post_field_file_path_element_validate($element, &$form_state) {
   $values = $form_state['values']['field_file_path'][LANGUAGE_NONE][0];
 
-  $file_path = $values['directory'] . '/' . $values['file_date']['date'] . '-' . $values['value'] . '.' . $values['extension'];
+  $file_date = $values['directory'] == '_posts' ? $values['file_date']['date'] . '-' : '';
+  $file_path = $values['directory'] . '/' . $file_date . $values['value'] . '.' . $values['extension'];
   form_set_value($element, $file_path, $form_state);
 }

@@ -9,7 +9,6 @@ class ContentSyncTitle extends ContentSyncBase {
    * Import node title.
    */
   public function import(EntityDrupalWrapper $wrapper, $yaml = array(), $text = '') {
-
     if (!empty($yaml['title'])) {
       $title = $yaml['title'];
     }
@@ -31,4 +30,14 @@ class ContentSyncTitle extends ContentSyncBase {
   public function export(EntityDrupalWrapper $wrapper, &$yaml = array(), &$text = '') {
     $yaml['title'] = $wrapper->label();
   }
+
+
+  /**
+   * Access callback.
+   */
+  public function access($op, $field = NULL, $instance = NULL) {
+    return $op != 'settings';
+  }
+
+
 }

@@ -107,22 +107,6 @@ function dekyll_parser_get_content_syncs() {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
- *
- * Add a setting to group content fields, to determine whether they will be
- * displayed on the mini node form of the browsing widget.
- */
-function dekyll_parser_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
-  $instance = $form['#instance'];
-  $form['instance']['settings']['jekyll_map'] = array(
-    '#title' => t('Jekyll variable name'),
-    '#description' => t("Map this field to a Jekyll YAML variable (e.g Drupal's <code>field_tags</code> will map to Jekyll's <code>tags</code>)."),
-    '#type' => 'textfield',
-    '#default_value' => !empty($instance['settings']['jekyll_map']) ? $instance['settings']['jekyll_map'] : '',
-  );
-}
-
-/**
  * Implements hook_node_insert().
  */
 function dekyll_parser_node_insert($node) {
@@ -207,3 +191,194 @@ function dekyll_parser_cron_queue_info() {
   return $queues;
 }
 
+/**
+ * Get content sync mapping.
+ *
+ * @return
+ *   Array keyed by the plugin name, and array of field/ property names as the
+ *   value.
+ */
+function dekyll_parser_get_content_sync_map($entity_type, $bundle) {
+  $map = array();
+  foreach (field_info_instances($entity_type, $bundle) as $field_name => $instance) {
+    if (empty($instance['settings']['content_sync'])) {
+      continue;
+    }
+
+    $plugin_name = $instance['settings']['content_sync']['plugin_name'];
+
+    $map[$plugin_name][] = $field_name;
+  }
+
+  // Allow other modules to change this.
+  drupal_alter('dekyll_parser_get_content_sync_map', $map);
+
+  return $map;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Add a setting to group content fields, to determine whether they will be
+ * displayed on the mini node form of the browsing widget.
+ */
+function dekyll_parser_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
+  $field = $form['#field'];
+  $instance = $form['#instance'];
+
+  $form['instance']['settings']['dekyll'] = array(
+    '#type' => 'container',
+    '#attached' => array(
+      // We use Entity-reference classes to indent the handler settings.
+      'css' => array(drupal_get_path('module', 'entityreference') . '/entityreference.admin.css'),
+    ),
+    '#weight' => 10,
+    '#tree' => TRUE,
+    '#process' => array(
+      '_dekyll_parser_form_process_merge_parent',
+      '_dekyll_parser_field_instance_settings_form',
+      '_dekyll_parser_field_settings_ajax_process',
+    ),
+    '#element_validate' => array('_dekyll_parser_field_instance_settings_validate'),
+    '#field' => $field,
+    '#instance' => $instance,
+  );
+}
+
+
+function _dekyll_parser_field_instance_settings_form($form, $form_state) {
+  $field = isset($form_state['content_sync']['field']) ? $form_state['content_sync']['field'] : $form['#field'];
+  $instance = isset($form_state['content_sync']['instance']) ? $form_state['content_sync']['instance'] : $form['#instance'];
+
+  _dekyll_parser_get_content_sync_elements($form, $field, $instance);
+  if (!empty($form['content_sync'])) {
+    $form['content_sync'] += array(
+      '#type' => 'fieldset',
+      '#title' => t('Dekyll Content sync'),
+      '#process' => array(
+        '_dekyll_parser_field_settings_ajax_process',
+      ),
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Get the field or instance elements for the field configuration.
+ */
+function _dekyll_parser_get_content_sync_elements(&$element, $field, $instance) {
+  $element['content_sync'] = array();
+
+  $options = array('' => '-' . t('Select') . '-');
+  // Get the accessible content sync handlers.
+  foreach (dekyll_parser_get_content_syncs() as $plugin_name => $plugin) {
+
+    $class_name = ctools_plugin_load_class('dekyll_parser', 'content_sync', $plugin_name, 'class');
+    if (!class_exists($class_name)) {
+      continue;
+    }
+
+    $content_sync = new $class_name($plugin);
+    if ($content_sync->access('settings', $field, $instance)) {
+      // @todo: call the access function.
+      $options[$plugin['name']] = $plugin['title'];
+    }
+  }
+
+  $element['content_sync'] = array(
+    '#tree' => TRUE,
+  );
+
+  $plugin = NULL;
+
+  if ($plugin_name = !empty($instance['settings']['content_sync']['plugin_name']) ? $instance['settings']['content_sync']['plugin_name'] : FALSE) {
+    $plugin = dekyll_parser_get_content_sync($plugin_name);
+  }
+
+  $element['content_sync']['plugin_name'] = array(
+    '#title' => t('Plugin name'),
+    '#description' => $plugin ? $plugin['description'] : '',
+    '#type' => 'select',
+    '#options' => $options,
+    '#ajax' => TRUE,
+    '#default_value' => $plugin_name,
+  );
+
+  if (!$plugin) {
+    return;
+  }
+
+  // Get the handler's settings form.
+  $class_name = ctools_plugin_load_class('dekyll_parser', 'content_sync', $plugin_name, 'class');
+  $class_name = class_exists($class_name) ? $class_name : 'ContentSyncBaseBroken';
+  $content_sync = new $class_name($plugin);
+
+  // Populate the default value.
+  $settings = !empty($instance['settings']['content_sync']['settings']) ? $instance['settings']['content_sync']['settings'] : array();
+
+  if ($plugin_elements = $content_sync->settingsForm($field, $instance)) {
+    $element['content_sync']['settings'] = !empty($plugin_elements) ? $plugin_elements : array();
+
+    $element['content_sync']['settings'] += array(
+      '#type' => 'container',
+      '#attributes' => array(
+        'class' => array('entityreference-settings'),
+      ),
+    );
+  }
+}
+
+function _dekyll_parser_form_process_merge_parent($element) {
+  $parents = $element['#parents'];
+  array_pop($parents);
+  $element['#parents'] = $parents;
+  return $element;
+}
+
+
+function _dekyll_parser_field_instance_settings_validate($form, &$form_state) {
+  // Store the new values in the form state.
+  $instance = $form['#instance'];
+  if (isset($form_state['values']['instance'])) {
+    $instance = drupal_array_merge_deep($instance, $form_state['values']['instance']);
+  }
+  $form_state['content_sync']['instance'] = $instance;
+}
+
+function _dekyll_parser_field_settings_ajax_process($form, $form_state) {
+  _dekyll_parser_field_settings_ajax_process_element($form, $form);
+  return $form;
+}
+
+
+function _dekyll_parser_field_settings_ajax_process_element(&$element, $main_form) {
+  if (isset($element['#ajax']) && $element['#ajax'] === TRUE) {
+    $element['#ajax'] = array(
+      'callback' => 'dekyll_parser_settings_ajax',
+      'wrapper' => $main_form['#id'],
+      'element' => $main_form['#array_parents'],
+    );
+  }
+
+  foreach (element_children($element) as $key) {
+    _dekyll_parser_field_settings_ajax_process_element($element[$key], $main_form);
+  }
+}
+
+/**
+ * Ajax callback for the handler settings form.
+ *
+ * @see dekyll_parser_field_settings_form()
+ */
+function dekyll_parser_settings_ajax($form, $form_state) {
+  $trigger = $form_state['triggering_element'];
+  return drupal_array_get_nested_value($form, $trigger['#ajax']['element']);
+}
+
+/**
+ * Submit handler for the non-JS case.
+ */
+function dekyll_parser_settings_ajax_submit($form, &$form_state) {
+  $form_state['rebuild'] = TRUE;
+}

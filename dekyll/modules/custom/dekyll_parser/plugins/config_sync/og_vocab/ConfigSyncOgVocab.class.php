@@ -121,5 +121,4 @@ class ConfigSyncOgVocab extends ConfigSyncBase {
       );
     }
   }
-
 }

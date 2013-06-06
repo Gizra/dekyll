@@ -99,12 +99,15 @@ function drush_dekyll_parser_dekyll_write_file($queue_item = NULL) {
   $yaml_parsed = $yaml->parse($yaml_contents);
 
   // Content sync, allow each plugin to change the node.
+  $sync_map = dekyll_parser_get_content_sync_map('node', $wrapper->type());
   foreach (dekyll_parser_get_content_syncs() as $plugin) {
     $class = ctools_plugin_load_class('dekyll_parser', 'content_sync', $plugin['name'], 'class');
-    $config_sync = new $class($plugin, $gid, $file_path, $git);
+    $content_sync = new $class($plugin, $sync_map, $gid, $file_path, $git);
 
-    // YAML and text are passed by reference.
-    $config_sync->export($wrapper, $yaml_parsed, $text);
+    if ($content_sync->access('export', NULL, NULL, $sync_map)) {
+      // YAML and text are passed by reference.
+      $content_sync->export($wrapper, $yaml_parsed, $text);
+    }
   }
 
   $dumper = new Dumper();
@@ -370,10 +373,14 @@ function drush_jekyll_file_to_node($file_path, $gid, GitWorkingCopy $git, $nid =
   $yaml_parsed = $yaml->parse($split_contents[1]);
 
   // Content sync, allow each plugin to change the node.
+  $sync_map = dekyll_parser_get_content_sync_map('node', $bundle);
   foreach (dekyll_parser_get_content_syncs() as $plugin) {
     $class = ctools_plugin_load_class('dekyll_parser', 'content_sync', $plugin['name'], 'class');
-    $config_sync = new $class($plugin, $gid, $file_path, $git);
-    $config_sync->import($wrapper, $yaml_parsed, $text);
+    $content_sync = new $class($plugin, $sync_map, $gid, $file_path, $git);
+
+    if ($content_sync->access('import', NULL, NULL, $sync_map)) {
+      $content_sync->import($wrapper, $yaml_parsed, $text);
+    }
   }
 
 
@@ -411,6 +418,7 @@ function drush_dekyll_parser_dekyll_clone($queue_item = NULL) {
   $path = dekyll_og_get_repo_path($gid);
 
   $git_wrapper = new GitWrapper();
+  $git_wrapper->setTimeout(600);
   $git = $git_wrapper->workingCopy($path);
 
   if (!$git->isCloned() && !$git->clone($credentials)) {
