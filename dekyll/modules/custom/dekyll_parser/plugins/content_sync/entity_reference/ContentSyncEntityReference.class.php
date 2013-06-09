@@ -8,7 +8,67 @@ class ContentSyncEntityReference extends ContentSyncBase {
   /**
    * Import entity reference field.
    */
-  public function import(EntityDrupalWrapper $wrapper, $yaml = array(), $text = '') {}
+  public function import(EntityDrupalWrapper $wrapper, $yaml = array(), $text = '') {
+    $plugin_name = $this->plugin['name'];
+    $bundle = $wrapper->getBundle();
+
+    $target_items = array();
+
+    foreach ($this->syncMap[$plugin_name] as $field_name) {
+      if (empty($yaml[$field_name])) {
+        // Entity reference field is empty.
+        continue;
+      }
+
+      $field = field_info_field($field_name);
+      $instance = field_info_instance($wrapper->type(), $field_name, $bundle);
+
+      $target_type = $field['settings']['target_type'];
+      $unique_field = $instance['settings']['content_sync']['settings']['unique_field'];
+
+      $entity_info = entity_get_info($target_type);
+
+      foreach ($yaml[$field_name] as $unique_field_value => $values) {
+
+        // Check if the entity already exists by the unique field, or create
+        // a new one.
+        $query = new EntityFieldQuery();
+        $result = $query
+          ->entityCondition('entity_type', $target_type)
+          // @todo: Remove the "column" hardcoding?
+          ->fieldCondition($unique_field, 'value', $unique_field_value, '=')
+          ->range(0, 1)
+          ->execute();
+
+        if (!empty($result[$target_type])) {
+          $entity = entity_load_single($target_type, key($result[$target_type]));
+        }
+        else {
+          // @todo: Remove hardcoding.
+          $target_bundle = 'repository';
+          $entity = entity_create($target_type, array($entity_info['bundle keys']['bundle'] => $target_bundle));
+        }
+
+        $target_wrapper = entity_metadata_wrapper($target_type, $entity);
+
+        // Add the unique field to the values, so it will be set.
+        $values[$unique_field] = $unique_field_value;
+
+        foreach ($values as $target_field_name => $target_value) {
+          if (!isset($target_wrapper->{$target_field_name})) {
+            // Field doesn't exist.
+            continue;
+          }
+          $target_wrapper->{$target_field_name}->set($target_value);
+        }
+
+        $target_wrapper->save();
+        $target_items[] = $entity;
+      }
+    }
+
+    $wrapper->{$field_name}->set($target_items);
+  }
 
   /**
    * Export entity reference field.
