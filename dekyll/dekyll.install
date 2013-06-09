@@ -9,7 +9,18 @@ function dekyll_install() {
     'format' => 'dekyll_plain',
     'name' => 'Dekyll Plain Text',
     'weight' => 0,
-    'filters' => array(),
+    'filters' => array(
+      // Line break filter.
+      'filter_autop' => array(
+        'weight' => 2,
+        'status' => 1,
+      ),
+      // HTML corrector filter.
+      'filter_htmlcorrector' => array(
+        'weight' => 10,
+        'status' => 1,
+      ),
+    ),
   );
 
   $plain_format = (object) $plain_format;
