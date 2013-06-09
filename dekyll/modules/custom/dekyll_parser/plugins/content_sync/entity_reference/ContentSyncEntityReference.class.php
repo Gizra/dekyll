@@ -13,34 +13,57 @@ class ContentSyncEntityReference extends ContentSyncBase {
   /**
    * Export entity reference field.
    */
-  public function export(EntityDrupalWrapper $wrapper, &$yaml = array(), &$text = '') {}
-
-  /**
-   * Check field is of type entity reference.
-   */
-  public function access($op, $field = NULL, $instance = NULL) {
-    if ($op == 'settings') {
-      if ($field['type'] != 'entityreference') {
-        // Field is not entity reference type.
-        return;
+  public function export(EntityDrupalWrapper $wrapper, &$yaml = array(), &$text = '') {
+    $plugin_name = $this->plugin['name'];
+    $bundle = $wrapper->getBundle();
+    foreach ($this->syncMap[$plugin_name] as $field_name) {
+      if (!$entities = $wrapper->{$field_name}->value()) {
+        // Entity reference field is empty.
+        continue;
       }
 
-      $field_name = $field['field_name'];
+      $field = field_info_field($field_name);
+      $instance = field_info_instance($wrapper->type(), $field_name, $bundle);
 
-      // Check this is not an OG-vocab or OG-audience field.
-      if (og_is_group_audience_field($field_name)) {
-        return;
+      $view_mode = $instance['settings']['content_sync']['settings']['view_mode'];
+      $unique_field = $instance['settings']['content_sync']['settings']['unique_field'];
+
+      $target_type = $field['settings']['target_type'];
+
+      // Get all the fields that are visible in the view mode, and output them.
+      $entities = is_array($entities) ? $entities : array($entities);
+
+      foreach ($entities as $entity) {
+        $target_wrapper = entity_metadata_wrapper($target_type, $entity);
+        $target_bundle = $target_wrapper->getBundle();
+
+        $delta = $target_wrapper->{$unique_field}->raw();
+
+        foreach (field_info_instances($target_type, $target_bundle) as $target_field_name => $target_instance) {
+          if ($target_field_name == $unique_field) {
+            // We already use the unique property as the key of the array.
+            continue;
+          }
+
+          if (empty($target_instance['display'][$view_mode])) {
+            // View mode doesn't exist.
+            continue;
+          }
+
+          if ($target_instance['display'][$view_mode]['type'] == 'hidden') {
+            // Field is hidden, so it should not be exported.
+            continue;
+          }
+
+          if (!$value = $target_wrapper->$target_field_name->raw()) {
+            // Target entity doesn't have value.
+            // @todo: Should we still export it?
+            continue;
+          }
+
+          $yaml[$field_name][$delta][$target_field_name] = $value;
+        }
       }
-
-      if (og_vocab_is_og_vocab_field($instance['entity_type'], $field_name, $instance['bundle'])) {
-        return;
-      }
-
-      return TRUE;
-    }
-    elseif (in_array($op, array('import', 'export'))) {
-      $plugin_name = $this->plugin['name'];
-      return !empty($this->syncMap[$plugin_name]);
     }
   }
 
@@ -107,5 +130,34 @@ class ContentSyncEntityReference extends ContentSyncBase {
     );
 
     return $form;
+  }
+
+  /**
+   * Check field is of type entity reference.
+   */
+  public function access($op, $field = NULL, $instance = NULL) {
+    if ($op == 'settings') {
+      if ($field['type'] != 'entityreference') {
+        // Field is not entity reference type.
+        return;
+      }
+
+      $field_name = $field['field_name'];
+
+      // Check this is not an OG-vocab or OG-audience field.
+      if (og_is_group_audience_field($field_name)) {
+        return;
+      }
+
+      if (og_vocab_is_og_vocab_field($instance['entity_type'], $field_name, $instance['bundle'])) {
+        return;
+      }
+
+      return TRUE;
+    }
+    elseif (in_array($op, array('import', 'export'))) {
+      $plugin_name = $this->plugin['name'];
+      return !empty($this->syncMap[$plugin_name]);
+    }
   }
 }
