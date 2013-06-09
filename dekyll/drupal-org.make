@@ -6,7 +6,7 @@ projects[admin_menu][subdir] = "contrib"
 projects[admin_menu][version] = "3.0-rc4"
 
 projects[admin_views][subdir] = "contrib"
-projects[admin_views][version] = "1.1"
+projects[admin_views][version] = "1.2"
 
 projects[ctools][subdir] = "contrib"
 projects[ctools][version] = "1.3"
@@ -57,7 +57,7 @@ projects[message][subdir] = "contrib"
 projects[message][version] = "1.8"
 
 projects[message_notify][subdir] = "contrib"
-projects[message_notify][version] = "2.3"
+projects[message_notify][version] = "2.5"
 
 projects[migrate][subdir] = "contrib"
 projects[migrate][version] = "2.5"
@@ -96,7 +96,7 @@ projects[token][subdir] = "contrib"
 projects[token][version] = "1.5"
 
 projects[views][subdir] = "contrib"
-projects[views][version] = "3.5"
+projects[views][version] = "3.7"
 
 projects[views_bulk_operations][subdir] = "contrib"
 projects[views_bulk_operations][version] = "3.1"
