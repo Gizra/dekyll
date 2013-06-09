@@ -36,4 +36,18 @@ function dekyll_install() {
   // in order to make the YAML more readable.
   $guid = md5(time() . base_path());
   variable_set('dekyll_guid', $guid);
+
+  // Enable automatic title replacement for node. We do it in the install hook,
+  // as it is invoked before the content types are created.
+  // @see title_field_attach_create_bundle().
+  $title_settings = array(
+    'auto_attach' => array(
+      'title' => 'title',
+    ),
+    'hide_label' => array(
+      'entity' => 'entity',
+      'page' => 0,
+    ),
+  );
+  variable_set('title_node', $title_settings);
 }
