@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * dekyll_post.features.field.inc
+ * dekyll_page.features.field.inc
  */
 
 /**
  * Implements hook_field_default_fields().
  */
-function dekyll_post_field_default_fields() {
+function dekyll_page_field_default_fields() {
   $fields = array();
 
   // Exported field: 'node-page-body'.

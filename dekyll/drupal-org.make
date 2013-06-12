@@ -89,9 +89,6 @@ projects[restws][version] = "2.x-dev"
 projects[strongarm][subdir] = "contrib"
 projects[strongarm][version] = "2.0"
 
-projects[title][subdir] = "contrib"
-projects[title][version] = "1.0-alpha7"
-
 projects[token][subdir] = "contrib"
 projects[token][version] = "1.5"
 

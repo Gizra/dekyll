@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * dekyll_og.features.field.inc
+ * dekyll_repository.features.field.inc
  */
 
 /**
  * Implements hook_field_default_fields().
  */
-function dekyll_og_field_default_fields() {
+function dekyll_repository_field_default_fields() {
   $fields = array();
 
   // Exported field: 'node-repository-field_repo_cloned'.

@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * dekyll_post.strongarm.inc
+ * dekyll_page.strongarm.inc
  */
 
 /**
  * Implements hook_strongarm().
  */
-function dekyll_post_strongarm() {
+function dekyll_page_strongarm() {
   $export = array();
 
   $strongarm = new stdClass();

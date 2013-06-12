@@ -62,7 +62,7 @@ abstract class ContentSyncBase implements ContentSyncInterface {
   /**
    * Array with content sync mapping.
    *
-   * @see dekyll_parser_get_content_sync_map()
+   * @see dekyll_sync_get_content_sync_map()
    */
   protected $syncMap = array();
 

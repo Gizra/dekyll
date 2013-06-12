@@ -4,14 +4,30 @@
  * Code for the Dekyll OG feature.
  */
 
-include_once 'dekyll_og.features.inc';
+include_once 'dekyll_repository.features.inc';
+
+/**
+ * Get the branch name from a group content.
+ */
+function dekyll_repository_get_git_branch($node) {
+  $wrapper = entity_metadata_wrapper('node', $node);
+
+  $gid = $wrapper->{OG_AUDIENCE_FIELD}->value(array('identifier' => TRUE));
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load('branch_' . $gid);
+  foreach ($wrapper->{OG_VOCAB_FIELD}->value() as $term) {
+    if ($term->vid == $vocabulary->vid) {
+      return $term->name;
+    }
+  }
+}
 
 /**
  * Implements hook_node_insert()
  *
  * Add queue item to clone repo.
  */
-function dekyll_og_node_insert($node) {
+function dekyll_repository_node_insert($node) {
   if ($node->type != 'repository') {
     return;
   }
@@ -33,7 +49,7 @@ function dekyll_og_node_insert($node) {
  * @return
  *   The relative path.
  */
-function dekyll_og_get_repo_path($gid) {
+function dekyll_repository_get_repo_path($gid) {
   $wrapper = entity_metadata_wrapper('node', $gid);
 
   $repository = str_replace(array('http://', 'https://'), '', $wrapper->field_repo_url->value());

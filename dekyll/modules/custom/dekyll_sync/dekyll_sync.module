@@ -1,20 +1,20 @@
 <?php
 
 /**
- * Define the YAML front header separator.
- */
-define('YAML_SEPARATOR', "---\n");
-
-/**
  * @file
  * Read and Write Jekyll files.
  */
 
 /**
+ * Define the YAML front header separator.
+ */
+define('YAML_SEPARATOR', "---\n");
+
+/**
  * Implements hook_ctools_plugin_directory().
  */
-function dekyll_parser_ctools_plugin_directory($module, $plugin) {
-  if ($module == 'dekyll_parser') {
+function dekyll_sync_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'dekyll_sync') {
     return 'plugins/' . $plugin;
   }
 }
@@ -22,8 +22,8 @@ function dekyll_parser_ctools_plugin_directory($module, $plugin) {
 /**
  * Implements hook_ctools_plugin_api().
  */
-function dekyll_parser_ctools_plugin_api($module, $api) {
-  if ($module == 'dekyll_parser' && in_array($api, 'config_sync', 'content_sync')) {
+function dekyll_sync_ctools_plugin_api($module, $api) {
+  if ($module == 'dekyll_sync' && in_array($api, 'config_sync', 'content_sync')) {
     return array('version' => 1);
   }
 }
@@ -31,15 +31,15 @@ function dekyll_parser_ctools_plugin_api($module, $api) {
 /**
  * Implements hook_ctools_plugin_type().
  */
-function dekyll_parser_ctools_plugin_type() {
+function dekyll_sync_ctools_plugin_type() {
   $plugins['config_sync'] = array(
     'classes' => array('class'),
-    'process' => 'dekyll_parser_config_sync_plugin_process',
+    'process' => 'dekyll_sync_config_sync_plugin_process',
   );
 
   $plugins['content_sync'] = array(
     'classes' => array('class'),
-    'process' => 'dekyll_parser_content_sync_plugin_process',
+    'process' => 'dekyll_sync_content_sync_plugin_process',
   );
   return $plugins;
 }
@@ -47,7 +47,7 @@ function dekyll_parser_ctools_plugin_type() {
 /**
  * Add defaults values to the notifier plugins.
  */
-function dekyll_parser_config_sync_plugin_process(&$plugin, $info) {
+function dekyll_sync_config_sync_plugin_process(&$plugin, $info) {
   $plugin += array(
     'description' => '',
     'options' => array(),
@@ -62,23 +62,23 @@ function dekyll_parser_config_sync_plugin_process(&$plugin, $info) {
  * @param $plugin_name
  *   The plugin that should be laoded.
  */
-function dekyll_parser_get_config_sync($plugin_name) {
+function dekyll_sync_get_config_sync($plugin_name) {
   ctools_include('plugins');
-  return ctools_get_plugins('dekyll_parser', 'config_sync', $plugin_name);
+  return ctools_get_plugins('dekyll_sync', 'config_sync', $plugin_name);
 }
 
 /**
  * Helper function to include CTools plugins and get all notifier plugins.
  */
-function dekyll_parser_get_config_syncs() {
+function dekyll_sync_get_config_syncs() {
   ctools_include('plugins');
-  return ctools_get_plugins('dekyll_parser', 'config_sync');
+  return ctools_get_plugins('dekyll_sync', 'config_sync');
 }
 
 /**
  * Add defaults values to the notifier plugins.
  */
-function dekyll_parser_content_sync_plugin_process(&$plugin, $info) {
+function dekyll_sync_content_sync_plugin_process(&$plugin, $info) {
   $plugin += array(
     'description' => '',
     'options' => array(),
@@ -93,98 +93,37 @@ function dekyll_parser_content_sync_plugin_process(&$plugin, $info) {
  * @param $plugin_name
  *   The plugin that should be laoded.
  */
-function dekyll_parser_get_content_sync($plugin_name) {
+function dekyll_sync_get_content_sync($plugin_name) {
   ctools_include('plugins');
-  return ctools_get_plugins('dekyll_parser', 'content_sync', $plugin_name);
+  return ctools_get_plugins('dekyll_sync', 'content_sync', $plugin_name);
 }
 
 /**
  * Helper function to include CTools plugins and get all notifier plugins.
  */
-function dekyll_parser_get_content_syncs() {
+function dekyll_sync_get_content_syncs() {
   ctools_include('plugins');
-  return ctools_get_plugins('dekyll_parser', 'content_sync');
+  return ctools_get_plugins('dekyll_sync', 'content_sync');
 }
-
-/**
- * Implements hook_node_insert().
- */
-function dekyll_parser_node_insert($node) {
-  dekyll_parser_write_file($node);
-}
-
-/**
- * Implements hook_node_update().
- */
-function dekyll_parser_node_update($node) {
-  dekyll_parser_write_file($node);
-}
-
-/**
- * Create a queue item, in order to write a node to file.
- *
- * @param $node
- *   The node to be written.
- */
-function dekyll_parser_write_file($node) {
-  if (!isset($node->field_file_path)) {
-    return;
-  }
-
-  if (!empty($node->_dekyll_sync)) {
-    // Node is created or updated on sync.
-    return;
-  }
-
-  $wrapper = entity_metadata_wrapper('node', $node);
-
-  $queue = DrupalQueue::get('dekyll_write_file');
-  $data = array(
-    'gid' => $wrapper->{OG_AUDIENCE_FIELD}->value(array('identifier' => TRUE)),
-    'nid' => $node->nid,
-    // Get the branch of the node.
-    'branch' => dekyll_parser_get_git_branch($node),
-    'commit_message' => '',
-  );
-  $queue->createItem($data);
-}
-
-/**
- * Get the branch name from a group content.
- */
-function dekyll_parser_get_git_branch($node) {
-  $wrapper = entity_metadata_wrapper('node', $node);
-
-  $gid = $wrapper->{OG_AUDIENCE_FIELD}->value(array('identifier' => TRUE));
-
-  $vocabulary = taxonomy_vocabulary_machine_name_load('branch_' . $gid);
-  foreach ($wrapper->{OG_VOCAB_FIELD}->value() as $term) {
-    if ($term->vid == $vocabulary->vid) {
-      return $term->name;
-    }
-  }
-}
-
-
 
 /**
  * Implements hook_cron_queue_info().
  *
  * @todo: Move worker callbacks into the module?
  */
-function dekyll_parser_cron_queue_info() {
+function dekyll_sync_cron_queue_info() {
   $queues['dekyll_clone'] = array(
-    'worker callback' => 'drush_dekyll_parser_dekyll_clone',
+    'worker callback' => 'drush_dekyll_sync_dekyll_clone',
     'time' => 60,
   );
 
   $queues['dekyll_sync'] = array(
-    'worker callback' => 'drush_dekyll_parser_dekyll_sync',
+    'worker callback' => 'drush_dekyll_sync_dekyll_sync',
     'time' => 60,
   );
 
   $queues['dekyll_write_file'] = array(
-    'worker callback' => 'drush_dekyll_parser_dekyll_write_file',
+    'worker callback' => 'drush_dekyll_sync_dekyll_write_file',
     'time' => 60,
   );
 
@@ -198,7 +137,7 @@ function dekyll_parser_cron_queue_info() {
  *   Array keyed by the plugin name, and array of field/ property names as the
  *   value.
  */
-function dekyll_parser_get_content_sync_map($entity_type, $bundle) {
+function dekyll_sync_get_content_sync_map($entity_type, $bundle) {
   $map = array();
   foreach (field_info_instances($entity_type, $bundle) as $field_name => $instance) {
     if (empty($instance['settings']['content_sync'])) {
@@ -211,7 +150,7 @@ function dekyll_parser_get_content_sync_map($entity_type, $bundle) {
   }
 
   // Allow other modules to change this.
-  drupal_alter('dekyll_parser_get_content_sync_map', $map);
+  drupal_alter('dekyll_sync_get_content_sync_map', $map);
 
   return $map;
 }
@@ -222,7 +161,7 @@ function dekyll_parser_get_content_sync_map($entity_type, $bundle) {
  * Add a setting to group content fields, to determine whether they will be
  * displayed on the mini node form of the browsing widget.
  */
-function dekyll_parser_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
+function dekyll_sync_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
   $field = $form['#field'];
   $instance = $form['#instance'];
 
@@ -235,28 +174,28 @@ function dekyll_parser_form_field_ui_field_edit_form_alter(&$form, &$form_state)
     '#weight' => 10,
     '#tree' => TRUE,
     '#process' => array(
-      '_dekyll_parser_form_process_merge_parent',
-      '_dekyll_parser_field_instance_settings_form',
-      '_dekyll_parser_field_settings_ajax_process',
+      '_dekyll_sync_form_process_merge_parent',
+      '_dekyll_sync_field_instance_settings_form',
+      '_dekyll_sync_field_settings_ajax_process',
     ),
-    '#element_validate' => array('_dekyll_parser_field_instance_settings_validate'),
+    '#element_validate' => array('_dekyll_sync_field_instance_settings_validate'),
     '#field' => $field,
     '#instance' => $instance,
   );
 }
 
 
-function _dekyll_parser_field_instance_settings_form($form, $form_state) {
+function _dekyll_sync_field_instance_settings_form($form, $form_state) {
   $field = isset($form_state['content_sync']['field']) ? $form_state['content_sync']['field'] : $form['#field'];
   $instance = isset($form_state['content_sync']['instance']) ? $form_state['content_sync']['instance'] : $form['#instance'];
 
-  _dekyll_parser_get_content_sync_elements($form, $field, $instance);
+  _dekyll_sync_get_content_sync_elements($form, $field, $instance);
   if (!empty($form['content_sync'])) {
     $form['content_sync'] += array(
       '#type' => 'fieldset',
       '#title' => t('Dekyll Content sync'),
       '#process' => array(
-        '_dekyll_parser_field_settings_ajax_process',
+        '_dekyll_sync_field_settings_ajax_process',
       ),
     );
   }
@@ -267,14 +206,14 @@ function _dekyll_parser_field_instance_settings_form($form, $form_state) {
 /**
  * Get the field or instance elements for the field configuration.
  */
-function _dekyll_parser_get_content_sync_elements(&$element, $field, $instance) {
+function _dekyll_sync_get_content_sync_elements(&$element, $field, $instance) {
   $element['content_sync'] = array();
 
   $options = array('' => '-' . t('Select') . '-');
   // Get the accessible content sync handlers.
-  foreach (dekyll_parser_get_content_syncs() as $plugin_name => $plugin) {
+  foreach (dekyll_sync_get_content_syncs() as $plugin_name => $plugin) {
 
-    $class_name = ctools_plugin_load_class('dekyll_parser', 'content_sync', $plugin_name, 'class');
+    $class_name = ctools_plugin_load_class('dekyll_sync', 'content_sync', $plugin_name, 'class');
     if (!class_exists($class_name)) {
       continue;
     }
@@ -293,7 +232,7 @@ function _dekyll_parser_get_content_sync_elements(&$element, $field, $instance) 
   $plugin = NULL;
 
   if ($plugin_name = !empty($instance['settings']['content_sync']['plugin_name']) ? $instance['settings']['content_sync']['plugin_name'] : FALSE) {
-    $plugin = dekyll_parser_get_content_sync($plugin_name);
+    $plugin = dekyll_sync_get_content_sync($plugin_name);
   }
 
   $element['content_sync']['plugin_name'] = array(
@@ -310,7 +249,7 @@ function _dekyll_parser_get_content_sync_elements(&$element, $field, $instance) 
   }
 
   // Get the handler's settings form.
-  $class_name = ctools_plugin_load_class('dekyll_parser', 'content_sync', $plugin_name, 'class');
+  $class_name = ctools_plugin_load_class('dekyll_sync', 'content_sync', $plugin_name, 'class');
   $class_name = class_exists($class_name) ? $class_name : 'ContentSyncBaseBroken';
   $content_sync = new $class_name($plugin);
 
@@ -329,7 +268,7 @@ function _dekyll_parser_get_content_sync_elements(&$element, $field, $instance) 
   }
 }
 
-function _dekyll_parser_form_process_merge_parent($element) {
+function _dekyll_sync_form_process_merge_parent($element) {
   $parents = $element['#parents'];
   array_pop($parents);
   $element['#parents'] = $parents;
@@ -337,7 +276,7 @@ function _dekyll_parser_form_process_merge_parent($element) {
 }
 
 
-function _dekyll_parser_field_instance_settings_validate($form, &$form_state) {
+function _dekyll_sync_field_instance_settings_validate($form, &$form_state) {
   // Store the new values in the form state.
   $instance = $form['#instance'];
   if (isset($form_state['values']['instance'])) {
@@ -346,32 +285,32 @@ function _dekyll_parser_field_instance_settings_validate($form, &$form_state) {
   $form_state['content_sync']['instance'] = $instance;
 }
 
-function _dekyll_parser_field_settings_ajax_process($form, $form_state) {
-  _dekyll_parser_field_settings_ajax_process_element($form, $form);
+function _dekyll_sync_field_settings_ajax_process($form, $form_state) {
+  _dekyll_sync_field_settings_ajax_process_element($form, $form);
   return $form;
 }
 
 
-function _dekyll_parser_field_settings_ajax_process_element(&$element, $main_form) {
+function _dekyll_sync_field_settings_ajax_process_element(&$element, $main_form) {
   if (isset($element['#ajax']) && $element['#ajax'] === TRUE) {
     $element['#ajax'] = array(
-      'callback' => 'dekyll_parser_settings_ajax',
+      'callback' => 'dekyll_sync_settings_ajax',
       'wrapper' => $main_form['#id'],
       'element' => $main_form['#array_parents'],
     );
   }
 
   foreach (element_children($element) as $key) {
-    _dekyll_parser_field_settings_ajax_process_element($element[$key], $main_form);
+    _dekyll_sync_field_settings_ajax_process_element($element[$key], $main_form);
   }
 }
 
 /**
  * Ajax callback for the handler settings form.
  *
- * @see dekyll_parser_field_settings_form()
+ * @see dekyll_sync_field_settings_form()
  */
-function dekyll_parser_settings_ajax($form, $form_state) {
+function dekyll_sync_settings_ajax($form, $form_state) {
   $trigger = $form_state['triggering_element'];
   return drupal_array_get_nested_value($form, $trigger['#ajax']['element']);
 }
@@ -379,6 +318,6 @@ function dekyll_parser_settings_ajax($form, $form_state) {
 /**
  * Submit handler for the non-JS case.
  */
-function dekyll_parser_settings_ajax_submit($form, &$form_state) {
+function dekyll_sync_settings_ajax_submit($form, &$form_state) {
   $form_state['rebuild'] = TRUE;
 }

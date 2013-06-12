@@ -50,7 +50,6 @@ dependencies[] = og_context
 dependencies[] = og_ui
 dependencies[] = og_vocab
 dependencies[] = strongarm
-dependencies[] = title
 dependencies[] = token
 dependencies[] = views
 dependencies[] = views_content
@@ -59,6 +58,6 @@ dependencies[] = views_bulk_operations
 dependencies[] = waiting_queue
 
 ; Custom modules
-dependencies[] = dekyll_parser
-dependencies[] = dekyll_og
-dependencies[] = dekyll_post
+dependencies[] = dekyll_sync
+dependencies[] = dekyll_repository
+dependencies[] = dekyll_page

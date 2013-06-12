@@ -76,7 +76,7 @@ abstract class ConfigSyncBase implements ConfigSyncInterface {
     $this->gid = $gid;
     $this->git = $git;
 
-    $path = dekyll_og_get_repo_path($gid) . '/_dekyll.yml';
+    $path = dekyll_repository_get_repo_path($gid) . '/_dekyll.yml';
 
     if (file_exists($path)) {
       // Open the node_map.yml and get the map.
@@ -96,7 +96,7 @@ abstract class ConfigSyncBase implements ConfigSyncInterface {
    * Save the config to _dekyll.yml
    */
   public function postExport() {
-    $path = dekyll_og_get_repo_path($this->gid);
+    $path = dekyll_repository_get_repo_path($this->gid);
 
     $git_wrapper = new GitWrapper();
     $git = $git_wrapper ->workingCopy($path);
