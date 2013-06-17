@@ -149,14 +149,14 @@ function dekyll_page_field_file_path_element_validate($element, &$form_state) {
  * Implements hook_node_insert().
  */
 function dekyll_page_node_insert($node) {
-  dekyll_page_write_file($node);
+  dekyll_page_queue_export($node);
 }
 
 /**
  * Implements hook_node_update().
  */
 function dekyll_page_node_update($node) {
-  dekyll_page_write_file($node);
+  dekyll_page_queue_export($node);
 }
 
 /**
@@ -165,7 +165,7 @@ function dekyll_page_node_update($node) {
  * @param $node
  *   The node to be written.
  */
-function dekyll_page_write_file($node) {
+function dekyll_page_queue_export($node) {
   if (!isset($node->field_file_path)) {
     return;
   }
@@ -177,7 +177,7 @@ function dekyll_page_write_file($node) {
 
   $wrapper = entity_metadata_wrapper('node', $node);
 
-  $queue = DrupalQueue::get('dekyll_write_file');
+  $queue = DrupalQueue::get('dekyll_export');
   $data = array(
     'gid' => $wrapper->{OG_AUDIENCE_FIELD}->value(array('identifier' => TRUE)),
     'nid' => $node->nid,

@@ -43,14 +43,18 @@ function dekyll_repository_node_insert($node) {
 /**
  * Return the repository path.
  *
- * @param $gid
- *   The group ID.
+ * @param $nid
+ *   The node ID of the repository or page.
  *
  * @return
  *   The relative path.
  */
-function dekyll_repository_get_repo_path($gid) {
-  $wrapper = entity_metadata_wrapper('node', $gid);
+function dekyll_repository_get_repo_path($nid) {
+  $wrapper = entity_metadata_wrapper('node', $nid);
+
+  if (isset($wrapper->{OG_AUDIENCE_FIELD})) {
+    $wrapper = $wrapper->{OG_AUDIENCE_FIELD};
+  }
 
   $repository = str_replace(array('http://', 'https://'), '', $wrapper->field_repo_url->value());
   return variable_get('file_public_path', conf_path() . '/files') . '/' . $repository;

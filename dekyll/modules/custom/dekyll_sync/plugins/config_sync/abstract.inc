@@ -52,24 +52,7 @@ abstract class ConfigSyncBase implements ConfigSyncInterface {
    * Array with the parsed YAML from _dekyll.yml, or default array() values if
    * file doesn't exist.
    */
-  protected $config = array(
-    'content_types' => array(
-      'taxonomy' => array(
-        'post' => array(
-          'tags' => array(
-            'required' => FALSE,
-            'cardinality' => FIELD_CARDINALITY_UNLIMITED,
-            'widget' => 'tags',
-          ),
-          'layout' => array(
-            'required' => TRUE,
-            'cardinality' => 1,
-            'widget' => 'select',
-          ),
-        ),
-      ),
-    ),
-  );
+  protected $config = array();
 
   public function __construct($plugin, $gid, GitWorkingCopy $git) {
     $this->plugin = $plugin;
@@ -86,6 +69,42 @@ abstract class ConfigSyncBase implements ConfigSyncInterface {
       $yaml = new Parser();
       $this->config = $yaml->parse($contents);
     }
+
+    $this->config = $this->config ? $this->config : $this->getConfigDefault();
+  }
+
+  /**
+   * Add default config.
+   *
+   * @return
+   *   Array with the default config.
+   */
+  protected function getConfigDefault() {
+    $return = array(
+      'content_types' => array(
+        'taxonomy' => array(
+          'post' => array(
+            'tags' => array(
+              'required' => FALSE,
+              'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+              'widget' => 'tags',
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Add the "layout" vocabulary to each group-content.
+    $bundles = og_get_all_group_content_bundle();
+    foreach ($bundles['node']as $bundle) {
+      $return['content_types']['taxonomy'][$bundle]['layout'] = array(
+        'required' => TRUE,
+        'cardinality' => 1,
+        'widget' => 'select',
+      );
+    }
+
+    return $return;
   }
 
   public function import() {}

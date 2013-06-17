@@ -1,4 +1,4 @@
-name = Dekyll Post
+name = Dekyll Pages
 core = 7.x
 package = Dekyll
 php = 5.2.4

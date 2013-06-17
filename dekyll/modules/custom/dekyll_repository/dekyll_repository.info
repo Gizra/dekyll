@@ -1,4 +1,4 @@
-name = Dekyll OG
+name = Dekyll Repository
 core = 7.x
 package = Dekyll
 php = 5.2.4
@@ -13,6 +13,7 @@ dependencies[] = strongarm
 dependencies[] = text
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:1
+features[field][] = node-repository-field_repo_canonical
 features[field][] = node-repository-field_repo_cloned
 features[field][] = node-repository-field_repo_credentials
 features[field][] = node-repository-field_repo_url

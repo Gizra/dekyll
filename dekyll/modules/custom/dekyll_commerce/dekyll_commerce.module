@@ -1,0 +1,30 @@
+<?php
+/**
+ * @file
+ * Code for the Dekyll commerce feature.
+ */
+
+include_once 'dekyll_commerce.features.inc';
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function dekyll_commerce_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'dekyll_sync') {
+    return 'plugins/' . $plugin;
+  }
+}
+
+/**
+ * Implements hook_commerce_product_insert().
+ */
+function dekyll_commerce_commerce_product_insert($product) {
+
+}
+
+/**
+ * Implements hook_commerce_product_update().
+ */
+function dekyll_commerce_commerce_product_update($product) {
+
+}

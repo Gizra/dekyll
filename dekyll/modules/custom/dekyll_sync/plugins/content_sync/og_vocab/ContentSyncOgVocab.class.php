@@ -80,7 +80,7 @@ class ContentSyncOgVocab extends ContentSyncBase {
   /**
    * Export OG-vocab
    */
-  public function export(EntityDrupalWrapper $wrapper, &$yaml = array(), &$text = '') {
+  public function export(EntityDrupalWrapper $wrapper, &$yaml = array(), &$text = '', $files_info) {
     if (!$terms = $wrapper->{OG_VOCAB_FIELD}->value()) {
       return;
     }

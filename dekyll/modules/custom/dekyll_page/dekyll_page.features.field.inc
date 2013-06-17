@@ -241,13 +241,15 @@ function dekyll_page_field_default_fields() {
           'prepopulate' => array(
             'action' => 'hide',
             'action_on_edit' => 1,
-            'fallback' => 'form_error',
+            'fallback' => 'none',
             'og_context' => 1,
             'skip_perm' => '0',
             'status' => 1,
           ),
         ),
-        'jekyll_map' => '',
+        'content_sync' => array(
+          'plugin_name' => '',
+        ),
         'user_register_form' => FALSE,
       ),
       'view modes' => array(
@@ -606,11 +608,14 @@ function dekyll_page_field_default_fields() {
           'prepopulate' => array(
             'action' => 'hide',
             'action_on_edit' => 1,
-            'fallback' => 'redirect',
+            'fallback' => 'none',
             'og_context' => 1,
             'skip_perm' => '0',
             'status' => 1,
           ),
+        ),
+        'content_sync' => array(
+          'plugin_name' => '',
         ),
         'user_register_form' => FALSE,
       ),

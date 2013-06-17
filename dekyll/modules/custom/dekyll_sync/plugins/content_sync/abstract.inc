@@ -24,8 +24,11 @@ interface ContentSyncInterface {
 
   /**
    * Export content to Jekyll file.
+   *
+   * @return
+   *   Array with the files to create.
    */
-  public function export(EntityDrupalWrapper $wrapper, &$yaml = array(), &$text = '');
+  public function export(EntityDrupalWrapper $wrapper, &$yaml = array(), &$text = '', $files_info);
 
   /**
    * Determine access.
@@ -92,11 +95,19 @@ abstract class ContentSyncBase implements ContentSyncInterface {
     $this->git = $git;
   }
 
-  public function import(EntityDrupalWrapper $wrapper, $yaml = array(), $text = '') {}
+  public function import(EntityDrupalWrapper $wrapper, $yaml = array(), $text = '') {
+    return array();
+  }
 
-  public function export(EntityDrupalWrapper $wrapper, &$yaml = array(), &$text = '') {}
+  public function export(EntityDrupalWrapper $wrapper, &$yaml = array(), &$text = '', $files_info) {
+    return array();
+  }
 
   public function access($op, $field = NULL, $instance = NULL) {
+    if (in_array($op, array('import', 'export'))) {
+      $plugin_name = $this->plugin['name'];
+      return !empty($this->syncMap[$plugin_name]);
+    }
   }
 
   public function settingsForm($field, $instance) {}

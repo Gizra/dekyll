@@ -10,6 +10,78 @@
 function dekyll_repository_field_default_fields() {
   $fields = array();
 
+  // Exported field: 'node-repository-field_repo_canonical'.
+  $fields['node-repository-field_repo_canonical'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_repo_canonical',
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          0 => 'value',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'list',
+      'settings' => array(
+        'allowed_values' => array(
+          0 => '',
+          1 => '',
+        ),
+        'allowed_values_function' => '',
+      ),
+      'translatable' => '0',
+      'type' => 'list_boolean',
+    ),
+    'field_instance' => array(
+      'bundle' => 'repository',
+      'default_value' => array(
+        0 => array(
+          'value' => 1,
+        ),
+      ),
+      'deleted' => '0',
+      'description' => 'When enabled, the exported nodes will overwrite the existing files.',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'list',
+          'settings' => array(),
+          'type' => 'list_default',
+          'weight' => 9,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_repo_canonical',
+      'label' => 'Canonical',
+      'required' => 0,
+      'settings' => array(
+        'content_sync' => array(
+          'plugin_name' => '',
+        ),
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'options',
+        'settings' => array(
+          'display_label' => 1,
+        ),
+        'type' => 'options_onoff',
+        'weight' => '7',
+      ),
+    ),
+  );
+
   // Exported field: 'node-repository-field_repo_cloned'.
   $fields['node-repository-field_repo_cloned'] = array(
     'field_config' => array(
@@ -376,11 +448,13 @@ function dekyll_repository_field_default_fields() {
 
   // Translatables
   // Included for use with string extractors like potx.
+  t('Canonical');
   t('Cloned');
   t('Credentials');
   t('Determine if this is an OG group.');
   t('Group');
   t('URL');
+  t('When enabled, the exported nodes will overwrite the existing files.');
   t('Write access');
 
   return $fields;

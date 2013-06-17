@@ -5,6 +5,15 @@
  * Read and Write Jekyll files.
  */
 
+require DRUPAL_ROOT . '/profiles/dekyll/libraries/vendor/autoload.php';
+
+use GitWrapper\GitWrapper;
+use GitWrapper\GitWorkingCopy;
+use GitWrapper\GitException;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Yaml\Parser;
+use Symfony\Component\Yaml\Dumper;
+
 /**
  * Define the YAML front header separator.
  */
@@ -113,17 +122,17 @@ function dekyll_sync_get_content_syncs() {
  */
 function dekyll_sync_cron_queue_info() {
   $queues['dekyll_clone'] = array(
-    'worker callback' => 'drush_dekyll_sync_dekyll_clone',
+    'worker callback' => 'dekyll_sync_repository_clone_queue_worker',
     'time' => 60,
   );
 
-  $queues['dekyll_sync'] = array(
-    'worker callback' => 'drush_dekyll_sync_dekyll_sync',
+  $queues['dekyll_import'] = array(
+    'worker callback' => 'dekyll_sync_import_queue_worker',
     'time' => 60,
   );
 
-  $queues['dekyll_write_file'] = array(
-    'worker callback' => 'drush_dekyll_sync_dekyll_write_file',
+  $queues['dekyll_export'] = array(
+    'worker callback' => 'dekyll_sync_export_queue_worker',
     'time' => 60,
   );
 
@@ -140,7 +149,7 @@ function dekyll_sync_cron_queue_info() {
 function dekyll_sync_get_content_sync_map($entity_type, $bundle) {
   $map = array();
   foreach (field_info_instances($entity_type, $bundle) as $field_name => $instance) {
-    if (empty($instance['settings']['content_sync'])) {
+    if (empty($instance['settings']['content_sync']['plugin_name'])) {
       continue;
     }
 
@@ -154,6 +163,542 @@ function dekyll_sync_get_content_sync_map($entity_type, $bundle) {
 
   return $map;
 }
+
+
+/**
+ * Recursive function to get the files path, and their info per entity.
+ *
+ * @param EntityDrupalWrapper $wrapper
+ * @param array $info
+ * @param $parent_wrapper
+ * @param $filter_non_pages
+ *   Optional; Determine if the returned array should filter out entities that
+ *   are not pages. Defaults to TRUE.
+ */
+function dekyll_sync_get_files_for_export(EntityDrupalWrapper $wrapper, &$info = array(), EntityDrupalWrapper $parent_wrapper = NULL, $filter_non_pages = TRUE, $is_page = TRUE) {
+  // Get all the field instances of the bundle.
+  $identifier = $wrapper->type() . ':' . $wrapper->getIdentifier();
+  $parent_identifier = $parent_wrapper ? $parent_wrapper->type() . ':' . $parent_wrapper->getIdentifier() : FALSE;
+
+  $parent_dirname = '';
+  if (!empty($info[$parent_identifier])) {
+    // Get the parent file path.
+    $parent_file_path = $info[$parent_identifier]['file_path'];
+    $path_parts = pathinfo($parent_file_path);
+
+    $parent_dirname = $path_parts['dirname'] . '/';
+    $parent_basename = $path_parts['basename'];
+  }
+
+  $parent_basename = !empty($parent_basename) ? $parent_basename : 'index.html';
+
+  if (isset($wrapper->field_file_path) && $file_path = $wrapper->field_file_path->value()) {
+    $file_path = $parent_dirname . $file_path;
+  }
+  else {
+    // No field path, so use the label.
+    ctools_include('cleanstring');
+    $label = ctools_cleanstring($wrapper->label(), array('lower case' => TRUE));
+    $file_path = $parent_dirname . $label . '/' . $parent_basename;
+  }
+
+  $hierarchy = array();
+  if ($parent_wrapper) {
+    $hierarchy = $info[$parent_identifier]['hierarchy'];
+  }
+
+  $entity_type = $wrapper->type();
+  $bundle = $wrapper->getBundle();
+
+  $hierarchy_element = array(
+    'wrapper' => $wrapper,
+    'sync_map' => dekyll_sync_get_content_sync_map($entity_type, $bundle),
+    'entity_id' => $identifier,
+  );
+
+  if ($is_page) {
+    $hierarchy[] = $hierarchy_element;
+
+    $info[$identifier] = array(
+      'parent' => $parent_identifier,
+      // Every entity assumes it creates a page - it's up to their children to
+      // set it to FALSE.
+      'page' => TRUE,
+      'file_path' => $file_path,
+      'hierarchy' => $hierarchy,
+    );
+  }
+  else {
+    // Since this is not a page, we add it to the top of the hierarchy, so it
+    // won't override the real page values (e.g entity_id).
+    array_unshift($info[$parent_identifier]['hierarchy'], $hierarchy_element);
+  }
+
+  foreach (field_info_instances($entity_type, $bundle) as $field_name => $instance) {
+    $field = field_info_field($field_name);
+
+    if (!in_array($field['type'], array('entityreference', 'commerce_product_reference'))) {
+      // Not an entity/ product reference field.
+      continue;
+    }
+
+    if (empty($instance['settings']['content_sync']['plugin_name'])) {
+      continue;
+    }
+
+    if (!in_array($instance['settings']['content_sync']['plugin_name'], array('entity_reference', 'commerce_product'))) {
+      // Field doesn't use the entity-reference or product reference content
+      // sync plugins.
+      continue;
+    }
+
+    // Field is used just as reference, not for creating a new page.
+    // The field is referencing an entity that should be used as a page, meaning
+    // that the current entity, isn't a page.
+    $info[$identifier]['page'] = empty($instance['settings']['content_sync']['settings']['create_page']);
+    $is_page = $is_page && !empty($instance['settings']['content_sync']['settings']['create_page']);
+
+
+    if ($field['cardinality'] == 1) {
+      $sub_wrapper = $wrapper->{$field_name};
+      dekyll_sync_get_files_for_export($sub_wrapper, $info, $wrapper, FALSE, $is_page);
+    }
+    else {
+      foreach ($wrapper->{$field_name} as $sub_wrapper) {
+        // Iterate over the entities, and let them add their page.
+        dekyll_sync_get_files_for_export($sub_wrapper, $info, $wrapper, FALSE, $is_page);
+      }
+    }
+  }
+
+  // Allow other modules to change the array.
+  drupal_alter('dekyll_sync_get_files_for_export', $info);
+
+  if ($filter_non_pages) {
+    // Filter out entities that should not be created as pages.
+    foreach ($info as $key => $value) {
+      if (empty($value['page'])) {
+        unset($info[$key]);
+      }
+    }
+  }
+}
+
+/**
+ * Queue Worker; Export a node to Jekyll.
+ *
+ * @param $queue_item
+ */
+function dekyll_sync_export_queue_worker($data) {
+  dekyll_sync_export($data['nid'], $data['branch']);
+}
+
+/**
+ * Export a node and it's related entities, and write it to file(s).
+ *
+ * @param $nid
+ *   The node ID.
+ */
+function dekyll_sync_export($nid, $branch = 'master') {
+  $wrapper = entity_metadata_wrapper('node', $nid);
+  $gid = $wrapper->{OG_AUDIENCE_FIELD}->value(array('identifier' => TRUE));
+
+  $is_canonical = $wrapper->{OG_AUDIENCE_FIELD}->field_repo_canonical->value();
+
+  $path = dekyll_repository_get_repo_path($gid);
+
+  $git_wrapper = new GitWrapper();
+  $git = $git_wrapper->workingCopy($path);
+
+  // Checkout to the needed branch.
+  $git->checkout($branch);
+
+  // Get an array with all the files that we will need to write.
+  $files_info = array();
+  dekyll_sync_get_files_for_export($wrapper, $files_info);
+
+  if (!$files_info) {
+    return;
+  }
+
+  $yaml = new Parser();
+  $dumper = new Dumper();
+
+  // Array of file names to add to git.
+  $file_names = array();
+
+  foreach ($files_info as $file_info) {
+    $file_path = $file_info['file_path'];
+    $file_names[] = $file_path;
+    $full_path = $path . '/' . $file_path;
+
+    $yaml_contents = array();
+    if (!$is_canonical && file_exists($full_path)) {
+      $contents = file_get_contents($full_path);
+
+      // Get the values from the YAML front header.
+      $split_contents = explode(YAML_SEPARATOR, $contents, 3);
+      $yaml_contents = $split_contents[1];
+    }
+
+    // Get the text from the node.
+    // @todo: Make configurable.
+    $text = $wrapper->body->value() ? $wrapper->body->value->raw() : '';
+
+    $yaml_parsed = $yaml_contents ? $yaml->parse($yaml_contents) : array();
+
+    // Content sync, allow each plugin to change the node.
+    foreach ($file_info['hierarchy'] as $value) {
+      $sub_wrapper = $value['wrapper'];
+      $sync_map = $value['sync_map'];
+
+      foreach (dekyll_sync_get_content_syncs() as $plugin) {
+        if (!$class_name = ctools_plugin_load_class('dekyll_sync', 'content_sync', $plugin['name'], 'class')) {
+          // Class no longer exists.
+          continue;
+        }
+
+        $content_sync = new $class_name($plugin, $sync_map, $gid, $file_path, $git);
+
+        $new_file_names = array();
+        if ($content_sync->access('export', NULL, NULL, $sync_map)) {
+          // YAML and text are passed by reference.
+          // Add file names that were created by the content sync handlers.
+          $new_file_names = $content_sync->export($sub_wrapper, $yaml_parsed, $text, $files_info);
+        }
+
+        if ($new_file_names) {
+          $file_names = array_merge($file_names, $new_file_names);
+        }
+      }
+    }
+
+    $dump = array(
+      YAML_SEPARATOR,
+      // Dump the YAML expanded, and not inline.
+      $dumper->dump($yaml_parsed, 10) . "\n",
+      YAML_SEPARATOR,
+      $text,
+    );
+
+    if (!file_exists($full_path)) {
+      $path_parts = pathinfo($full_path);
+      drupal_mkdir($path_parts['dirname'], NULL, TRUE);
+    }
+
+    file_put_contents($full_path, implode('', $dump));
+  }
+
+  foreach ($file_names as $file_name) {
+    // Add files to git.
+    $git->add($file_name);
+  }
+
+
+  // Commit and push.
+  // @todo: Move to a single function.
+  try {
+    $git
+      ->commit('Changes of file.')
+      ->push();
+  }
+  catch (GitException $e){
+    // If we couldn't push, we might need to push. So re-sync.
+    // @todo: Check if we have connection first, and throw error if not?
+    // drush_dekyll_sync_dekyll_sync(array('gid' => $gid));
+  }
+}
+
+/**
+ * Queue Worker; Clone a git repository.
+ *
+ * @param $queue_item
+ */
+function dekyll_sync_repository_clone_queue_worker($data) {
+  dekyll_sync_repository_clone($data['gid']);
+}
+
+/**
+ * Clone a Git repository.
+ *
+ * @todo: Move to dekyll_repository.
+ */
+function dekyll_sync_repository_clone($gid) {
+  $wrapper = entity_metadata_wrapper('node', $gid);
+  $credentials = $wrapper->field_repo_credentials->value();
+  $path = dekyll_repository_get_repo_path($gid);
+
+  $git_wrapper = new GitWrapper();
+
+  if (drupal_is_cli()) {
+    // Set the timeout if command is executed via Drush.
+    $git_wrapper->setTimeout(600);
+  }
+
+  $git = $git_wrapper->workingCopy($path);
+
+  if (!$git->isCloned() && !$git->clone($credentials)) {
+    throw new Exception(format_string('Git repository could not be cloned with @credentials.', array('@credentials' => $credentials)));
+  }
+
+  // Save clone status.
+  $wrapper->field_repo_cloned->set(TRUE);
+
+  // @todo: Can we check write access?
+  $wrapper->field_repo_write_access->set(TRUE);
+  $wrapper->save();
+
+  // Sync.
+  dekyll_sync_import($gid);
+}
+
+
+/**
+ * Queue Worker; Import Jekyll configuration and content.
+ *
+ * @param $queue_item
+ */
+function dekyll_sync_import_queue_worker($data) {
+  dekyll_sync_import($data['gid']);
+}
+
+/**
+ * Sync Drupal with Jekyll.
+ *
+ * Iterate over all the files and create or update a node to link to them.
+ * We use .dekyll/node_map.yml file to hold each file, its hash and the related
+ * node ID.
+ */
+function dekyll_sync_import($gid, $sync_type = array('config', 'content'), $force_sync = FALSE) {
+  $path = dekyll_repository_get_repo_path($gid);
+
+  $git_wrapper = new GitWrapper();
+  $git = $git_wrapper->workingCopy($path);
+
+  try {
+    $git->pull();
+  }
+  catch (GitException $e){
+    // @todo: Handle merge conflicts (Don't overwrite conflicting nodes, just
+    // mark them as conflicts).
+  }
+
+  // Config sync.
+  if (in_array('config', $sync_type)) {
+    foreach (dekyll_sync_get_config_syncs() as $plugin) {
+      if (!$class = ctools_plugin_load_class('dekyll_sync', 'config_sync', $plugin['name'], 'class')) {
+        continue;
+      }
+      $config_sync = new $class($plugin, $gid, $git);
+      $config_sync->import();
+    }
+
+    if (drupal_is_cli()) {
+      drush_log(dt('Synced config of group ID @gid', array('@gid' => $gid)));
+    }
+  }
+
+  // Content sync.
+  if (in_array('content', $sync_type)) {
+    // Map file path to the node ID.
+    $map = dekyll_sync_get_yml($gid, '.dekyll/node_map.yml');
+
+    // Iterate over all the valid files, and compare them to the map value.
+    $finder = new Finder();
+    $finder
+      ->files()
+      ->in($path)
+      ->notPath('/^_(?!posts|drafts)/')
+      ->notPath('assets');
+
+    // Get the current installation global unique identifier.
+    $dekyll_guid = variable_get('dekyll_guid');
+
+    foreach ($finder as $file) {
+      // Check if we have this file in the map.
+      $file_path = $file->getRelativePathname();
+      $hash = trim($git->run(array('hash-object ' . $file_path)));
+      if (!empty($map[$file_path][$dekyll_guid]) && !$force_sync) {
+        // Check if the hash changed.
+        if ($hash == $map[$file_path][$dekyll_guid]['hash']) {
+          // File didn't change.
+          continue;
+        }
+      }
+
+      $nid = !empty($map[$file_path][$dekyll_guid]['nid']) ? $map[$file_path][$dekyll_guid]['nid'] : NULL;
+
+      // Create node.
+      if ($node = dekyll_sync_import_file($file_path, $gid, $git, $nid, TRUE)) {
+        if (drupal_is_cli()) {
+          drush_log(dt('Synced content of file @file to node ID @nid', array('@file' => $file_path, '@nid' => $node->nid)));
+        }
+        $map[$file_path][$dekyll_guid] = array(
+          'hash' => $hash,
+          'nid' => $node->nid,
+        );
+      }
+    }
+
+    dekyll_sync_save_yml($gid, '.dekyll/node_map.yml', $map);
+  }
+}
+
+
+/**
+ * @param $gid
+ *   The group ID.
+ * @param $file_name
+ *   The file name.
+ *
+ * @return array
+ *   The parsed YAML, or empty YAML if file doesn't exist.
+ */
+function dekyll_sync_get_yml($gid, $file_name) {
+  $path = dekyll_repository_get_repo_path($gid);
+
+  $file_path = $path . '/' . $file_name;
+  if (!file_exists($file_path)) {
+    return array();
+  }
+
+  // Open the YAML file .
+  $contents = file_get_contents($file_path);
+
+  // Parse the contents.
+  $yaml = new Parser();
+  return $yaml->parse($contents);
+}
+
+/**
+ * @param $gid
+ *   The group ID.
+ * @param $file_name
+ *   The file name.
+ * @param $data
+ *   The array to dump into the file.
+ */
+function dekyll_sync_save_yml($gid, $file_path, $data = array(), $commit_message = '') {
+  // Content sync.
+  $path = dekyll_repository_get_repo_path($gid);
+
+  $git_wrapper = new GitWrapper();
+  $git = $git_wrapper->workingCopy($path);
+
+  $full_path = $path . '/' . $file_path;
+
+  if (!file_exists($full_path)) {
+    $path_parts = pathinfo($full_path);
+    drupal_mkdir($path_parts['dirname'], NULL, TRUE);
+  }
+
+  $dumper = new Dumper();
+  file_put_contents($full_path, $dumper->dump($data, 10));
+
+  $commit_message = $commit_message ? $commit_message : 'Commit ' . $file_path;
+
+  // Push to git.
+  try {
+    $git
+      ->commit($file_path, array('m' => $commit_message));
+  }
+  catch(GitException $e) {
+    // File didn't change, we can return;
+    return;
+  }
+
+  try {
+    $git->push();
+  }
+  catch(GitException $e) {
+    // @todo: We couldn't push. Handle this (need to pull, not internet
+    // connection, etc'.)
+  }
+}
+
+/**
+ * Create a node or update existing from file.
+ *
+ * @todo: Do actually field mapping.
+ *
+ * @param $file_path
+ *   The file path.
+ */
+function dekyll_sync_import_file($file_path, $gid, GitWorkingCopy $git, $nid = NULL, $sync = FALSE) {
+  $path = dekyll_repository_get_repo_path($gid);
+  $contents = file_get_contents($path . '/' . $file_path);
+
+  if (strpos($contents, '---') !== 0) {
+    // File doesn't have YAML front matter.
+    return;
+  }
+
+  // Get the values from the YAML front matter.
+  // @todo: Isn't there a line break?
+  $split_contents = explode('---', $contents, 3);
+  $text = $split_contents[2];
+
+  // @todo: Be smarter about the type.
+  if (strpos($file_path, '_posts') === 0) {
+    $bundle = 'post';
+  }
+  elseif (strpos($file_path, 'products/') === 0) {
+    $bundle = 'product_page';
+  }
+  else {
+    $bundle = 'page';
+  }
+
+  if ($nid) {
+    $wrapper = entity_metadata_wrapper('node', $nid);
+  }
+  else {
+    // Create a new node.
+    $node = (object) array(
+      'type' => $bundle,
+    );
+
+    node_object_prepare($node);
+
+    // @todo: Save the node using the group manager?
+    $wrapper = entity_metadata_wrapper('node', $node);
+  }
+
+  $yaml = new Parser();
+  $yaml_parsed = $yaml->parse($split_contents[1]);
+
+  // Content sync, allow each plugin to change the node.
+  $sync_map = dekyll_sync_get_content_sync_map('node', $bundle);
+  foreach (dekyll_sync_get_content_syncs() as $plugin) {
+    $class = ctools_plugin_load_class('dekyll_sync', 'content_sync', $plugin['name'], 'class');
+    $content_sync = new $class($plugin, $sync_map, $gid, $file_path, $git);
+
+    if ($content_sync->access('import', NULL, NULL, $sync_map)) {
+      $content_sync->import($wrapper, $yaml_parsed, $text);
+    }
+  }
+
+
+  // Add the text to the body field.
+  // @todo: Is it worth a plugin?
+  $wrapper->body->set(array('value' => $text, 'format' => 'dekyll_plain'));
+  $wrapper->field_file_path->set($file_path);
+
+  // Set the group.
+  $wrapper->{OG_AUDIENCE_FIELD}->set($gid);
+
+  // Prevent from synced nodes to be written back to files.
+  $node = $wrapper->value();
+  $node->_dekyll_sync = $sync;
+  $wrapper->save();
+
+  return $wrapper->value();
+}
+
+
+
+// ------------------------------
+
 
 /**
  * Implements hook_form_FORM_ID_alter().

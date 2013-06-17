@@ -8,6 +8,15 @@ projects[admin_menu][version] = "3.0-rc4"
 projects[admin_views][subdir] = "contrib"
 projects[admin_views][version] = "1.2"
 
+projects[addressfield][subdir] = "contrib"
+projects[addressfield[version] = "1.0-beta4"
+
+projects[commerce][subdir] = "contrib"
+projects[commerce][version] = "1.7"
+
+projects[commerce_migrate][subdir] = "contrib"
+projects[commerce_migrate][version] = "1.1"
+
 projects[ctools][subdir] = "contrib"
 projects[ctools][version] = "1.3"
 
@@ -43,6 +52,9 @@ projects[flag][version] = "2.0"
 
 projects[github_connect][subdir] = "contrib"
 projects[github_connect][version] = "1.1"
+
+projects[inline_entity_form][subdir] = "contrib"
+projects[inline_entity_form][version] = "1.2"
 
 projects[jquery_update][subdir] = "contrib"
 projects[jquery_update][version] = "2.3"
@@ -85,6 +97,9 @@ projects[pathauto][version] = "1.1"
 
 projects[restws][subdir] = "contrib"
 projects[restws][version] = "2.x-dev"
+
+projects[rules][subdir] = "contrib"
+projects[rules][version] = "2.3"
 
 projects[strongarm][subdir] = "contrib"
 projects[strongarm][version] = "2.0"
