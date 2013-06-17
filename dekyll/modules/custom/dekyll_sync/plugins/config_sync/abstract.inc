@@ -96,7 +96,7 @@ abstract class ConfigSyncBase implements ConfigSyncInterface {
 
     // Add the "layout" vocabulary to each group-content.
     $bundles = og_get_all_group_content_bundle();
-    foreach ($bundles['node']as $bundle) {
+    foreach (array_keys($bundles['node']) as $bundle) {
       $return['content_types']['taxonomy'][$bundle]['layout'] = array(
         'required' => TRUE,
         'cardinality' => 1,
