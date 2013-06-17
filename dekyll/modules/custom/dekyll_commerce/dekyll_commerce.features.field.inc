@@ -75,7 +75,14 @@ function dekyll_commerce_field_default_fields() {
       'settings' => array(
         'alt_field' => 0,
         'content_sync' => array(
-          'plugin_name' => 'image',
+          'plugin_name' => 'image_style',
+          'settings' => array(
+            'style_names' => array(
+              'large' => 'large',
+              'medium' => 'medium',
+              'thumbnail' => 'thumbnail',
+            ),
+          ),
         ),
         'default_image' => 0,
         'file_directory' => '',
@@ -179,11 +186,11 @@ function dekyll_commerce_field_default_fields() {
       'entity_types' => array(),
       'field_name' => 'field_product_color',
       'foreign keys' => array(
-        'node' => array(
+        'taxonomy_term_data' => array(
           'columns' => array(
-            'target_id' => 'nid',
+            'target_id' => 'tid',
           ),
-          'table' => 'node',
+          'table' => 'taxonomy_term_data',
         ),
       ),
       'indexes' => array(

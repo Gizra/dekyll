@@ -376,7 +376,7 @@ function dekyll_sync_export($nid, $branch = 'master') {
     $dump = array(
       YAML_SEPARATOR,
       // Dump the YAML expanded, and not inline.
-      $dumper->dump($yaml_parsed, 10) . "\n",
+      $dumper->dump($yaml_parsed, 10, 0, FALSE, TRUE) . "\n",
       YAML_SEPARATOR,
       $text,
     );

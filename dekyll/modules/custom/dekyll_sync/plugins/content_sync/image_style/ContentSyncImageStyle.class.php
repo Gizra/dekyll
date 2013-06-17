@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Image zoom content sync.
+ * Image style content sync.
  */
-class ContentSyncImageZoom extends ContentSyncBase {
+class ContentSyncImageStyle extends ContentSyncBase {
 
   /**
    * Export images in different sizes.
@@ -52,7 +52,7 @@ class ContentSyncImageZoom extends ContentSyncBase {
 
           // We expect that {{ BASE_PATH }} will prefix the file name
           // the Jekyll file.
-          $yaml[$field_name][$delta][$style_name] = '/' . $file_name;
+          $yaml[$field_name][$delta][] = (object) array($style_name => '/' . $file_name);
         }
       }
     }
@@ -94,6 +94,10 @@ class ContentSyncImageZoom extends ContentSyncBase {
   public function access($op, $field = NULL, $instance = NULL) {
     if ($op == 'settings') {
       return $field['type'] == 'image';
+    }
+
+    if ($op == 'import') {
+      return;
     }
 
     return parent::access($op, $field, $instance);
