@@ -358,6 +358,14 @@ function dekyll_sync_export($nid, $branch = 'master') {
           continue;
         }
 
+        if (drupal_is_cli()) {
+          $params = array(
+            '@plugin' => $plugin['title'],
+            '@entity_id' => $value['entity_id'],
+          );
+          drush_log(dt('Executing @plugin on entity ID @entity_id', $params));
+        }
+
         $content_sync = new $class_name($plugin, $sync_map, $gid, $file_path, $git);
 
         $new_file_names = array();
@@ -376,7 +384,7 @@ function dekyll_sync_export($nid, $branch = 'master') {
     $dump = array(
       YAML_SEPARATOR,
       // Dump the YAML expanded, and not inline.
-      $dumper->dump($yaml_parsed, 10, 0, FALSE, TRUE) . "\n",
+      $dumper->dump($yaml_parsed, 5) . "\n",
       YAML_SEPARATOR,
       $text,
     );

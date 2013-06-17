@@ -42,6 +42,9 @@ class ContentSyncImageStyle extends ContentSyncBase {
 
       foreach ($files as $delta => $file) {
         foreach ($instance['settings']['content_sync']['settings']['style_names'] as $style_name) {
+
+          // @todo: Check if the file doesn't already exist.
+
           // Create the image in the right style.
           $uri = image_style_url($style_name, $file['uri']);
 
@@ -52,10 +55,11 @@ class ContentSyncImageStyle extends ContentSyncBase {
 
           // We expect that {{ BASE_PATH }} will prefix the file name
           // the Jekyll file.
-          $yaml[$field_name][$delta][] = (object) array($style_name => '/' . $file_name);
+          $yaml[$field_name][$delta][$style_name] = '/' . $file_name;
         }
       }
     }
+
     return $file_names;
   }
 
