@@ -477,7 +477,7 @@ function dekyll_commerce_field_default_fields() {
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => 0,
+          'weight' => '0',
         ),
         'teaser' => array(
           'label' => 'hidden',
@@ -492,20 +492,24 @@ function dekyll_commerce_field_default_fields() {
       'entity_type' => 'node',
       'field_name' => 'body',
       'label' => 'Body',
-      'required' => FALSE,
+      'required' => 0,
       'settings' => array(
-        'display_summary' => TRUE,
-        'text_processing' => 1,
+        'content_sync' => array(
+          'plugin_name' => '',
+        ),
+        'display_summary' => 0,
+        'text_processing' => '1',
         'user_register_form' => FALSE,
       ),
       'widget' => array(
+        'active' => 1,
         'module' => 'text',
         'settings' => array(
-          'rows' => 20,
+          'rows' => '5',
           'summary_rows' => 5,
         ),
         'type' => 'text_textarea_with_summary',
-        'weight' => '-4',
+        'weight' => '2',
       ),
     ),
   );
@@ -550,7 +554,7 @@ function dekyll_commerce_field_default_fields() {
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => 2,
+          'weight' => '2',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -562,7 +566,7 @@ function dekyll_commerce_field_default_fields() {
       'entity_type' => 'node',
       'field_name' => 'field_file_path',
       'label' => 'File path',
-      'required' => 0,
+      'required' => 1,
       'settings' => array(
         'content_sync' => array(
           'plugin_name' => '',
@@ -577,7 +581,7 @@ function dekyll_commerce_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '-1',
+        'weight' => '1',
       ),
     ),
   );
@@ -619,16 +623,10 @@ function dekyll_commerce_field_default_fields() {
       'display' => array(
         'default' => array(
           'label' => 'above',
-          'module' => 'commerce_cart',
-          'settings' => array(
-            'combine' => TRUE,
-            'default_quantity' => 1,
-            'line_item_type' => 'product',
-            'show_quantity' => FALSE,
-            'show_single_product_attributes' => FALSE,
-          ),
-          'type' => 'commerce_cart_add_to_cart_form',
-          'weight' => 1,
+          'module' => 'commerce_product_reference',
+          'settings' => array(),
+          'type' => 'commerce_product_reference_title_link',
+          'weight' => '1',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -672,7 +670,7 @@ function dekyll_commerce_field_default_fields() {
           ),
         ),
         'type' => 'inline_entity_form',
-        'weight' => '-3',
+        'weight' => '3',
       ),
     ),
   );
@@ -740,7 +738,7 @@ function dekyll_commerce_field_default_fields() {
             'link' => FALSE,
           ),
           'type' => 'entityreference_label',
-          'weight' => 3,
+          'weight' => '3',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -783,7 +781,7 @@ function dekyll_commerce_field_default_fields() {
         'module' => 'og',
         'settings' => array(),
         'type' => 'og_complex',
-        'weight' => '1',
+        'weight' => '4',
       ),
     ),
   );
@@ -847,7 +845,7 @@ function dekyll_commerce_field_default_fields() {
             'link' => FALSE,
           ),
           'type' => 'entityreference_label',
-          'weight' => 4,
+          'weight' => '4',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -879,7 +877,7 @@ function dekyll_commerce_field_default_fields() {
         'module' => 'og_vocab',
         'settings' => array(),
         'type' => 'og_vocab_complex',
-        'weight' => '3',
+        'weight' => '5',
       ),
     ),
   );

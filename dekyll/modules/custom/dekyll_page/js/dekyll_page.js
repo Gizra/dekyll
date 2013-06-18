@@ -6,6 +6,15 @@
   Drupal.behaviors.dekyllPost = {
 
     attach: function (context, settings) {
+      var $form = $('form.node-form');
+
+      if ($form.hasClass('field-path-processed')) {
+        return;
+      }
+
+      $form.addClass('field-path-processed');
+
+
       var self = this;
       var source_id = '#edit-title';
       var target = '#edit-field-file-path-und-0-value';
@@ -24,8 +33,8 @@
         return;
       }
 
-
-      $('form.node-post-form').submit(function() {
+      $form.submit(function() {
+        // Allow the form to be submitted.
         $wrapper.removeAttr('disabled');
       });
 

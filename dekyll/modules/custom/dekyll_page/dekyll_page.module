@@ -59,7 +59,7 @@ function _dekyll_page_disable_branch(&$form, $form_state) {
  *
  * @todo: Add validate to make sure file is under _posts.
  */
-function dekyll_page_form_post_node_form_alter(&$form, $form_state, $form_id) {
+function dekyll_page_form_post_node_form_alter(&$form, $form_state) {
   $file_path_parts = array();
 
   if ($default_value = &$form['field_file_path'][LANGUAGE_NONE][0]['value']['#default_value']) {

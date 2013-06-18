@@ -28,3 +28,45 @@ function dekyll_commerce_commerce_product_insert($product) {
 function dekyll_commerce_commerce_product_update($product) {
 
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Help the file name creation for post content type.
+ *
+ * @todo: Add validate to make sure file is under _posts.
+ */
+function dekyll_commerce_form_product_page_node_form_alter(&$form, $form_state) {
+  $file_path_parts = array();
+
+  if ($default_value = &$form['field_file_path'][LANGUAGE_NONE][0]['value']['#default_value']) {
+    // Remove the "products/" prefix and "index.html" suffix.
+    $default_value = substr($default_value, 9);
+    $default_value = substr($default_value, 0, -11);
+  }
+
+  // Allow floating the inner elements.
+  $form['field_file_path']['#attributes']['class'][] = 'clearfix';
+
+  // @todo: MAke configurable.
+  $form['field_file_path'][LANGUAGE_NONE][0]['value']['#prefix'] = '<div class="prefix-float">products/</div>';
+  $form['field_file_path'][LANGUAGE_NONE][0]['value']['#suffix'] = '<div class="suffix-float">/index.html</div>';
+
+  $form['field_file_path'][LANGUAGE_NONE][0]['value']['#title_display'] = 'invisible';
+  $form['field_file_path'][LANGUAGE_NONE][0]['value']['#attached']['js'][] = drupal_get_path('module', 'dekyll_page') . '/js/dekyll_page.js';
+  $form['field_file_path'][LANGUAGE_NONE][0]['value']['#attached']['css'][] = drupal_get_path('module', 'dekyll_page') . '/css/dekyll_page.css';
+
+  $form['field_file_path'][LANGUAGE_NONE][0]['value']['#element_validate'][] = 'dekyll_commerce_field_file_path_element_validate';
+}
+
+/**
+ * Element validate; Prefix the file name with "_posts".
+ */
+function dekyll_commerce_field_file_path_element_validate($element, &$form_state) {
+  if (!$value = $form_state['values']['field_file_path'][LANGUAGE_NONE][0]['value']) {
+    return;
+  }
+
+  $file_path = 'products/' . $value . '/index.html';
+  form_set_value($element, $file_path, $form_state);
+}
