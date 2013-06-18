@@ -16,6 +16,19 @@ function dekyll_commerce_ctools_plugin_directory($module, $plugin) {
 }
 
 /**
+ * Implements hook_commerce_product_presave().
+ *
+ * Auto-generate the product title from the color.
+ *
+ * @todo: We can do this after we override CommerceProductInlineEntityFormController
+ */
+function dekyll_commerce_commerce_product_presave($product) {
+  return;
+  $wrapper = entity_metadata_wrapper('commerce_product', $product);
+  $product->title = trim(strtolower(str_replace(array(' ', '_'), '-', $wrapper->field_product_color->label())));
+}
+
+/**
  * Implements hook_commerce_product_insert().
  */
 function dekyll_commerce_commerce_product_insert($product) {
