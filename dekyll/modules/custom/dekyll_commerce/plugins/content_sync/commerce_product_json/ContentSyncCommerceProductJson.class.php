@@ -29,14 +29,26 @@ class ContentSyncCommerceProductJson extends ContentSyncBase {
 
     $json_full_path = $full_path . '/product.json';
 
+    // Price.
     $value = $wrapper->commerce_price->value();
     unset($value['data']);
 
-    $dump = array(
-      'price' => $value,
-    );
+    $info = array();
+    $info['price'] = $value;
 
-    file_put_contents($json_full_path, drupal_json_encode($dump));
+    // Size info.
+    $info['entity_id'] = $wrapper->getIdentifier();
+
+    // Array keyed by the size name, and the field collection item ID as the
+    // value.
+    $info['sizes'] = array();
+
+    foreach ($wrapper->field_inventory as $sub_wrapper) {
+      $size_name = $sub_wrapper->field_product_size->label();
+      $info['sizes'][$size_name] = $sub_wrapper->getIdentifier();
+    }
+
+    file_put_contents($json_full_path, drupal_json_encode($info));
 
     return $file_names;
   }
