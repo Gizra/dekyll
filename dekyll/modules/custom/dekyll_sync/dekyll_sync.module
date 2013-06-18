@@ -59,10 +59,8 @@ function dekyll_sync_ctools_plugin_type() {
 function dekyll_sync_config_sync_plugin_process(&$plugin, $info) {
   $plugin += array(
     'description' => '',
-    'options' => array(),
+    'weight' => 0,
   );
-
-  $plugin['options'] += array();
 }
 
 /**
@@ -81,7 +79,9 @@ function dekyll_sync_get_config_sync($plugin_name) {
  */
 function dekyll_sync_get_config_syncs() {
   ctools_include('plugins');
-  return ctools_get_plugins('dekyll_sync', 'config_sync');
+  $plugins = ctools_get_plugins('dekyll_sync', 'config_sync');
+  uasort($plugins, 'drupal_sort_weight');
+  return $plugins;
 }
 
 /**
@@ -90,10 +90,8 @@ function dekyll_sync_get_config_syncs() {
 function dekyll_sync_content_sync_plugin_process(&$plugin, $info) {
   $plugin += array(
     'description' => '',
-    'options' => array(),
+    'weight' => 0,
   );
-
-  $plugin['options'] += array();
 }
 
 /**
@@ -112,7 +110,9 @@ function dekyll_sync_get_content_sync($plugin_name) {
  */
 function dekyll_sync_get_content_syncs() {
   ctools_include('plugins');
-  return ctools_get_plugins('dekyll_sync', 'content_sync');
+  $plugins = ctools_get_plugins('dekyll_sync', 'content_sync');
+  uasort($plugins, 'drupal_sort_weight');
+  return $plugins;
 }
 
 /**

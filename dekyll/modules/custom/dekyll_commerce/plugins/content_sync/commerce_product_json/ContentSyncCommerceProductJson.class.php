@@ -48,6 +48,9 @@ class ContentSyncCommerceProductJson extends ContentSyncBase {
       $info['sizes'][$size_name] = $sub_wrapper->getIdentifier();
     }
 
+    // @todo: Remove the thumbnail hardcoding.
+    $info['thumbnail'] = $yaml['field_images'][0]['thumbnail'];
+
     file_put_contents($json_full_path, drupal_json_encode($info));
 
     return $file_names;
