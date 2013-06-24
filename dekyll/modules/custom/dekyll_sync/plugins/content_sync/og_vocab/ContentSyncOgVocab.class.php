@@ -14,7 +14,7 @@ class ContentSyncOgVocab extends ContentSyncBase {
    */
   public function import(EntityDrupalWrapper $wrapper, $yaml = array(), $text = '') {
     // Get all Vocabularies of the group.
-    if (!$relations = og_vocab_relation_get_by_group('node', $this->gid)) {
+    if (!$relations = og_vocab_relation_get_by_group('node', $this->branchId)) {
       return;
     }
 
@@ -36,18 +36,11 @@ class ContentSyncOgVocab extends ContentSyncBase {
       }
 
       $term_names = is_array($yaml[$name]) ? $yaml[$name] : array($yaml[$name]);
-
       foreach ($term_names as $term_name) {
         $terms[] = $this->getTerm($term_name, $vocabulary);
       }
     }
 
-    // Add the branch name from git.
-    $vocabulary = taxonomy_vocabulary_machine_name_load('branch_' . $this->gid);
-    $branch_name = $this->git->run(array('rev-parse --abbrev-ref HEAD'))->getOutput();
-    $terms[] = $this->getTerm($branch_name, $vocabulary);
-
-    // Add term to the OG-Vocab field.
     $wrapper->{OG_VOCAB_FIELD}->set($terms);
   }
 
@@ -113,10 +106,6 @@ class ContentSyncOgVocab extends ContentSyncBase {
     foreach ($values as $vid => $vocab_terms) {
       // Populate the YAML.
       $vocab_name = $vocabularies[$vid]->name;
-
-      if ($vocab_name == 'branch') {
-        continue;
-      }
 
       if (!$value_types[$vid]) {
         $vocab_terms = $vocab_terms[0];

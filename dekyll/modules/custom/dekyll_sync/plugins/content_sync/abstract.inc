@@ -15,7 +15,7 @@ interface ContentSyncInterface {
   /**
    * Constructor for the Content sync class.
    */
-  public function __construct($plugin, $sync_map = array(), $gid = NULL, $file_path = NULL, GitWorkingCopy $git = NULL);
+  public function __construct($plugin, $sync_map = array(), $branch_id = NULL, $file_path = NULL, GitWorkingCopy $git = NULL);
 
   /**
    * Import content from Jekyll file.
@@ -70,9 +70,9 @@ abstract class ContentSyncBase implements ContentSyncInterface {
   protected $syncMap = array();
 
   /**
-   * The group ID.
+   * The Branch node ID.
    */
-  protected $gid;
+  protected $branchId;
 
   /**
    * The Jekyll file's path.
@@ -84,13 +84,13 @@ abstract class ContentSyncBase implements ContentSyncInterface {
    */
   protected $git;
 
-  public function __construct($plugin, $sync_map = array(), $gid = NULL, $file_path = NULL, GitWorkingCopy $git = NULL) {
+  public function __construct($plugin, $sync_map = array(), $branch_id = NULL, $file_path = NULL, GitWorkingCopy $git = NULL) {
     $this->plugin = $plugin;
 
     $this->syncMap = $sync_map;
     $this->syncMap += array($plugin['name'] => array());
 
-    $this->gid = $gid;
+    $this->branchId = $branch_id;
     $this->filePath = $file_path;
     $this->git = $git;
   }

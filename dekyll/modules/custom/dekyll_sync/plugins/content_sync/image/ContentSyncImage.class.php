@@ -27,7 +27,7 @@ class ContentSyncImage extends ContentSyncBase {
     $path_parts = pathinfo($file_path);
     $image_path = $path_parts['dirname'] . '/images';
 
-    $full_path = dekyll_repository_get_repo_path($this->gid). '/' . $file_path;
+    $full_path = dekyll_repository_get_repo_path($this->branchId). '/' . $file_path;
 
     $path_parts = pathinfo($full_path);
     $image_full_path = $path_parts['dirname'] . '/images';

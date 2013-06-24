@@ -15,7 +15,7 @@ interface ConfigSyncInterface {
   /**
    * Constructor for the Config sync.
    */
-  public function __construct($plugin, $gid, GitWorkingCopy $git);
+  public function __construct($plugin, $branch_id, GitWorkingCopy $git);
 
   /**
    * Import config from _dekyll.yml
@@ -39,9 +39,9 @@ abstract class ConfigSyncBase implements ConfigSyncInterface {
   protected $plugin;
 
   /**
-   * The group ID.
+   * The branch node ID.
    */
-  protected $gid;
+  protected $branchId;
 
   /**
    * The GitWrapper\GitWorkingCopy object.
@@ -54,12 +54,12 @@ abstract class ConfigSyncBase implements ConfigSyncInterface {
    */
   protected $config = array();
 
-  public function __construct($plugin, $gid, GitWorkingCopy $git) {
+  public function __construct($plugin, $branch_id, GitWorkingCopy $git) {
     $this->plugin = $plugin;
-    $this->gid = $gid;
+    $this->branchId = $branch_id;
     $this->git = $git;
 
-    $path = dekyll_repository_get_repo_path($gid) . '/_dekyll.yml';
+    $path = dekyll_repository_get_repo_path($branch_id) . '/_dekyll.yml';
 
     if (file_exists($path)) {
       // Open the node_map.yml and get the map.
@@ -97,6 +97,9 @@ abstract class ConfigSyncBase implements ConfigSyncInterface {
     // Add the "layout" vocabulary to each group-content.
     $bundles = og_get_all_group_content_bundle();
     foreach (array_keys($bundles['node']) as $bundle) {
+      if ($bundle == 'branch') {
+        continue;
+      }
       $return['content_types']['taxonomy'][$bundle]['layout'] = array(
         'required' => TRUE,
         'cardinality' => 1,
@@ -115,7 +118,7 @@ abstract class ConfigSyncBase implements ConfigSyncInterface {
    * Save the config to _dekyll.yml
    */
   public function postExport() {
-    $path = dekyll_repository_get_repo_path($this->gid);
+    $path = dekyll_repository_get_repo_path($this->branchId);
 
     $git_wrapper = new GitWrapper();
     $git = $git_wrapper ->workingCopy($path);

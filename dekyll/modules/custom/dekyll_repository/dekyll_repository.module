@@ -6,20 +6,18 @@
 
 include_once 'dekyll_repository.features.inc';
 
+require DRUPAL_ROOT . '/profiles/dekyll/libraries/vendor/autoload.php';
+
+use GitWrapper\GitWrapper;
+use GitWrapper\GitWorkingCopy;
+use GitWrapper\GitException;
+
 /**
  * Get the branch name from a group content.
  */
 function dekyll_repository_get_git_branch($node) {
   $wrapper = entity_metadata_wrapper('node', $node);
-
-  $gid = $wrapper->{OG_AUDIENCE_FIELD}->value(array('identifier' => TRUE));
-
-  $vocabulary = taxonomy_vocabulary_machine_name_load('branch_' . $gid);
-  foreach ($wrapper->{OG_VOCAB_FIELD}->value() as $term) {
-    if ($term->vid == $vocabulary->vid) {
-      return $term->name;
-    }
-  }
+  $wrapper->field_repo_branch->label();
 }
 
 /**
@@ -28,14 +26,13 @@ function dekyll_repository_get_git_branch($node) {
  * Add queue item to clone repo.
  */
 function dekyll_repository_node_insert($node) {
-  if ($node->type != 'repository') {
+  if ($node->type != 'branch') {
     return;
   }
 
-  // When cloning, the default branch will be auto-created.
   $queue = DrupalQueue::get('dekyll_clone');
   $data = array(
-    'gid' => $node->nid,
+    'nid' => $node->nid,
   );
   $queue->createItem($data);
 }
@@ -44,7 +41,7 @@ function dekyll_repository_node_insert($node) {
  * Return the repository path.
  *
  * @param $nid
- *   The node ID of the repository or page.
+ *   The node ID of the branch or page.
  *
  * @return
  *   The relative path.
@@ -52,10 +49,83 @@ function dekyll_repository_node_insert($node) {
 function dekyll_repository_get_repo_path($nid) {
   $wrapper = entity_metadata_wrapper('node', $nid);
 
-  if (isset($wrapper->{OG_AUDIENCE_FIELD})) {
-    $wrapper = $wrapper->{OG_AUDIENCE_FIELD};
+  $bundle = $wrapper->getBundle();
+
+  if ($bundle == 'repository') {
+    throw new Exception('Cannot pass "Repository" content type to dekyll_repository_get_repo_path().');
   }
 
-  $repository = str_replace(array('http://', 'https://'), '', $wrapper->field_repo_url->value());
-  return variable_get('file_public_path', conf_path() . '/files') . '/' . $repository;
+  $repo_url = $wrapper->{OG_AUDIENCE_FIELD}->field_repo_url->value();
+  $repo_url = str_replace(array('http://', 'https://'), '', $repo_url);
+
+  $branch_name = $bundle == 'branch' ? $wrapper->label() : $wrapper->field_repo_branch->label();
+
+  return variable_get('file_public_path', conf_path() . '/files') . '/' . $repo_url . '/' . $branch_name;
 }
+
+/**
+ * Implements hook_cron_queue_info().
+ */
+function dekyll_repository_cron_queue_info() {
+  $queues['dekyll_clone'] = array(
+    'worker callback' => 'dekyll_repository_clone_queue_worker',
+    'time' => 60,
+  );
+
+  return $queues;
+}
+
+/**
+ * Queue Worker; Clone a git repository.
+ *
+ * @param $queue_item
+ */
+function dekyll_repository_clone_queue_worker($data) {
+  dekyll_repository_clone($data['nid']);
+}
+
+/**
+ * Clone a Git repository or copy from an existing repo, and checkout to branch.
+ *
+ * @todo: Copy from existing repo, to save the clone time.
+ *
+ * @param $branch_id
+ *   The branch node ID, to checkout to.
+ */
+function dekyll_repository_clone($branch_id) {
+  $wrapper = entity_metadata_wrapper('node', $branch_id);
+  $repo_wrapper = $wrapper->{OG_AUDIENCE_FIELD};
+  $credentials = $repo_wrapper->field_repo_credentials->value();
+  $path = dekyll_repository_get_repo_path($branch_id);
+
+  $git_wrapper = new GitWrapper();
+
+  if (drupal_is_cli()) {
+    // Set the timeout if command is executed via Drush.
+    $git_wrapper->setTimeout(600);
+  }
+
+  $git = $git_wrapper->workingCopy($path);
+
+  if (!$git->isCloned() && !$git->clone($credentials)) {
+    throw new Exception(format_string('Git repository could not be cloned with @credentials.', array('@credentials' => $credentials)));
+  }
+
+  $branch_name = $wrapper->label();
+  $git->checkout($branch_name);
+
+  // Save clone status.
+  $wrapper->field_repo_cloned->set(TRUE);
+
+  // @todo: Can we check write access?
+  if (!$repo_wrapper->field_repo_write_access->value()) {
+    $repo_wrapper->field_repo_write_access->set(TRUE);
+    $repo_wrapper->save();
+  }
+
+  $wrapper->save();
+
+  // Sync.
+  dekyll_sync_import($branch_id);
+}
+

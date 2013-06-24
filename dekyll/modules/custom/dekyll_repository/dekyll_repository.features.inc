@@ -19,6 +19,14 @@ function dekyll_repository_ctools_plugin_api() {
  */
 function dekyll_repository_node_info() {
   $items = array(
+    'branch' => array(
+      'name' => t('Branch'),
+      'base' => 'node_content',
+      'description' => '',
+      'has_title' => '1',
+      'title_label' => t('Title'),
+      'help' => '',
+    ),
     'repository' => array(
       'name' => t('Repository'),
       'base' => 'node_content',

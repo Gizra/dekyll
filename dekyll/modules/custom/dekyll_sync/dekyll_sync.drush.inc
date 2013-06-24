@@ -24,7 +24,7 @@ function dekyll_sync_drush_command() {
     'options' => array(
       'force' => dt('Optional. Force re-sync even if the file did not change.'),
       // @todo: Allow passing multiple IDs?
-      'id' => dt('The node ID of the repository, to sync'),
+      'id' => dt('The node ID of the Branch, to sync'),
       'type' => dt('Should sync import "config" or "content". Both by defaults.'),
     ),
   );
@@ -34,6 +34,14 @@ function dekyll_sync_drush_command() {
     'options' => array(
       // @todo: Allow passing multiple IDs?
       'id' => dt('The node ID of the repository, to sync'),
+    ),
+  );
+
+  $items['dekyll-clone'] = array(
+    'description' => dt('Clone a specific repository branch.'),
+    // @todo: ID should be a required argument.
+    'options' => array(
+      'id' => dt('The node ID of the Branch, to clone.'),
     ),
   );
 
@@ -48,9 +56,7 @@ function drush_dekyll_sync_dekyll_export() {
     return;
   }
 
-  $branch = drush_get_option('branch', 'master');
-
-  dekyll_sync_export($nid, $branch);
+  dekyll_sync_export($nid);
 }
 
 
@@ -58,7 +64,7 @@ function drush_dekyll_sync_dekyll_export() {
  * Sync Drupal with Jekyll, of a specific group.
  */
 function drush_dekyll_sync_dekyll_import() {
-  if (!$gid = drush_get_option('id')) {
+  if (!$branch_id = drush_get_option('id')) {
     return;
   }
   $sync_type = drush_get_option('type', 'config,content');
@@ -67,14 +73,14 @@ function drush_dekyll_sync_dekyll_import() {
   $force_sync = drush_get_option('force');
 
 
-  dekyll_sync_import($gid, $sync_type, $force_sync);
+  dekyll_sync_import($branch_id, $sync_type, $force_sync);
 }
 
 /**
  * Sync Jekyll configuration file (_dekyll.yml) with the Drupal configuration.
  */
 function drush_dekyll_sync_dekyll_config_update() {
-  if (!$gid = drush_get_option('id')) {
+  if (!$branch_id = drush_get_option('id')) {
     return;
   }
 
@@ -102,4 +108,15 @@ function drush_dekyll_sync_dekyll_config_update() {
 
   // Write the YAML file.
   dekyll_sync_save_yml($gid, '_dekyll.yml', $config);
+}
+
+/**
+ * Write an item form the queue into the Jekyll file.
+ */
+function drush_dekyll_sync_dekyll_clone() {
+  if (!$nid = drush_get_option('id')) {
+    return;
+  }
+
+  dekyll_repository_clone($nid);
 }

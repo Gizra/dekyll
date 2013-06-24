@@ -17,13 +17,13 @@ class ConfigSyncOgVocab extends ConfigSyncBase {
 
     foreach ($this->config['content_types']['taxonomy'] as $bundle => $configs) {
       foreach ($configs as $vocab_name => $config) {
-        $gid = $this->gid;
+        $branch_id = $this->branchId;
 
         $vocab_name = trim($vocab_name);
 
         // Check if vocabulary already exists.
         // Suffix the machine name with the group ID.
-        $machine_name = trim(drupal_strtolower(str_replace(' ', '_', $vocab_name))) . '_' . $gid;
+        $machine_name = trim(drupal_strtolower(str_replace(' ', '_', $vocab_name))) . '_' . $branch_id;
         if (!$vocabulary = taxonomy_vocabulary_machine_name_load($machine_name)) {
           // Create a vocabulary.
           $vocabulary = new stdClass();
@@ -32,11 +32,11 @@ class ConfigSyncOgVocab extends ConfigSyncBase {
           taxonomy_vocabulary_save($vocabulary);
 
           // Associate with the group.
-          og_vocab_relation_save($vocabulary->vid, 'node', $gid);
+          og_vocab_relation_save($vocabulary->vid, 'node', $branch_id);
         }
 
         // Create an OG-vocab, or load an existing one.
-        $og_vocab = og_vocab_load_og_vocab($vocabulary->vid, 'node', $bundle, OG_VOCAB_FIELD, TRUE);
+        $og_vocab = og_vocab_load_og_vocab($vocabulary->vid, 'node', $bundle, NULL, TRUE);
 
         // @todo: Add validation for user's data.
         switch ($config['widget']) {
@@ -68,10 +68,10 @@ class ConfigSyncOgVocab extends ConfigSyncBase {
    * Export OG-vocabs.
    */
   public function export(&$config) {
-    $gid = $this->gid;
+    $branch_id = $this->branchId;
 
     // Get all Vocabularies and OG-vocabs of the group.
-    if (!$relations = og_vocab_relation_get_by_group('node', $gid)) {
+    if (!$relations = og_vocab_relation_get_by_group('node', $branch_id)) {
       return;
     }
 
@@ -91,13 +91,6 @@ class ConfigSyncOgVocab extends ConfigSyncBase {
 
     foreach ($og_vocabs as $og_vocab) {
       $vocabulary = $vocabularies[$og_vocab->vid];
-
-      if ($vocabulary->name == 'branch') {
-        // We don't export this special vocabulary.
-        // @see ConfigSyncBranch::import().
-        continue;
-      }
-
       $settings = $og_vocab->settings;
 
       switch ($settings['widget_type']) {
