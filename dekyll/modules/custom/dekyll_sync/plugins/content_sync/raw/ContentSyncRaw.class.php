@@ -13,7 +13,7 @@ class ContentSyncRaw extends ContentSyncBase {
     foreach ($this->syncMap[$plugin_name] as $field_name) {
       $instance = field_info_instance($wrapper->type(), $field_name, $wrapper->getBundle());
 
-      $jekyll_name = !empty($instance['settings']['content_sync']['settings']['jekyll_name']) ? $instance['settings']['content_sync']['settings']['jekyll_name'] : $field_name;
+      $jekyll_name = $this->getJekyllName($instance, $field_name);
 
       $value = isset($yaml[$jekyll_name]) ? $yaml[$jekyll_name] : NULL;
 
@@ -29,7 +29,7 @@ class ContentSyncRaw extends ContentSyncBase {
     foreach ($this->syncMap[$plugin_name] as $field_name) {
       $instance = field_info_instance($wrapper->type(), $field_name, $wrapper->getBundle());
 
-      $jekyll_name = !empty($instance['settings']['content_sync']['settings']['jekyll_name']) ? $instance['settings']['content_sync']['settings']['jekyll_name'] : $field_name;
+      $jekyll_name = $this->getJekyllName($instance, $field_name);
 
       $yaml[$jekyll_name] = $wrapper->{$field_name}->raw();
     }

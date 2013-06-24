@@ -129,6 +129,16 @@ abstract class ContentSyncBase implements ContentSyncInterface {
 
     return $form;
   }
+
+  /**
+   * Helper function to get the Jekyll name from the settings.
+   *
+   * @param $instance
+   * @param $field_name
+   */
+  public function getJekyllName($instance, $field_name) {
+    return !empty($instance['settings']['content_sync']['settings']['jekyll_name']) ? $instance['settings']['content_sync']['settings']['jekyll_name'] : $field_name;
+  }
 }
 
 /**
