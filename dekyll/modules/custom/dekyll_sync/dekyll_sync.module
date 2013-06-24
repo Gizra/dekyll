@@ -91,6 +91,9 @@ function dekyll_sync_content_sync_plugin_process(&$plugin, $info) {
   $plugin += array(
     'description' => '',
     'weight' => 0,
+    // Allow mapping a field name to a different property name in Jekyll. e.g.
+    // "field_foo" in Drupal will be mapped to "bar" in Jekyll's YAML.
+    'jekyll name' => TRUE,
   );
 }
 
