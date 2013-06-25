@@ -113,7 +113,12 @@ function dekyll_content_queue_field_default_fields() {
           'sort' => array(
             'type' => 'none',
           ),
-          'target_bundles' => array(),
+          'target_bundles' => array(
+            'image' => 'image',
+            'page' => 'page',
+            'post' => 'post',
+            'product_page' => 'product_page',
+          ),
         ),
         'target_type' => 'node',
       ),

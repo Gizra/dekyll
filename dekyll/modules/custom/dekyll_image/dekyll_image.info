@@ -1,6 +1,7 @@
 name = Dekyll Image
 core = 7.x
 package = Dekyll
+php = 5.2.4
 dependencies[] = ctools
 dependencies[] = entityreference
 dependencies[] = features

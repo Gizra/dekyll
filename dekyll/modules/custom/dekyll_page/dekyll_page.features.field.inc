@@ -162,7 +162,14 @@ function dekyll_page_field_default_fields() {
           ),
         ),
         'content_sync' => array(
-          'plugin_name' => '',
+          'plugin_name' => 'entity_reference',
+          'settings' => array(
+            'create_page' => 0,
+            'unique' => array(
+              'name' => 'nid',
+              'type' => 'property',
+            ),
+          ),
         ),
         'user_register_form' => FALSE,
       ),

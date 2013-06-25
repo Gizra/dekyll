@@ -78,7 +78,7 @@ function dekyll_image_field_default_fields() {
           'summary_rows' => 5,
         ),
         'type' => 'text_textarea_with_summary',
-        'weight' => '1',
+        'weight' => '2',
       ),
     ),
   );
@@ -161,7 +161,7 @@ function dekyll_image_field_default_fields() {
           'progress_indicator' => 'throbber',
         ),
         'type' => 'image_image',
-        'weight' => '4',
+        'weight' => '1',
       ),
     ),
   );
@@ -271,7 +271,7 @@ function dekyll_image_field_default_fields() {
         'module' => 'og',
         'settings' => array(),
         'type' => 'og_complex',
-        'weight' => '3',
+        'weight' => '4',
       ),
     ),
   );
@@ -392,7 +392,7 @@ function dekyll_image_field_default_fields() {
         'module' => 'og',
         'settings' => array(),
         'type' => 'og_complex',
-        'weight' => '0',
+        'weight' => '3',
       ),
     ),
   );
