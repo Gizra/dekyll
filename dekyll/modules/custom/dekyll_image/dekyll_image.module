@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Dekyll Image feature.
+ */
+
+include_once 'dekyll_image.features.inc';

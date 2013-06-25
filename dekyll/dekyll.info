@@ -81,6 +81,7 @@ dependencies[] = commerce_ui
 ; Custom modules
 dependencies[] = dekyll_commerce
 dependencies[] = dekyll_content_queue
+dependencies[] = dekyll_image
 dependencies[] = dekyll_page
 dependencies[] = dekyll_repository
 dependencies[] = dekyll_sync
