@@ -297,6 +297,12 @@ function dekyll_sync_export_queue_worker($data) {
  */
 function dekyll_sync_export($nid) {
   $wrapper = entity_metadata_wrapper('node', $nid);
+
+  if (!isset($wrapper->field_base_path)) {
+    drush_log(dt('Cannot export node of type @type', array('@type' => $wrapper->getBundle())), 'error');
+    return;
+  }
+
   $branch_id = $wrapper->field_repo_branch->value(array('identifier' => TRUE));
 
   $is_canonical = $wrapper->{OG_AUDIENCE_FIELD}->field_repo_canonical->value();
