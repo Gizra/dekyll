@@ -578,8 +578,6 @@ function dekyll_sync_save_yml($branch_id, $file_path, $data = array(), $commit_m
 /**
  * Create a node or update existing from file.
  *
- * @todo: Do actually field mapping.
- *
  * @param $file_path
  *   The file path.
  */
@@ -597,21 +595,29 @@ function dekyll_sync_import_file($file_path, $branch_id, GitWorkingCopy $git, $n
   $split_contents = explode('---', $contents, 3);
   $text = $split_contents[2];
 
-  // @todo: Be smarter about the type.
-  if (strpos($file_path, '_posts') === 0) {
-    $bundle = 'post';
-  }
-  elseif (strpos($file_path, 'products/') === 0) {
-    $bundle = 'product_page';
-  }
-  else {
-    $bundle = 'page';
-  }
-
   if ($nid) {
     $wrapper = entity_metadata_wrapper('node', $nid);
+    $bundle = $wrapper->getBundle();
   }
   else {
+    if (strpos($file_path, '_posts') === 0) {
+      $bundle = 'post';
+    }
+    elseif (strpos($file_path, 'products/') === 0) {
+      $bundle = 'product_page';
+    }
+    else {
+      $bundle = 'page';
+    }
+
+    // Allow another module to change the bundle, according to more specific
+    // logic.
+    $context = array(
+      'file_path' => $file_path,
+      'branc_id' => $branch_id,
+    );
+    drupal_alter('dekyll_sync_import_file_bundle', $bundle, $context);
+
     // Create a new node.
     $node = (object) array(
       'type' => $bundle,
