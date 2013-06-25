@@ -141,3 +141,62 @@ function dekyll_page_queue_export($node) {
   );
   $queue->createItem($data);
 }
+
+/**
+ * Get the permalink of a page or post.
+ *
+ * @todo: Deal with absolute VS relative path.
+ */
+function dekyll_page_get_permalink($node) {
+  $wrapper = entity_metadata_wrapper('node', $node);
+
+  $permalink = $wrapper->field_permalink->value();
+
+  if ($node->type == 'post' && $permalink) {
+    return $permalink;
+  }
+
+  // @todo: See how permalink works on pages.
+  return $wrapper->field_file_path->value();
+}
+
+
+/**
+ * Implements hook_node_view_alter().
+ */
+function dekyll_page_node_view_alter(&$build) {
+  $node = $build['#node'];
+  $wrapper = entity_metadata_wrapper('node', $node);
+
+  if (!isset($wrapper->field_file_path)) {
+    return;
+  }
+
+  if (!$setting = $wrapper->field_repo_branch->field_jekyll_base_path->value()) {
+    return;
+  }
+
+  switch ($setting) {
+    case 'local':
+      $base = 'http://localhost:4000';
+      break;
+
+    case 'config':
+      // @todo: Read from _config.yml
+      break;
+
+    case 'other':
+      $base = $wrapper->field_repo_branch->field_jekyll_base_path_url->value();
+  }
+
+  // @todo: How to deal with non-pages?
+  // @todo: Deal with permalink.
+  $url = $base . '/' . dekyll_page_get_permalink($node);
+
+  // @todo: Add option to disable IFrame?
+  $build['dekyll_site'] = array(
+    '#weight' => -99,
+    'link' => array('#markup' => l('See page', $url)),
+    'iframe' => array('#markup' => "<div><iframe style='width: 100%; height: 600px;' src='$url'></iframe></div>"),
+  );
+}

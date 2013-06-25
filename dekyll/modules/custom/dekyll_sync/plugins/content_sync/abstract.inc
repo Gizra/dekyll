@@ -110,7 +110,35 @@ abstract class ContentSyncBase implements ContentSyncInterface {
     }
   }
 
-  public function settingsForm($field, $instance) {}
+  public function settingsForm($field, $instance) {
+    if (!$this->plugin['jekyll name']) {
+      return;
+    }
+
+    $settings = !empty($instance['settings']['content_sync']['settings']) ? $instance['settings']['content_sync']['settings'] : array();
+    $settings += array(
+      // Empty, means defaults to the field name.
+      'jekyll_name' => '',
+    );
+    $form['jekyll_name'] = array(
+      '#title' => t('Jekyll name'),
+      '#description' => t('The name of the property in Jekyll YAML to map the field to.'),
+      '#type' => 'textfield',
+      '#default_value' => $settings['jekyll_name'],
+    );
+
+    return $form;
+  }
+
+  /**
+   * Helper function to get the Jekyll name from the settings.
+   *
+   * @param $instance
+   * @param $field_name
+   */
+  public function getJekyllName($instance, $field_name) {
+    return !empty($instance['settings']['content_sync']['settings']['jekyll_name']) ? $instance['settings']['content_sync']['settings']['jekyll_name'] : $field_name;
+  }
 }
 
 /**
