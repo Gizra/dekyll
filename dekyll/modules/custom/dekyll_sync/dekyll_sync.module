@@ -298,7 +298,7 @@ function dekyll_sync_export_queue_worker($data) {
 function dekyll_sync_export($nid) {
   $wrapper = entity_metadata_wrapper('node', $nid);
 
-  if (!isset($wrapper->field_base_path)) {
+  if (!isset($wrapper->field_file_path)) {
     drush_log(dt('Cannot export node of type @type', array('@type' => $wrapper->getBundle())), 'error');
     return;
   }
