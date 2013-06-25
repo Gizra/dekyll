@@ -12,6 +12,7 @@ dependencies[] = strongarm
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:1
 features[field][] = node-page-body
+features[field][] = node-page-field_content_queue
 features[field][] = node-page-field_file_path
 features[field][] = node-page-field_permalink
 features[field][] = node-page-field_repo_branch
