@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Dekyll Content Queue feature.
+ */
+
+include_once 'dekyll_content_queue.features.inc';
