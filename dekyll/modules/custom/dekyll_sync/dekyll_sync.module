@@ -286,7 +286,7 @@ function dekyll_sync_export_queue_worker($data) {
 /**
  * Recursive function that calls the execute handlers.
  */
-function _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $files_info, &$file_names = array(), $yaml = array(), $text = '', $file_path = '') {
+function _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $files_info, &$file_names = array(), &$yaml = array(), &$text = '', $file_path = '', $is_root = TRUE) {
 
   $parser = &drupal_static(__FUNCTION__ . '_parser', FALSE);
   $dumper = &drupal_static(__FUNCTION__ . '_dumper', FALSE);
@@ -362,15 +362,15 @@ function _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $files_
     if ($child_info['page'] && $file_path != $child_info['file_path']) {
       // We've reached a new page, so re-iterate over the whole "files-info"
       // and build the new page.
-      _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $files_info, $file_names, $yaml, $text, $file_path);
+      _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $complete_files_info, $file_names, $yaml, $text, $file_path, TRUE);
     }
 
     // Continue digging into the tree, pass it the child as the "files-info".
     // @todo: Pass the yaml of the child?
-    _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, array($child_info), $file_names, $yaml, $text, $child_info['file_path']);
+    _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, array($child_info), $file_names, $yaml, $text, $child_info['file_path'], FALSE);
   }
 
-  if ($file_info['children']) {
+  if (!$is_root) {
     // We are still inside the tree.
     return;
   }
