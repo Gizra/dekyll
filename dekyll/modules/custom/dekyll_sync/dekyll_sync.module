@@ -168,7 +168,7 @@ function dekyll_sync_get_content_sync_map($entity_type, $bundle) {
  * @param EntityDrupalWrapper $parent_wrapper
  * @param bool $is_page
  */
-function _dekyll_sync_prepare_files_for_export(EntityDrupalWrapper $wrapper, &$info = array(), EntityDrupalWrapper $parent_wrapper = NULL, $is_page = TRUE) {
+function _dekyll_sync_prepare_files_for_export(EntityDrupalWrapper $wrapper, &$info = array(), EntityDrupalWrapper $parent_wrapper = NULL, $is_page = TRUE, $jekyll_name = '') {
   // Get all the field instances of the bundle.
   $identifier = $wrapper->type() . ':' . $wrapper->getIdentifier();
   $parent_identifier = $parent_wrapper ? $parent_wrapper->type() . ':' . $parent_wrapper->getIdentifier() : FALSE;
@@ -212,6 +212,7 @@ function _dekyll_sync_prepare_files_for_export(EntityDrupalWrapper $wrapper, &$i
     'page' => $is_page,
     'file_path' => $is_page ? $file_path : FALSE,
     'children' => array(),
+    'jekyll_name' => $jekyll_name,
   );
 
   foreach (field_info_instances($entity_type, $bundle) as $field_name => $instance) {
@@ -235,15 +236,16 @@ function _dekyll_sync_prepare_files_for_export(EntityDrupalWrapper $wrapper, &$i
     // The field is referencing an entity that should be used as a page.
     $child_is_page = !empty($instance['settings']['content_sync']['settings']['create_page']);
 
+    $jekyll_name = !empty($instance['settings']['content_sync']['settings']['jekyll_name']) ? $instance['settings']['content_sync']['settings']['jekyll_name'] : $field_name;
 
     if ($field['cardinality'] == 1) {
       $sub_wrapper = $wrapper->{$field_name};
-      _dekyll_sync_prepare_files_for_export($sub_wrapper, $info[$identifier]['children'], $wrapper, $child_is_page);
+      _dekyll_sync_prepare_files_for_export($sub_wrapper, $info[$identifier]['children'], $wrapper, $child_is_page, $jekyll_name);
     }
     else {
       foreach ($wrapper->{$field_name} as $sub_wrapper) {
         // Iterate over the entities, and let them add their info.
-        _dekyll_sync_prepare_files_for_export($sub_wrapper, $info[$identifier]['children'], $wrapper, $child_is_page);
+        _dekyll_sync_prepare_files_for_export($sub_wrapper, $info[$identifier]['children'], $wrapper, $child_is_page, $jekyll_name);
       }
     }
   }
@@ -367,7 +369,7 @@ function _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $files_
 
     // Continue digging into the tree, pass it the child as the "files-info".
     // @todo: Pass the yaml of the child?
-    _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, array($child_info), $file_names, $yaml[$child_info['entity_id']], $text, $child_info['file_path'], FALSE);
+    _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, array($child_info), $file_names, $yaml[$child_info['jekyll_name']], $text, $child_info['file_path'], FALSE);
   }
 
   if (!$is_root) {
