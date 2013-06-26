@@ -171,7 +171,7 @@ function dekyll_sync_get_content_sync_map($entity_type, $bundle) {
  *   Optional; Determine if the returned array should filter out entities that
  *   are not pages. Defaults to TRUE.
  */
-function dekyll_sync_get_files_for_export(EntityDrupalWrapper $wrapper, &$info = array(), EntityDrupalWrapper $parent_wrapper = NULL, $filter_non_pages = false, $is_page = TRUE, $skip_alter = FALSE) {
+function dekyll_sync_get_files_for_export(EntityDrupalWrapper $wrapper, &$info = array(), EntityDrupalWrapper $parent_wrapper = NULL, $is_page = TRUE, $skip = FALSE) {
   // Get all the field instances of the bundle.
   $identifier = $wrapper->type() . ':' . $wrapper->getIdentifier();
   $parent_identifier = $parent_wrapper ? $parent_wrapper->type() . ':' . $parent_wrapper->getIdentifier() : FALSE;
@@ -268,29 +268,28 @@ function dekyll_sync_get_files_for_export(EntityDrupalWrapper $wrapper, &$info =
 
     if ($field['cardinality'] == 1) {
       $sub_wrapper = $wrapper->{$field_name};
-      dekyll_sync_get_files_for_export($sub_wrapper, $info, $wrapper, FALSE, $child_is_page, TRUE);
+      dekyll_sync_get_files_for_export($sub_wrapper, $info, $wrapper, $child_is_page, TRUE);
     }
     else {
       foreach ($wrapper->{$field_name} as $sub_wrapper) {
         // Iterate over the entities, and let them add their page.
-        dekyll_sync_get_files_for_export($sub_wrapper, $info, $wrapper, FALSE, $child_is_page, TRUE);
+        dekyll_sync_get_files_for_export($sub_wrapper, $info, $wrapper, $child_is_page, TRUE);
       }
     }
   }
 
-  if ($skip_alter) {
+  if ($skip) {
     return;
   }
 
   // Allow other modules to change the array.
   drupal_alter('dekyll_sync_get_files_for_export', $info);
 
-  if ($filter_non_pages) {
-    // Filter out entities that should not be created as pages.
-    foreach ($info as $key => $value) {
-      if (empty($value['page'])) {
-        unset($info[$key]);
-      }
+  // We have reached the first level of the recursion, so filter out entities
+  // that should not be created as pages.
+  foreach ($info as $key => $value) {
+    if (empty($value['page'])) {
+      unset($info[$key]);
     }
   }
 }
