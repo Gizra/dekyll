@@ -286,7 +286,7 @@ function dekyll_sync_export_queue_worker($data) {
 /**
  * Recursive function that calls the execute handlers.
  */
-function _dekyll_sync_execute_export_handlers($branch_id, $files_info, &$file_names = array(), $yaml = array(), $text = '', $is_canonical = TRUE, $file_path = '') {
+function _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $files_info, &$file_names = array(), $yaml = array(), $text = '', $file_path = '') {
 
   $parser = drupal_static(__FUNCTION__ . '_parser', FALSE);
   $dumper = drupal_static(__FUNCTION__ . '_dumper', FALSE);
@@ -364,12 +364,12 @@ function _dekyll_sync_execute_export_handlers($branch_id, $files_info, &$file_na
       if ($child_info['page'] && $file_path != $child_info['file_path']) {
         // We've reached a new page, so re-iterate over the whole "files-info"
         // and build the new page.
-        _dekyll_sync_execute_export_handlers($branch_id, $files_info, $file_names, $yaml, $text, $is_canonical, $file_path);
+        _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $files_info, $file_names, $yaml, $text, $file_path);
       }
 
       // Continue digging into the tree, pass it the child as the "files-info".
       // @todo: Pass the yaml of the child?
-      _dekyll_sync_execute_export_handlers($branch_id, $child_info, $file_names, $yaml, $text, $is_canonical, $child_info['file_path']);
+      _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $child_info, $file_names, $yaml, $text, $child_info['file_path']);
     }
 
     $dump = array(
@@ -421,12 +421,9 @@ function dekyll_sync_export($nid) {
     return;
   }
 
-  $parser = new Parser();
-  $dumper = new Dumper();
-
   // Array of file names to add to git.
   $file_names = array();
-  _dekyll_sync_execute_export_handlers($branch_id, $files_info, $file_names);
+  _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $files_info, $file_names);
 
   dpm($file_names);
   return;
