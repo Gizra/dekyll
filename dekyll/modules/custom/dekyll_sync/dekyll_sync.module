@@ -160,72 +160,60 @@ function dekyll_sync_get_content_sync_map($entity_type, $bundle) {
   return $map;
 }
 
+/**
+ * Recursive function to prepare the array of files to export.
+ *
+ * @param EntityDrupalWrapper $wrapper
+ * @param array $info
+ * @param EntityDrupalWrapper $parent_wrapper
+ * @param bool $is_page
+ */
 function _dekyll_sync_prepare_files_for_export(EntityDrupalWrapper $wrapper, &$info = array(), EntityDrupalWrapper $parent_wrapper = NULL, $is_page = TRUE) {
   // Get all the field instances of the bundle.
   $identifier = $wrapper->type() . ':' . $wrapper->getIdentifier();
   $parent_identifier = $parent_wrapper ? $parent_wrapper->type() . ':' . $parent_wrapper->getIdentifier() : FALSE;
 
-  $parent_dirname = '';
-  if (!empty($info[$parent_identifier]['file_path'])) {
-    // Get the parent file path.
-    $parent_file_path = $info[$parent_identifier]['file_path'];
-    $path_parts = pathinfo($parent_file_path);
-
-    $parent_dirname = $path_parts['dirname'] . '/';
-    $parent_basename = $path_parts['basename'];
-  }
-
-  $parent_basename = !empty($parent_basename) ? $parent_basename : 'index.html';
-
-  if (isset($wrapper->field_file_path) && $file_path = $wrapper->field_file_path->value()) {
-    $file_path = $parent_dirname . $file_path;
-  }
-  elseif ($is_page) {
-    // No field path, so use the label.
-    ctools_include('cleanstring');
-    $label = ctools_cleanstring($wrapper->label(), array('lower case' => TRUE));
-    $file_path = $parent_dirname . $label . '/' . $parent_basename;
-  }
-
-  $hierarchy = array();
-  if ($parent_wrapper) {
-    $hierarchy = $info[$parent_identifier]['hierarchy'];
-  }
-
   $entity_type = $wrapper->type();
   $bundle = $wrapper->getBundle();
 
-  $hierarchy_element = array(
-    'wrapper' => $wrapper,
-    'sync_map' => dekyll_sync_get_content_sync_map($entity_type, $bundle),
-    'entity_id' => $identifier,
-  );
+  if (!$parent_wrapper) {
+    // @todo: Allow first level nodes to opt out from being a page.
+  }
 
   if ($is_page) {
-    $hierarchy[] = $hierarchy_element;
+    $parent_dirname = '';
+    if (!empty($info[$parent_identifier]['file_path'])) {
+      // Get the parent file path.
+      $parent_file_path = $info[$parent_identifier]['file_path'];
+      $path_parts = pathinfo($parent_file_path);
 
-    $info[$identifier] = array(
-      'parent' => $parent_identifier,
-      // Every entity assumes it creates a page - it's up to their children to
-      // set it to FALSE.
-      'page' => TRUE,
-      'file_path' => $file_path,
-      'hierarchy' => $hierarchy,
-    );
+      $parent_dirname = $path_parts['dirname'] . '/';
+      $parent_basename = $path_parts['basename'];
+    }
+
+    $parent_basename = !empty($parent_basename) ? $parent_basename : 'index.html';
+
+    // Prepare the file path.
+    if (isset($wrapper->field_file_path) && $file_path = $wrapper->field_file_path->value()) {
+      $file_path = $parent_dirname . $file_path;
+    }
+    else {
+      // No field path, so use the label.
+      ctools_include('cleanstring');
+      $label = ctools_cleanstring($wrapper->label(), array('lower case' => TRUE));
+      $file_path = $parent_dirname . $label . '/' . $parent_basename;
+    }
   }
-  else {
-    $info[$identifier] = array(
-      'parent' => $parent_identifier,
-      // Every entity assumes it creates a page - it's up to their children to
-      // set it to FALSE.
-      'page' => FALSE,
-      'file_path' => FALSE,
-      'hierarchy' => $hierarchy,
-    );
 
-    // Since this is not a page, we add it to the top of the hierarchy, so it
-    // won't override the real page values (e.g entity_id).
-    array_unshift($info[$parent_identifier]['hierarchy'], $hierarchy_element);
+  if ($parent_wrapper) {
+    $info[$parent_identifier]['children'][] = array(
+      'wrapper' => $wrapper,
+      'sync_map' => dekyll_sync_get_content_sync_map($entity_type, $bundle),
+      'entity_id' => $identifier,
+      'page' => $is_page,
+      'file_path' => $is_page ? $file_path : FALSE,
+      'children' => array(),
+    );
   }
 
   foreach (field_info_instances($entity_type, $bundle) as $field_name => $instance) {
@@ -246,13 +234,8 @@ function _dekyll_sync_prepare_files_for_export(EntityDrupalWrapper $wrapper, &$i
       continue;
     }
 
-    // Field is used just as reference, not for creating a new page.
-    // The field is referencing an entity that should be used as a page, meaning
-    // that the current entity, isn't a page.
-    $info[$identifier]['page'] = $is_page && empty($instance['settings']['content_sync']['settings']['create_page']);
-
-    // Indicate if the child is a page.
-    $child_is_page = $is_page && !empty($instance['settings']['content_sync']['settings']['create_page']);
+    // The field is referencing an entity that should be used as a page.
+    $child_is_page = !empty($instance['settings']['content_sync']['settings']['create_page']);
 
 
     if ($field['cardinality'] == 1) {
@@ -288,7 +271,7 @@ function dekyll_sync_get_files_for_export(EntityDrupalWrapper $wrapper, &$info =
   // Filter out entities that should not be created as pages.
   foreach ($info as $key => $value) {
     if (empty($value['page'])) {
-      unset($info[$key]);
+      // unset($info[$key]);
     }
   }
 }
@@ -361,7 +344,7 @@ function dekyll_sync_export($nid) {
     $text = $wrapper->body->value() ? $wrapper->body->value->raw() : '';
 
     // Content sync, allow each plugin to change the node.
-    foreach ($file_info['hierarchy'] as $value) {
+    foreach ($file_info['children'] as $value) {
       $sub_wrapper = $value['wrapper'];
       $sync_map = $value['sync_map'];
 
