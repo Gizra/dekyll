@@ -288,9 +288,9 @@ function dekyll_sync_export_queue_worker($data) {
  */
 function _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $files_info, &$file_names = array(), $yaml = array(), $text = '', $file_path = '') {
 
-  $parser = drupal_static(__FUNCTION__ . '_parser', FALSE);
-  $dumper = drupal_static(__FUNCTION__ . '_dumper', FALSE);
-  $complete_files_info = drupal_static(__FUNCTION__ . '_complete_files_info', array());
+  $parser = &drupal_static(__FUNCTION__ . '_parser', FALSE);
+  $dumper = &drupal_static(__FUNCTION__ . '_dumper', FALSE);
+  $complete_files_info = &drupal_static(__FUNCTION__ . '_complete_files_info', array());
 
   if (empty($dumper)) {
     // On the first iteration we initalize the dumper and parser objects and
@@ -302,91 +302,97 @@ function _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $files_
 
   $path = dekyll_repository_get_repo_path($branch_id);
 
-  foreach ($files_info as $file_info) {
-    if ($file_info['page']) {
-      $file_path = $file_info['file_path'];
-      $file_names[$file_path] = $file_path;
-      $full_path = $path . '/' . $file_path;
+  $file_info = reset($files_info);
 
-      $yaml_contents = array();
-      if (!$is_canonical && file_exists($full_path)) {
-        $contents = file_get_contents($full_path);
+  if ($file_info['page']) {
+    $file_path = $file_info['file_path'];
+    $file_names[$file_path] = $file_path;
+    $full_path = $path . '/' . $file_path;
 
-        // Get the values from the YAML front header.
-        $split_contents = explode(YAML_SEPARATOR, $contents, 3);
-        $yaml_contents = $split_contents[1];
-      }
+    $yaml_contents = array();
+    if (!$is_canonical && file_exists($full_path)) {
+      $contents = file_get_contents($full_path);
+
+      // Get the values from the YAML front header.
+      $split_contents = explode(YAML_SEPARATOR, $contents, 3);
+      $yaml_contents = $split_contents[1];
     }
-
-    if ($file_path) {
-      // If for example the root level entity isn't a page, we just skip right
-      // to processing the children.
-      $yaml = !$yaml && $yaml_contents ? $parser->parse($yaml_contents) : $yaml;
-
-      // Get the text from the node.
-      // @todo: Make configurable.
-      $wrapper = $file_info['wrapper'];
-      $text = isset($wrapper->body) && $wrapper->body->value() ? $wrapper->body->value->raw() : $text;
-
-      foreach (dekyll_sync_get_content_syncs() as $plugin) {
-        if (!$class_name = ctools_plugin_load_class('dekyll_sync', 'content_sync', $plugin['name'], 'class')) {
-          // Class no longer exists.
-          continue;
-        }
-
-        if (drupal_is_cli()) {
-          $params = array(
-            '@plugin' => $plugin['title'],
-            '@entity_id' => $file_info['entity_id'],
-            '@file_path' => $file_path
-          );
-          drush_log(dt('Executing @plugin on entity ID @entity_id for file @file_path.', $params));
-        }
-
-        $sync_map = $file_info['sync_map'];
-        $content_sync = new $class_name($plugin, $sync_map, $branch_id, $file_path);
-
-        $new_file_names = array();
-        if ($content_sync->access('export', NULL, NULL, $sync_map)) {
-          // YAML and text are passed by reference.
-          // Add file names that were created by the content sync handlers.
-          $new_file_names = $content_sync->export($wrapper, $yaml, $text, $files_info);
-        }
-
-        if ($new_file_names) {
-          $file_names = array_merge($file_names, $new_file_names);
-        }
-      }
-    }
-
-    // Iterate over the children.
-    foreach ($file_info['children'] as $child_info) {
-      if ($child_info['page'] && $file_path != $child_info['file_path']) {
-        // We've reached a new page, so re-iterate over the whole "files-info"
-        // and build the new page.
-        _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $files_info, $file_names, $yaml, $text, $file_path);
-      }
-
-      // Continue digging into the tree, pass it the child as the "files-info".
-      // @todo: Pass the yaml of the child?
-      _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $child_info, $file_names, $yaml, $text, $child_info['file_path']);
-    }
-
-    $dump = array(
-      YAML_SEPARATOR,
-      // Dump the YAML expanded, and not inline.
-      $dumper->dump($yaml, 5) . "\n",
-      YAML_SEPARATOR,
-      $text,
-    );
-
-    if (!file_exists($full_path)) {
-      $path_parts = pathinfo($full_path);
-      drupal_mkdir($path_parts['dirname'], NULL, TRUE);
-    }
-
-    file_put_contents($full_path, implode('', $dump));
   }
+
+  $yaml = !$yaml && $yaml_contents ? $parser->parse($yaml_contents) : $yaml;
+
+  // Get the text from the node.
+  // @todo: Make configurable.
+  $wrapper = $file_info['wrapper'];
+  $text = isset($wrapper->body) && $wrapper->body->value() ? $wrapper->body->value->raw() : $text;
+
+  $sync_map = $file_info['sync_map'];
+
+  foreach (dekyll_sync_get_content_syncs() as $plugin) {
+    if (!$class_name = ctools_plugin_load_class('dekyll_sync', 'content_sync', $plugin['name'], 'class')) {
+      // Class no longer exists.
+      continue;
+    }
+
+    if (drupal_is_cli()) {
+      $params = array(
+        '@plugin' => $plugin['title'],
+        '@entity_id' => $file_info['entity_id'],
+        '@file_path' => $file_path
+      );
+      drush_log(dt('Executing @plugin on entity ID @entity_id for file @file_path.', $params));
+    }
+
+    $content_sync = new $class_name($plugin, $sync_map, $branch_id, $file_path);
+
+    $new_file_names = array();
+    if ($content_sync->access('export', NULL, NULL, $sync_map)) {
+      // YAML and text are passed by reference.
+      // Add file names that were created by the content sync handlers.
+      $new_file_names = $content_sync->export($wrapper, $yaml, $text, $files_info);
+    }
+
+    if ($new_file_names) {
+      $file_names = array_merge($file_names, $new_file_names);
+    }
+  }
+
+  // Iterate over the children.
+  foreach ($file_info['children'] as $child_info) {
+    if ($child_info['page'] && $file_path != $child_info['file_path']) {
+      // We've reached a new page, so re-iterate over the whole "files-info"
+      // and build the new page.
+      _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $files_info, $file_names, $yaml, $text, $file_path);
+    }
+
+    // Continue digging into the tree, pass it the child as the "files-info".
+    // @todo: Pass the yaml of the child?
+    _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, array($child_info), $file_names, $yaml, $text, $child_info['file_path']);
+  }
+
+  if ($file_info['children']) {
+    // We are still inside the tree.
+    return;
+  }
+
+  dpm($yaml);
+
+  $dump = array(
+    YAML_SEPARATOR,
+    // Dump the YAML expanded, and not inline.
+    $dumper->dump($yaml, 5) . "\n",
+    YAML_SEPARATOR,
+    $text,
+  );
+
+  $full_path = $path . '/' . $file_path;
+
+  if (!file_exists($full_path)) {
+    $path_parts = pathinfo($full_path);
+    drupal_mkdir($path_parts['dirname'], NULL, TRUE);
+  }
+
+  file_put_contents($full_path, implode('', $dump));
 }
 
 /**
@@ -412,7 +418,6 @@ function dekyll_sync_export($nid) {
   $git_wrapper = new GitWrapper();
   $git = $git_wrapper->workingCopy($path);
 
-
   // Get an array with all the files that we will need to write.
   $files_info = array();
   dekyll_sync_get_files_for_export($wrapper, $files_info);
@@ -425,7 +430,6 @@ function dekyll_sync_export($nid) {
   $file_names = array();
   _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $files_info, $file_names);
 
-  dpm($file_names);
   return;
 
   foreach ($file_names as $file_name) {
