@@ -14,8 +14,12 @@ interface ContentSyncInterface {
 
   /**
    * Constructor for the Content sync class.
+   * @param $plugin
+   * @param array $sync_map
+   * @param null $branch_id
+   * @param null $file_path
    */
-  public function __construct($plugin, $sync_map = array(), $branch_id = NULL, $file_path = NULL, GitWorkingCopy $git = NULL);
+  public function __construct($plugin, $sync_map = array(), $branch_id = NULL, $file_path = NULL);
 
   /**
    * Import content from Jekyll file.
@@ -79,12 +83,7 @@ abstract class ContentSyncBase implements ContentSyncInterface {
    */
   protected $filePath;
 
-  /**
-   * The GitWrapper\GitWorkingCopy object.
-   */
-  protected $git;
-
-  public function __construct($plugin, $sync_map = array(), $branch_id = NULL, $file_path = NULL, GitWorkingCopy $git = NULL) {
+  public function __construct($plugin, $sync_map = array(), $branch_id = NULL, $file_path = NULL) {
     $this->plugin = $plugin;
 
     $this->syncMap = $sync_map;
@@ -92,7 +91,6 @@ abstract class ContentSyncBase implements ContentSyncInterface {
 
     $this->branchId = $branch_id;
     $this->filePath = $file_path;
-    $this->git = $git;
   }
 
   public function import(EntityDrupalWrapper $wrapper, $yaml = array(), $text = '') {

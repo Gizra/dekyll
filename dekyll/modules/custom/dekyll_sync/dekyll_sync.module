@@ -344,7 +344,7 @@ function _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $files_
         }
 
         $sync_map = $file_info['sync_map'];
-        $content_sync = new $class_name($plugin, $sync_map, $branch_id, $file_path, $git);
+        $content_sync = new $class_name($plugin, $sync_map, $branch_id, $file_path);
 
         $new_file_names = array();
         if ($content_sync->access('export', NULL, NULL, $sync_map)) {
