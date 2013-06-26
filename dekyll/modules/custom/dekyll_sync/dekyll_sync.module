@@ -284,6 +284,94 @@ function dekyll_sync_export_queue_worker($data) {
 }
 
 /**
+ * Recursive function that calls the execute handlers.
+ */
+function _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $file_path, $complete_files_info, $files_info, &$file_names = array(), $yaml, $text = '', Symfony\Component\Yaml\Parser $parser, Symfony\Component\Yaml\Dumper $dumper) {
+  $path = dekyll_repository_get_repo_path($branch_id);
+
+  foreach ($files_info as $file_info) {
+    if ($file_info['page']) {
+      $file_path = $file_info['file_path'];
+      $file_names[$file_path] = $file_path;
+      $full_path = $path . '/' . $file_path;
+
+      $yaml_contents = array();
+      if (!$is_canonical && file_exists($full_path)) {
+        $contents = file_get_contents($full_path);
+
+        // Get the values from the YAML front header.
+        $split_contents = explode(YAML_SEPARATOR, $contents, 3);
+        $yaml_contents = $split_contents[1];
+      }
+    }
+
+    $yaml = !$yaml && $yaml_contents ? $parser->parse($yaml_contents) : $yaml;
+
+    // Get the text from the node.
+    // @todo: Make configurable.
+    $wrapper = $file_info['wrapper'];
+    $text = isset($wrapper->body) && $wrapper->body->value() ? $wrapper->body->value->raw() : $text;
+
+    foreach (dekyll_sync_get_content_syncs() as $plugin) {
+      if (!$class_name = ctools_plugin_load_class('dekyll_sync', 'content_sync', $plugin['name'], 'class')) {
+        // Class no longer exists.
+        continue;
+      }
+
+      if (drupal_is_cli()) {
+        $params = array(
+          '@plugin' => $plugin['title'],
+          '@entity_id' => $file_info['entity_id'],
+          '@file_path' => $file_path
+        );
+        drush_log(dt('Executing @plugin on entity ID @entity_id for file @file_path.', $params));
+      }
+
+      $sync_map = $file_info['sync_map'];
+      $content_sync = new $class_name($plugin, $sync_map, $branch_id, $file_path, $git);
+
+      $new_file_names = array();
+      if ($content_sync->access('export', NULL, NULL, $sync_map)) {
+        // YAML and text are passed by reference.
+        // Add file names that were created by the content sync handlers.
+        $new_file_names = $content_sync->export($wrapper, $yaml, $text, $files_info);
+      }
+
+      if ($new_file_names) {
+        $file_names = array_merge($file_names, $new_file_names);
+      }
+    }
+
+    // Content sync.
+    foreach ($file_info['children'] as $child) {
+      if ($child['page'] && $file_path != $child['file_path']) {
+        // We've reached a new page, so re-iterate over the whole "files-info"
+        // and build the new page.
+        _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $child['file_path'], $complete_files_info, $complete_files_info, $file_names, $text, $parser, $dumper);
+      }
+
+      // Continue digging into the tree, pass it the child as the "files-info".
+      _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $file_path, $complete_files_info, $child, $file_names, $text, $parser, $dumper);
+    }
+
+    $dump = array(
+      YAML_SEPARATOR,
+      // Dump the YAML expanded, and not inline.
+      $dumper->dump($yaml, 5) . "\n",
+      YAML_SEPARATOR,
+      $text,
+    );
+
+    if (!file_exists($full_path)) {
+      $path_parts = pathinfo($full_path);
+      drupal_mkdir($path_parts['dirname'], NULL, TRUE);
+    }
+
+    file_put_contents($full_path, implode('', $dump));
+  }
+}
+
+/**
  * Export a node and it's related entities, and write it to file(s).
  *
  * @param $nid
@@ -321,75 +409,8 @@ function dekyll_sync_export($nid) {
   // Array of file names to add to git.
   $file_names = array();
 
-  foreach ($files_info as $file_info) {
-    $file_path = $file_info['file_path'];
-    $file_names[] = $file_path;
-    $full_path = $path . '/' . $file_path;
-
-    $yaml_contents = array();
-    if (!$is_canonical && file_exists($full_path)) {
-      $contents = file_get_contents($full_path);
-
-      // Get the values from the YAML front header.
-      $split_contents = explode(YAML_SEPARATOR, $contents, 3);
-      $yaml_contents = $split_contents[1];
-    }
-
-    $yaml_parsed = $yaml_contents ? $yaml->parse($yaml_contents) : array();
-
-    // Get the text from the node.
-    // @todo: Make configurable.
-    $text = $wrapper->body->value() ? $wrapper->body->value->raw() : '';
-
-    // Content sync, allow each plugin to change the node.
-    foreach ($file_info['children'] as $value) {
-      $sub_wrapper = $value['wrapper'];
-      $sync_map = $value['sync_map'];
-
-      foreach (dekyll_sync_get_content_syncs() as $plugin) {
-        if (!$class_name = ctools_plugin_load_class('dekyll_sync', 'content_sync', $plugin['name'], 'class')) {
-          // Class no longer exists.
-          continue;
-        }
-
-        if (drupal_is_cli()) {
-          $params = array(
-            '@plugin' => $plugin['title'],
-            '@entity_id' => $value['entity_id'],
-          );
-          drush_log(dt('Executing @plugin on entity ID @entity_id', $params));
-        }
-
-        $content_sync = new $class_name($plugin, $sync_map, $branch_id, $file_path, $git);
-
-        $new_file_names = array();
-        if ($content_sync->access('export', NULL, NULL, $sync_map)) {
-          // YAML and text are passed by reference.
-          // Add file names that were created by the content sync handlers.
-          $new_file_names = $content_sync->export($sub_wrapper, $yaml_parsed, $text, $files_info);
-        }
-
-        if ($new_file_names) {
-          $file_names = array_merge($file_names, $new_file_names);
-        }
-      }
-    }
-
-    $dump = array(
-      YAML_SEPARATOR,
-      // Dump the YAML expanded, and not inline.
-      $dumper->dump($yaml_parsed, 5) . "\n",
-      YAML_SEPARATOR,
-      $text,
-    );
-
-    if (!file_exists($full_path)) {
-      $path_parts = pathinfo($full_path);
-      drupal_mkdir($path_parts['dirname'], NULL, TRUE);
-    }
-
-    file_put_contents($full_path, implode('', $dump));
-  }
+  dpm($file_names);
+  return;
 
   foreach ($file_names as $file_name) {
     // Add files to git.
