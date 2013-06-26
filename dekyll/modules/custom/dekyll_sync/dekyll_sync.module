@@ -205,16 +205,14 @@ function _dekyll_sync_prepare_files_for_export(EntityDrupalWrapper $wrapper, &$i
     }
   }
 
-  if ($parent_wrapper) {
-    $info[$parent_identifier]['children'][] = array(
-      'wrapper' => $wrapper,
-      'sync_map' => dekyll_sync_get_content_sync_map($entity_type, $bundle),
-      'entity_id' => $identifier,
-      'page' => $is_page,
-      'file_path' => $is_page ? $file_path : FALSE,
-      'children' => array(),
-    );
-  }
+  $info[$identifier] = array(
+    'wrapper' => $wrapper,
+    'sync_map' => dekyll_sync_get_content_sync_map($entity_type, $bundle),
+    'entity_id' => $identifier,
+    'page' => $is_page,
+    'file_path' => $is_page ? $file_path : FALSE,
+    'children' => array(),
+  );
 
   foreach (field_info_instances($entity_type, $bundle) as $field_name => $instance) {
     $field = field_info_field($field_name);
@@ -240,12 +238,12 @@ function _dekyll_sync_prepare_files_for_export(EntityDrupalWrapper $wrapper, &$i
 
     if ($field['cardinality'] == 1) {
       $sub_wrapper = $wrapper->{$field_name};
-      _dekyll_sync_prepare_files_for_export($sub_wrapper, $info, $wrapper, $child_is_page);
+      _dekyll_sync_prepare_files_for_export($sub_wrapper, $info[$identifier]['children'], $wrapper, $child_is_page);
     }
     else {
       foreach ($wrapper->{$field_name} as $sub_wrapper) {
-        // Iterate over the entities, and let them add their page.
-        _dekyll_sync_prepare_files_for_export($sub_wrapper, $info, $wrapper, $child_is_page);
+        // Iterate over the entities, and let them add their info.
+        _dekyll_sync_prepare_files_for_export($sub_wrapper, $info[$identifier]['children'], $wrapper, $child_is_page);
       }
     }
   }
