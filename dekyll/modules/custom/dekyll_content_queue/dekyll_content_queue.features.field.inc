@@ -158,7 +158,14 @@ function dekyll_content_queue_field_default_fields() {
           ),
         ),
         'content_sync' => array(
-          'plugin_name' => '',
+          'plugin_name' => 'entity_reference',
+          'settings' => array(
+            'create_page' => 0,
+            'unique' => array(
+              'name' => 'nid',
+              'type' => 'property',
+            ),
+          ),
         ),
         'user_register_form' => FALSE,
       ),
@@ -410,12 +417,96 @@ function dekyll_content_queue_field_default_fields() {
     ),
   );
 
+  // Exported field: 'node-queue-og_vocabulary'.
+  $fields['node-queue-og_vocabulary'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '-1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'og_vocabulary',
+      'foreign keys' => array(
+        'taxonomy_term_data' => array(
+          'columns' => array(
+            'target_id' => 'tid',
+          ),
+          'table' => 'taxonomy_term_data',
+        ),
+      ),
+      'indexes' => array(
+        'target_id' => array(
+          0 => 'target_id',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'entityreference',
+      'settings' => array(
+        'handler' => 'base',
+        'handler_settings' => array(
+          'behaviors' => array(
+            'og_vocab' => array(
+              'status' => TRUE,
+              'use_context' => 'yes',
+            ),
+            'views-select-list' => array(
+              'status' => 0,
+            ),
+          ),
+          'sort' => array(
+            'type' => 'none',
+          ),
+          'target_bundles' => array(),
+        ),
+        'target_type' => 'taxonomy_term',
+      ),
+      'translatable' => '0',
+      'type' => 'entityreference',
+    ),
+    'field_instance' => array(
+      'bundle' => 'queue',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'og_vocab',
+          'settings' => array(
+            'concatenate' => FALSE,
+          ),
+          'type' => 'og_vocab',
+          'weight' => 5,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'og_vocabulary',
+      'label' => 'OG vocabulary',
+      'required' => FALSE,
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'module' => 'og_vocab',
+        'settings' => array(),
+        'type' => 'og_vocab_complex',
+        'weight' => 6,
+      ),
+    ),
+  );
+
   // Translatables
   // Included for use with string extractors like potx.
   t('Branch');
   t('Content');
   t('Determine how many items this Queue can hold.');
   t('Limit');
+  t('OG vocabulary');
   t('Repository');
 
   return $fields;
