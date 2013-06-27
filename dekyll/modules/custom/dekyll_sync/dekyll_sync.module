@@ -180,8 +180,8 @@ function _dekyll_sync_prepare_files_for_export(EntityDrupalWrapper $wrapper, &$i
     // @todo: Allow first level nodes to opt out from being a page.
   }
 
+  $parent_dirname = '';
   if ($is_page) {
-    $parent_dirname = '';
     if (!empty($info[$parent_identifier]['file_path'])) {
       // Get the parent file path.
       $parent_file_path = $info[$parent_identifier]['file_path'];
@@ -190,19 +190,19 @@ function _dekyll_sync_prepare_files_for_export(EntityDrupalWrapper $wrapper, &$i
       $parent_dirname = $path_parts['dirname'] . '/';
       $parent_basename = $path_parts['basename'];
     }
+  }
 
-    $parent_basename = !empty($parent_basename) ? $parent_basename : 'index.html';
+  $parent_basename = !empty($parent_basename) ? $parent_basename : 'index.html';
 
-    // Prepare the file path.
-    if (isset($wrapper->field_file_path) && $file_path = $wrapper->field_file_path->value()) {
-      $file_path = $parent_dirname . $file_path;
-    }
-    else {
-      // No field path, so use the label.
-      ctools_include('cleanstring');
-      $label = ctools_cleanstring($wrapper->label(), array('lower case' => TRUE));
-      $file_path = $parent_dirname . $label . '/' . $parent_basename;
-    }
+  // Prepare the file path.
+  if (isset($wrapper->field_file_path) && $file_path = $wrapper->field_file_path->value()) {
+    $file_path = $parent_dirname . $file_path;
+  }
+  else {
+    // No field path, so use the label.
+    ctools_include('cleanstring');
+    $label = ctools_cleanstring($wrapper->label(), array('lower case' => TRUE));
+    $file_path = $parent_dirname . $label . '/' . $parent_basename;
   }
 
   $info[$identifier] = array(
@@ -210,7 +210,9 @@ function _dekyll_sync_prepare_files_for_export(EntityDrupalWrapper $wrapper, &$i
     'sync_map' => dekyll_sync_get_content_sync_map($entity_type, $bundle),
     'entity_id' => $identifier,
     'page' => $is_page,
-    'file_path' => $is_page ? $file_path : FALSE,
+    // We pass the file path even if the entity isn't a page, so it's children
+    // can use it, if needed.
+    'file_path' => $file_path,
     'children' => array(),
     'jekyll_name' => $jekyll_name,
   );
