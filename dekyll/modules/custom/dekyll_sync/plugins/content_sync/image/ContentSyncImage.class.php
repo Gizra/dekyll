@@ -22,10 +22,13 @@ class ContentSyncImage extends ContentSyncBase {
   public function export(EntityDrupalWrapper $wrapper, &$yaml = array(), &$text = '', $files_info) {
     $plugin_name = $this->plugin['name'];
 
-    $file_path = $this->filePath;
+    $dirname = '';
+    if ($file_path = $this->filePath) {
+      $path_parts = pathinfo($file_path);
+      $dirname = $path_parts['dirname'];
+    }
 
-    $path_parts = pathinfo($file_path);
-    $image_path = $path_parts['dirname'] . '/images';
+    $image_path = $dirname . './images';
 
     $full_path = dekyll_repository_get_repo_path($this->branchId). '/' . $file_path;
 
