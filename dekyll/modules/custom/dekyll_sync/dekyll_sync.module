@@ -306,6 +306,8 @@ function _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $files_
 
   $file_info = reset($files_info);
 
+  $yaml_contents = array();
+
   if ($file_info['page']) {
     $file_path = $file_info['file_path'];
     $file_names[$file_path] = $file_path;
