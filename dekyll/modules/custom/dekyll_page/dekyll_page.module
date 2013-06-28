@@ -17,8 +17,8 @@ function dekyll_page_form_post_node_form_alter(&$form, $form_state) {
   $file_path_parts = array();
 
   if ($default_value = &$form['field_file_path'][LANGUAGE_NONE][0]['value']['#default_value']) {
+    // @todo: Fix when directory is _drafts.
     $file_path_parts = explode('/', $default_value, 2);
-
     $path_info = pathinfo(substr($file_path_parts[1], 11));
 
     $default_value = $path_info['filename'];
