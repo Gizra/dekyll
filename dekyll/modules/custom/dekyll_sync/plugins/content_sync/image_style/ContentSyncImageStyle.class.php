@@ -3,7 +3,7 @@
 /**
  * Image style content sync.
  */
-class ContentSyncImageStyle extends ContentSyncBase {
+class ContentSyncImageStyle extends ContentSyncImage {
 
   /**
    * Export images in different sizes.
@@ -67,7 +67,7 @@ class ContentSyncImageStyle extends ContentSyncBase {
    * Settings form.
    */
   public function settingsForm($field, $instance) {
-    $form = array();
+    $form = parent::settingsForm($field, $instance);
 
     $settings = !empty($instance['settings']['content_sync']['settings']) ? $instance['settings']['content_sync']['settings'] : array();
     $settings += array(

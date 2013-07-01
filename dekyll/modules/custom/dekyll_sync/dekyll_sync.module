@@ -443,13 +443,28 @@ function dekyll_sync_export($nid) {
   foreach ($file_names as $file_name) {
     // Add files to git.
     $git->add($file_name);
+    if (drupal_is_cli()) {
+      drush_log('Added @file to git.', array('@file' => $file_name));
+    }
+
+  }
+
+  if (!$git->hasChanges()) {
+    if (drupal_is_cli()) {
+      drush_log('No changes to commit.');
+    }
+    return;
   }
 
 
   // Commit and push.
   // @todo: Move to a single function.
   try {
+    if (drupal_is_cli()) {
+      drush_log('Pushing to git.');
+    }
     $git
+      ->pull()
       ->commit('Changes of file.')
       ->push();
   }
@@ -457,6 +472,10 @@ function dekyll_sync_export($nid) {
     // If we couldn't push, we might need to push. So re-sync.
     // @todo: Check if we have connection first, and throw error if not?
     // drush_dekyll_sync_dekyll_sync(array('gid' => $gid));
+  }
+
+  if (drupal_is_cli()) {
+    drush_log('Export @id done.', array('@id' => $nid));
   }
 }
 
