@@ -31,6 +31,11 @@ class ContentSyncRaw extends ContentSyncBase {
         continue;
       }
 
+      if ($value == 'nil') {
+        // @todo: Make configurable?
+        return;
+      }
+
       $instance = field_info_instance($wrapper->type(), $field_name, $wrapper->getBundle());
       $jekyll_name = $this->getJekyllName($instance, $field_name);
 
