@@ -324,7 +324,14 @@ function _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $files_
       }
     }
 
-    $sub_yaml = &$yaml[];
+    $jekyll_name = $file_info['jekyll_name'];
+    if (!$jekyll_name) {
+      $sub_yaml = &$yaml;
+    }
+    else {
+      $sub_yaml = &$yaml[$jekyll_name][];
+    }
+
 
     $sub_yaml = $yaml_contents ? $parser->parse($yaml_contents) : array();
 
@@ -374,7 +381,7 @@ function _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $files_
 
       // Continue digging into the tree, pass it the child as the "files-info".
       // @todo: Pass the yaml of the child?
-      _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, array($child_info), $file_names, $yaml[$child_info['jekyll_name']], $text, $child_info['file_path'], FALSE, $entity_id);
+      _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, array($child_info), $file_names, $sub_yaml, $text, $child_info['file_path'], FALSE, $entity_id);
     }
   }
 
