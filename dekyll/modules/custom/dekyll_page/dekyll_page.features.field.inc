@@ -165,6 +165,7 @@ function dekyll_page_field_default_fields() {
           'plugin_name' => 'entity_reference',
           'settings' => array(
             'create_page' => 0,
+            'jekyll_name' => 'queue',
             'unique' => array(
               'name' => 'nid',
               'type' => 'property',
