@@ -23,6 +23,7 @@ class ContentSyncImage extends ContentSyncBase {
     $plugin_name = $this->plugin['name'];
 
     foreach ($this->syncMap[$plugin_name] as $field_name) {
+      $field = field_info_field($field_name);
       $instance = field_info_instance($wrapper->type(), $field_name, $wrapper->getBundle());
 
       $absolute_path = $instance['settings']['content_sync']['settings']['absolute_path'];
@@ -63,7 +64,13 @@ class ContentSyncImage extends ContentSyncBase {
 
         // We expect that {{ BASE_PATH }} will prefix the file name
         // the Jekyll file.
-        $yaml[$field_name][] = '/' . $file_name;
+        if ($field['cardinality'] == 1) {
+          $yaml[$field_name] = '/' . $file_name;
+        }
+        else {
+          $yaml[$field_name][] = '/' . $file_name;
+        }
+
       }
     }
     return $file_names;
