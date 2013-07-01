@@ -107,6 +107,10 @@ function dekyll_repository_clone($branch_id) {
 
   $git = $git_wrapper->workingCopy($path);
 
+  if (drupal_is_cli()) {
+    drush_log('Cloning git using @credentials.', array('@credentials' => $credentials));
+  }
+
   if (!$git->isCloned() && !$git->clone($credentials)) {
     throw new Exception(format_string('Git repository could not be cloned with @credentials.', array('@credentials' => $credentials)));
   }

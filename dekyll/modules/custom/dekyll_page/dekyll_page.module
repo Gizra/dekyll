@@ -57,11 +57,10 @@ function dekyll_page_form_post_node_form_alter(&$form, $form_state) {
     // Hide this field, if "_drafts" folder is selected, as the date isn't
     // needed on that folder (since the post isn't published yet).
     '#states' => array(
-      'visible' => array(   // action to take.
+      'visible' => array(
         ':input[name="field_file_path[und][0][directory]"]' => array('value' => '_posts'),
       ),
     ),
-
   );
 
   $element['extension'] = array(
