@@ -389,8 +389,6 @@ function _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $files_
     return;
   }
 
-  dpm($yaml);
-
   $dump = array(
     YAML_SEPARATOR,
     // Dump the YAML expanded, and not inline.
@@ -443,8 +441,6 @@ function dekyll_sync_export($nid) {
   // Array of file names to add to git.
   $file_names = array();
   _dekyll_sync_execute_export_handlers($branch_id, $is_canonical, $files_info, $file_names);
-
-  return;
 
   foreach ($file_names as $file_name) {
     // Add files to git.
