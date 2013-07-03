@@ -165,6 +165,11 @@ function dekyll_page_get_permalink($node) {
  */
 function dekyll_page_node_view_alter(&$build) {
   $node = $build['#node'];
+  if (empty($node->nid)) {
+    // Node isn't saved yet (e.g. node preview).
+    return;
+  }
+
   $wrapper = entity_metadata_wrapper('node', $node);
 
   if (!isset($wrapper->field_file_path)) {
