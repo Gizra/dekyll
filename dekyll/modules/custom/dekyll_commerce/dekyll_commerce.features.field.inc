@@ -77,11 +77,14 @@ function dekyll_commerce_field_default_fields() {
         'content_sync' => array(
           'plugin_name' => 'image_style',
           'settings' => array(
+            'absolute_path' => 0,
+            'jekyll_name' => 'images',
             'style_names' => array(
               'large' => 'large',
               'medium' => 'medium',
               'thumbnail' => 'thumbnail',
             ),
+            'target_directory' => 'images',
           ),
         ),
         'default_image' => 0,
@@ -1131,6 +1134,11 @@ function dekyll_commerce_field_default_fields() {
         'alt_field' => 0,
         'content_sync' => array(
           'plugin_name' => 'image',
+          'settings' => array(
+            'absolute_path' => 0,
+            'jekyll_name' => 'image',
+            'target_directory' => 'images',
+          ),
         ),
         'default_image' => 0,
         'file_directory' => '',

@@ -60,6 +60,7 @@ function dekyll_repository_get_repo_path($nid) {
 
   $branch_name = $bundle == 'branch' ? $wrapper->label() : $wrapper->field_repo_branch->label();
 
+  // @todo: Change to "public://".
   return variable_get('file_public_path', conf_path() . '/files') . '/' . $repo_url . '/' . $branch_name;
 }
 

@@ -46,16 +46,23 @@ class ContentSyncImageStyle extends ContentSyncImage {
           // @todo: Check if the file doesn't already exist.
 
           // Create the image in the right style.
-          $uri = image_style_url($style_name, $file['uri']);
+          if (file_exists($file['uri'])) {
+            // Copy the existing file.
+            file_unmanaged_copy($file['uri'], $image_full_path . '/' . $style_name . '-' . $file['filename'], FILE_EXISTS_REPLACE);
+          }
+          else {
+            $uri = image_style_url($style_name, $file['uri']);
+            // file_put_contents($image_full_path . '/' . $style_name . '-' . $file['filename'], file_get_contents($uri));
+          }
 
-          file_put_contents($image_full_path . '/' . $style_name . '-' . $file['filename'], file_get_contents($uri));
           // Add the new file names.
           $file_name = $image_path . '/' . $style_name . '-' . $file['filename'];
           $file_names[] = $file_name;
 
           // We expect that {{ BASE_PATH }} will prefix the file name
           // the Jekyll file.
-          $yaml[$field_name][$delta][$style_name] = '/' . $file_name;
+          $jekyll_name = $this->getJekyllName($instance, $field_name);
+          $yaml[$jekyll_name][$delta][$style_name] = '/' . $file_name;
         }
       }
     }

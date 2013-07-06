@@ -21,7 +21,7 @@ class ContentSyncCommerceProductJson extends ContentSyncBase {
     $json_path = $path_parts['dirname'] . '/product.json';
     $file_names[] = $json_path;
 
-    $full_path = dekyll_repository_get_repo_path($this->gid). '/' . $path_parts['dirname'];
+    $full_path = dekyll_repository_get_repo_path($this->branchId). '/' . $path_parts['dirname'];
 
     if (!file_exists($full_path)) {
       drupal_mkdir($full_path, NULL, TRUE);
@@ -49,7 +49,9 @@ class ContentSyncCommerceProductJson extends ContentSyncBase {
     }
 
     // @todo: Remove the thumbnail hardcoding.
-    $info['thumbnail'] = $yaml['field_images'][0]['thumbnail'];
+    $instance = field_info_instance('commerce_product', 'field_images', $wrapper->getBundle());
+    $jekyll_name = $this->getJekyllName($instance, 'field_images');
+    $info['thumbnail'] = !empty($yaml[$jekyll_name][0]['thumbnail']) ? $yaml[$jekyll_name][0]['thumbnail'] : '';
 
     file_put_contents($json_full_path, drupal_json_encode($info));
 
