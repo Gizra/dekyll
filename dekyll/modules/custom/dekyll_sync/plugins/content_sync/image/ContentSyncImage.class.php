@@ -64,11 +64,12 @@ class ContentSyncImage extends ContentSyncBase {
 
         // We expect that {{ BASE_PATH }} will prefix the file name
         // the Jekyll file.
+        $jekyll_name = $this->getJekyllName($instance, $field_name);
         if ($field['cardinality'] == 1) {
-          $yaml[$field_name] = '/' . $file_name;
+          $yaml[$jekyll_name] = '/' . $file_name;
         }
         else {
-          $yaml[$field_name][] = '/' . $file_name;
+          $yaml[$jekyll_name][] = '/' . $file_name;
         }
 
       }

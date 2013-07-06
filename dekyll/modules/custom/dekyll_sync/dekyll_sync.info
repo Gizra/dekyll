@@ -1,7 +1,9 @@
-name = Dekyll Parser
-description = Read and Write Jekyll files
+name = Dekyll Sync
+description = Import and Export Jekyll files
 core = 7.x
 
 files[] = plugins/config_sync/abstract.inc
+files[] = plugins/content_sync/abstract.inc
+files[] = plugins/export_manager/abstract.inc
 
 
