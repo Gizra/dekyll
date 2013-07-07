@@ -63,39 +63,11 @@ function dekyll_setup_blocks() {
 
   $blocks[] = array(
     'module' => 'system',
-    'delta' => 'main-menu',
+    'delta' => 'navigation',
     'theme' => $default_theme,
     'status' => 1,
     'weight' => 0,
-    'region' => 'menu',
-    'custom' => 0,
-    'visibility' => 0,
-    'pages' => '',
-    'title' => '<none>',
-    'cache' => DRUPAL_NO_CACHE,
-  );
-
-  $blocks[] = array(
-    'module' => 'github_connect',
-    'delta' => 'github_connect-login',
-    'theme' => $default_theme,
-    'status' => 1,
-    'weight' => 0,
-    'region' => 'menu',
-    'custom' => 0,
-    'visibility' => 0,
-    'pages' => '',
-    'title' => '',
-    'cache' => DRUPAL_CACHE_PER_ROLE,
-  );
-
-  $blocks[] = array(
-    'module' => 'system',
-    'delta' => 'user-menu',
-    'theme' => $default_theme,
-    'status' => 1,
-    'weight' => 0,
-    'region' => 'menu',
+    'region' => 'sidebar_first',
     'custom' => 0,
     'visibility' => 0,
     'pages' => '',
