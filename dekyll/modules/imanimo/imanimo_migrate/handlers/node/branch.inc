@@ -3,7 +3,7 @@
 /**
  * Migrate "Branch" nodes.
  */
-class ImanimoRepositoryNodes extends ImanimoMigration {
+class ImanimoBranchNodes extends ImanimoMigration {
   public $entityType = 'node';
   public $bundle = 'branch';
 

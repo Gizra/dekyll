@@ -4,22 +4,30 @@
  * Implements hook_migrate_api().
  */
 function imanimo_migrate_migrate_api() {
+  $class_names = array();
+
+  $migrations = array(
+    // Commerce product.
+    'ImanimoProductCommerceProducts',
+
+    // Node.
+    'ImanimoBranchNodes',
+    'ImanimoPageNodes',
+    'ImanimoProductPageNodes',
+    'ImanimoRepositoryNodes',
+
+    // Taxonomy term.
+    'ImanimoColorTerms',
+    'ImanimoSizeTerms',
+  );
+
+  foreach ($class_names as $class_name) {
+    $migrations[$class_name] = array('class_name' => $class_name);
+  }
+
   $api = array(
     'api' => 2,
-    'migrations' => array(
-      'ImanimoUsers' => array('class_name' => 'ImanimoUsers'),
-      'ImanimoOfferCategoriesTerms' => array('class_name' => 'ImanimoOfferCategoriesTerms'),
-      'ImanimoOfferStatusesTerms' => array('class_name' => 'ImanimoOfferStatusesTerms'),
-      'ImanimoCommunityNodes' => array('class_name' => 'ImanimoCommunityNodes'),
-      'ImanimoOfferNodes' => array('class_name' => 'ImanimoOfferNodes'),
-      'ImanimoRequestNodes' => array('class_name' => 'ImanimoRequestNodes'),
-      'ImanimoProductNodes' => array('class_name' => 'ImanimoProductNodes'),
-      'ImanimoTransaction' => array('class_name' => 'ImanimoTransaction'),
-      'ImanimoProducts' => array('class_name' => 'ImanimoProducts'),
-      'ImanimoPageNodes' => array('class_name' => 'ImanimoPageNodes'),
-      'ImanimoMenu' => array('class_name' => 'ImanimoMenu'),
-      'ImanimoMenuLinks' => array('class_name' => 'ImanimoMenuLinks'),
-    ),
+    'migrations' => $migrations,
   );
 
   return $api;

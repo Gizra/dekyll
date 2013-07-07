@@ -85,3 +85,6 @@ dependencies[] = dekyll_image
 dependencies[] = dekyll_page
 dependencies[] = dekyll_repository
 dependencies[] = dekyll_sync
+
+; Imanimo modules
+dependencies[] = imanimo_migrate
