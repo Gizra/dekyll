@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Migrate Imanimo's content.
+ */
+
+/**
  * Implements hook_migrate_api().
  */
 function imanimo_migrate_migrate_api() {
@@ -17,8 +22,8 @@ function imanimo_migrate_migrate_api() {
     'ImanimoRepositoryNodes',
 
     // Taxonomy term.
-    'ImanimoColorTerms',
-    'ImanimoSizeTerms',
+    'ImanimoProductColorTerms',
+    'ImanimoProductSizeTerms',
   );
 
   foreach ($class_names as $class_name) {

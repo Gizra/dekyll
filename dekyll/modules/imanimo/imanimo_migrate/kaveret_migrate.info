@@ -1,5 +1,5 @@
 name = "Imanimo migration"
-description = "Create dummy content."
+description = "Migrate Imanimo's content."
 package = "Imanimo"
 core = 7.x
 dependencies[] = migrate
