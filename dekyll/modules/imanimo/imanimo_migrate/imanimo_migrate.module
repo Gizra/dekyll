@@ -9,20 +9,15 @@
  * Implements hook_migrate_api().
  */
 function imanimo_migrate_migrate_api() {
-  $class_names = array();
-
   $class_names = array(
-    /*
     // Commerce product.
-    'ImanimoProductCommerceProducts',
+    // 'ImanimoProductCommerceProducts',
 
     // Node.
     'ImanimoBranchNodes',
-    'ImanimoPageNodes',
-    'ImanimoProductPageNodes',
+    // 'ImanimoPageNodes',
+    // 'ImanimoProductPageNodes',
     'ImanimoRepositoryNodes',
-
-    */
 
     // Taxonomy term.
     'ImanimoProductColorTerms',

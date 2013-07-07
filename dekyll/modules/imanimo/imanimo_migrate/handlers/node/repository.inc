@@ -21,11 +21,13 @@ class ImanimoRepositoryNodes extends ImanimoMigration {
       ->addFieldMapping(OG_GROUP_FIELD)
       ->defaultValue(TRUE);
 
-    $this->addSimpleMappings('field_repo_url');
+    $this->addFieldMapping('field_repo_url', 'field_repo_url');
 
-    $this->addSimpleMappings('field_repo_credentials');
+    $this->addFieldMapping('field_repo_credentials');
 
-    $this->addSimpleMappings('field_repo_canonical');
+    $this
+      ->addFieldMapping('field_repo_canonical')
+      ->defaultValue(FALSE);
   }
 }
 
