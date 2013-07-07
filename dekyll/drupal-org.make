@@ -119,3 +119,8 @@ projects[views_bulk_operations][version] = "3.1"
 projects[waiting_queue][subdir] = "contrib"
 projects[waiting_queue][download][type] = git
 projects[waiting_queue][download][branch] = 7.x-1.x
+
+; Themes
+projects[bootstrap][subdir] = "contrib"
+projects[bootstrap][version] = "2.1"
+

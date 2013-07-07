@@ -1,6 +1,6 @@
 www/
 dekyll/modules/contrib/
-dekyll/modules/themes/
+dekyll/themes/contrib
 
 dekyll/libraries/vendor/
 composer.lock
