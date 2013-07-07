@@ -11,8 +11,7 @@ class ImanimoProductColorTerms extends ImanimoMigration {
   public function __construct() {
     parent::__construct();
 
-    $this->addFieldMapping('field_product_color_image')
-      ->defaultValue('black.jpg');
+    $this->addFieldMapping('field_product_color_image');
 
     $this
       ->addFieldMapping('field_product_color_image:file_replace')
