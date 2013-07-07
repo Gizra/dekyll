@@ -23,10 +23,10 @@ class ImanimoRepositoryNodes extends ImanimoMigration {
 
     $this->addFieldMapping('field_repo_url', 'field_repo_url');
 
-    $this->addFieldMapping('field_repo_credentials');
+    $this->addFieldMapping('field_repo_credentials', 'field_repo_credentials');
 
     $this
-      ->addFieldMapping('field_repo_canonical')
+      ->addFieldMapping('field_repo_canonical', 'field_repo_canonical')
       ->defaultValue(FALSE);
   }
 }
