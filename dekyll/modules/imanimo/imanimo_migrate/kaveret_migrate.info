@@ -1,0 +1,9 @@
+name = "Imanimo migration"
+description = "Create dummy content."
+package = "Imanimo"
+core = 7.x
+dependencies[] = migrate
+dependencies[] = migrate_extras
+
+files[] = imanimo_migrate.migrate.inc
+files[] = includes/imanimo_migrate.migrate.entity.inc
