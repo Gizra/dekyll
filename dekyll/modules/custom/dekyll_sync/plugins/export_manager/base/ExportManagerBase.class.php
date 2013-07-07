@@ -41,7 +41,7 @@ class ExportManagerBase implements ExportManagerInterface {
   /**
    * Constructor for the export manager.
    */
-  public function __construct($plugin, $nid, $routes = array()) {
+  public function __construct($plugin, $nid) {
     $this->plugin = $plugin;
     $this->nid = $nid;
 
@@ -49,7 +49,7 @@ class ExportManagerBase implements ExportManagerInterface {
     $this->branchId = $wrapper->field_repo_branch->value(array('identifier' => TRUE));
     $this->isCanonical = $wrapper->{OG_AUDIENCE_FIELD}->field_repo_canonical->value();
 
-    $this->setRoutes($routes ? $routes : $this->getExportRoutes());
+    $this->setRoutes($this->getExportRoutes());
   }
 
   /**
@@ -81,9 +81,18 @@ class ExportManagerBase implements ExportManagerInterface {
    * Recursive function to prepare the array of files to export.
    *
    * @param EntityDrupalWrapper $wrapper
+   *   The entity wrapped using entity_metadata_wrapper().
    * @param array $routes
-   * @param EntityDrupalWrapper $parent_wrapper
+   *   Flat array of entities that needs to be processed. Each route represents
+   *   a page that needs to be built.
+   * @param array $parent_info
+   *   Optional; The route info of the existin page parent.
    * @param bool $is_page
+   *   Optional; Determine if the current entity is representing a page.
+   *   Defaults to TRUE.
+   * @param string $jeykll_name
+   *   Optional; The name of the property that should be used in the YAML file.
+   *   Defaults to empty string, which means the field name will be used.
    */
   private function prepareExportRoutes(EntityDrupalWrapper $wrapper, &$routes = array(), $parent_info = array(), $is_page = TRUE, $jekyll_name = '') {
     // Get all the field instances of the bundle.
@@ -164,10 +173,13 @@ class ExportManagerBase implements ExportManagerInterface {
   /**
    * Get the file path.
    *
-   * @param $wrapper
-   * @param $parent_info
-   * @param $is_page
-   * @return string
+   * @param EntityDrupalWrapper $wrapper
+   *   The entity wrapped using entity_metadata_wrapper().
+   * @param array $parent_info
+   *   Optional; The route info of the existin page parent.
+   * @param bool $is_page
+   *   Optional; Determine if the current entity is representing a page.
+   *   Defaults to TRUE.
    */
   private function getFilePath($wrapper, $parent_info, $is_page) {
     if (!$is_page) {
@@ -199,14 +211,9 @@ class ExportManagerBase implements ExportManagerInterface {
 
 
   /**
-   * Call export method of the content sync plugins, per route.
-   *
-   * @todo: Find a better name for routes.
-   *
-   * @param $routes
-   * @return mixed
+   * Implements ExportManagerInterface::export().
    */
-  public function export($options = array()) {
+  public function export() {
     $parser = new Parser();
     $dumper = new Dumper();
 
