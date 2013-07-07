@@ -11,14 +11,15 @@ class ImanimoProductColorTerms extends ImanimoMigration {
   public function __construct() {
     parent::__construct();
 
-    $this->addFieldMapping('field_image', 'field_image');
+    $this->addFieldMapping('field_product_color_image')
+      ->defaultValue('black.jpg');
 
     $this
-      ->addFieldMapping('field_image:file_replace')
+      ->addFieldMapping('field_product_color_image:file_replace')
       ->defaultValue(FILE_EXISTS_REPLACE);
 
     $this
-      ->addFieldMapping('field_image:source_dir')
+      ->addFieldMapping('field_product_color_image:source_dir')
       ->defaultValue(drupal_get_path('module', 'imanimo_migrate') . '/images/' . $this->entityType . '/' . $this->bundle);
   }
 
@@ -26,7 +27,7 @@ class ImanimoProductColorTerms extends ImanimoMigration {
    * Set the image field to be the term name.
    */
   public function prepareRow($row) {
-    $row->field_image = $row->name . '.jpg';
+    $row->field_product_color_image = $row->id . '.jpg';
   }
 
 }

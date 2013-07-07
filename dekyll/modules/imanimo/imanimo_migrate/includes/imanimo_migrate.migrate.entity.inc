@@ -38,9 +38,6 @@ abstract class ImanimoMigration extends Migration {
     elseif ($this->entityType == 'taxonomy_term') {
       $this->addFieldMapping('name', 'name');
 
-      $this->addFieldMapping('language')
-        ->defaultValue('en');
-
       $class_name = 'MigrateDestinationTerm';
       $csv_cols[] = array('name', 'Name');
     }
