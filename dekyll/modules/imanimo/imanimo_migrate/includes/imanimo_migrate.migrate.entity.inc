@@ -65,4 +65,11 @@ abstract class ImanimoMigration extends Migration {
   function prepareRow($row) {
     $row->uid = 1;
   }
+
+  /**
+   * Set the image field to be the ID.
+   */
+  public function setImageById($value) {
+    return $value . '.jpg';
+  }
 }
