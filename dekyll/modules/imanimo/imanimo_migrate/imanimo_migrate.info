@@ -11,7 +11,7 @@ files[] = handlers/node/branch.inc
 files[] = handlers/node/page.inc
 files[] = handlers/node/product_page.inc
 files[] = handlers/node/repsoitoy.inc
-files[] = handlers/taxonomy_term/color.inc
-files[] = handlers/taxonomy_term/size.inc
+files[] = handlers/taxonomy_term/product_color.inc
+files[] = handlers/taxonomy_term/product_size.inc
 
 files[] = includes/imanimo_migrate.migrate.entity.inc

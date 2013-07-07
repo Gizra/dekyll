@@ -11,7 +11,8 @@
 function imanimo_migrate_migrate_api() {
   $class_names = array();
 
-  $migrations = array(
+  $class_names = array(
+    /*
     // Commerce product.
     'ImanimoProductCommerceProducts',
 
@@ -20,6 +21,8 @@ function imanimo_migrate_migrate_api() {
     'ImanimoPageNodes',
     'ImanimoProductPageNodes',
     'ImanimoRepositoryNodes',
+
+    */
 
     // Taxonomy term.
     'ImanimoProductColorTerms',
