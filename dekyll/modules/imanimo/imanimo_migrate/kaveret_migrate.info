@@ -5,5 +5,13 @@ core = 7.x
 dependencies[] = migrate
 dependencies[] = migrate_extras
 
-files[] = imanimo_migrate.migrate.inc
+; Migrate
+files[] = handlers/commerce_product/product.inc
+files[] = handlers/node/branch.inc
+files[] = handlers/node/page.inc
+files[] = handlers/node/product_page.inc
+files[] = handlers/node/repsoitoy.inc
+files[] = handlers/taxonomy_term/color.inc
+files[] = handlers/taxonomy_term/size.inc
+
 files[] = includes/imanimo_migrate.migrate.entity.inc
