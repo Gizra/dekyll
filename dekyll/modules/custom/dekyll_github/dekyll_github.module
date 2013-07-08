@@ -54,17 +54,10 @@ function dekyll_github_create_repository_github_form() {
 /**
  * Submit handler; Add "Create Repository" queue item.
  */
-function dekyll_github_create_repository_github_form_submit() {
+function dekyll_github_create_repository_github_form_submit($form, &$form_state) {
   global $user;
-  $queue = DrupalQueue::get('dekyll_create_repository_github');
-  $data = array(
-    'uid' => $user->uid,
-  );
-  $queue->createItem($data);
-}
-
-function dekyll_github_init() {
-  dekyll_github_create_repository_github(2, 't1');
+  dekyll_github_create_repository_github($user->uid, $form_state['values']['name']);
+  drupal_set_message('Repository created.');
 }
 
 /**
