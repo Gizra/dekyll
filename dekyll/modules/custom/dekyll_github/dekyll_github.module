@@ -63,12 +63,16 @@ function dekyll_github_create_repository_github_form_submit() {
   $queue->createItem($data);
 }
 
+function dekyll_github_init() {
+  dekyll_github_create_repository_github(2, 't1');
+}
+
 /**
- * For repository,
+ * Fork Gizra/jekyll-bootstrap repository.
  *
  * @param $uid
  */
-function dekyll_github_create_repository_github($uid) {
+function dekyll_github_create_repository_github($uid, $repo_name = 'jekyll-bootstrap') {
   $account = user_load($uid);
   if (!$token = dekyll_github_get_user_token($account)) {
     // No access token.
@@ -84,17 +88,26 @@ function dekyll_github_create_repository_github($uid) {
   $github_account = $client->api('current_user')->show();
   $github_username = $github_account['login'];
 
-  $repo_name = $github_username . '/jekyll-bootstrap';
-
   try {
-    $repo = $client->api('repo')->show($github_username, 'jekyll-bootstrap');
+    $client->api('repo')->show($github_username, 'jekyll-bootstrap');
     // Repository already exists.
     return;
   }
   catch (Exception $e) {
-    $client->api('repo')->forks()->create('Gizra', $repo_name);
   }
 
+  try {
+    $client->api('repo')->forks()->create('Gizra', 'jekyll-bootstrap');
+    if ($repo_name != 'jekyll-bootstrap') {
+      $client->api('repo')->update($github_username, 'jekyll-bootstrap', array('name' => $repo_name));
+    }
+  }
+  catch (Exception $e) {
+    // There was an error while forking.
+    return;
+  }
+
+  $full_repo_name = $github_username . '/' . $repo_name;
 
   // Create a repository and branch nodes.
   $repo_node = (object)array(
@@ -107,14 +120,14 @@ function dekyll_github_create_repository_github($uid) {
   $wrapper = entity_metadata_wrapper('node', $repo_node);
   $wrapper->{OG_GROUP_FIELD}->set(TRUE);
   $wrapper->{OG_GROUP_FIELD}->set(TRUE);
-  $wrapper->field_repo_url->set('https://github.com/' . $repo_name);
-  $wrapper->field_repo_credentials->set('git@github.com:' . $repo_name);
+  $wrapper->field_repo_url->set('https://github.com/' . $full_repo_name);
+  $wrapper->field_repo_credentials->set('git@github.com:' . $full_repo_name);
   $wrapper->field_repo_canonical->set(FALSE);
   $wrapper->save();
 
   $branch_node = (object)array(
     'type' => 'branch',
-    'uid' => $user->uid,
+    'uid' => $account->uid,
     'title' => 'gh-pages',
   );
 
