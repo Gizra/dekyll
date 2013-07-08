@@ -16,7 +16,7 @@ function dekyll_github_menu() {
   $items['create-repository'] = array(
     'title' => 'Create Repository on Github',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('dekyll_github_create_repository_github'),
+    'page arguments' => array('dekyll_github_create_repository_github_form'),
     // @todo: Add access to github.
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
@@ -28,7 +28,7 @@ function dekyll_github_menu() {
 /**
  * Page callback; Create a new repository in Github.
  */
-function dekyll_github_create_repository_github() {
+function dekyll_github_create_repository_github_form() {
   $params = array(
     '@github-account' => '',
   );
@@ -54,7 +54,7 @@ function dekyll_github_create_repository_github() {
 /**
  * Submit handler; Add "Create Repository" queue item.
  */
-function dekyll_github_create_repository_github_submit() {
+function dekyll_github_create_repository_github_form_submit() {
   global $user;
   $queue = DrupalQueue::get('dekyll_create_repository_github');
   $data = array(
