@@ -156,16 +156,12 @@ function dekyll_set_variables() {
     'jquery_update_jquery_version' =>  '1.8',
     'site_name' => 'Drupal-Jekyll',
 
-    // Facebook connect.
-    'fboauth_id' => '487773171290610',
-    'fboauth_secret' => 'b6961d41870355c4fb8fe73f0e8456cc',
-    'fboauth_user_properties' => array('email'),
-
     // Page manager.
     'page_manager_node_view_disabled' => FALSE,
 
-    // Set RestWS login to all users.
-    'restws_basic_auth_user_regex' => '/.*/',
+    // Github connect scope.
+    'github_connect_scope' => 'user,public,repo',
+
   );
 
   foreach ($variables as $key => $value) {

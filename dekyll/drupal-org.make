@@ -53,6 +53,7 @@ projects[flag][version] = "2.0"
 
 projects[github_connect][subdir] = "contrib"
 projects[github_connect][version] = "1.1"
+projects[github_connect][patch][] = "https://drupal.org/files/2037035-github-scope-1.patch"
 
 projects[inline_entity_form][subdir] = "contrib"
 projects[inline_entity_form][version] = "1.2"
