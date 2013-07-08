@@ -64,15 +64,41 @@ function dekyll_github_create_repository_github_submit() {
 }
 
 function dekyll_github_init() {
+  $account = user_load(2);
+  if (!$token = dekyll_github_get_user_token($account)) {
+    // No access token.
+    return;
+  }
+
   return;
+
   $client = new Github\Client(
     new Github\HttpClient\CachedHttpClient(array('cache_dir' => 'temporary://github-api-cache'))
   );
 
-  $client->authenticate('773c59a19181c32f7c0c2c8c25a57be6e00ec63b', NULL, Github\Client::AUTH_HTTP_TOKEN);
+  $client->authenticate($token, NULL, Github\Client::AUTH_HTTP_TOKEN);
 
   // $repo = $client->api('repo')->create('my-new-repo', 'This is the description of a repo', 'http://my-repo-homepage.org');
 
   // $repositories = $client->api('user')->repositories('Gizra');
   // dpm($repositories);
+}
+
+
+/**
+ * Get Github access token.
+ * 
+ * @param null $account
+ * @return mixed
+ */
+function dekyll_github_get_user_token($account = NULL) {
+  if (!$account) {
+    global $user;
+    $account = clone $user;
+  }
+
+  if (!$result = db_query("SELECT access_token FROM {github_connect_users} WHERE uid = :uid", array(':uid' => $account->uid))->fetchCol()) {
+    result;
+  }
+  return str_replce(array('access_token=', '&token_type=bearer'), '', $result[0]);
 }
