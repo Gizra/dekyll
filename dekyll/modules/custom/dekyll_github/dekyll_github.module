@@ -70,24 +70,31 @@ function dekyll_github_init() {
     return;
   }
 
-  return;
-
   $client = new Github\Client(
     new Github\HttpClient\CachedHttpClient(array('cache_dir' => 'temporary://github-api-cache'))
   );
 
   $client->authenticate($token, NULL, Github\Client::AUTH_HTTP_TOKEN);
 
-  // $repo = $client->api('repo')->create('my-new-repo', 'This is the description of a repo', 'http://my-repo-homepage.org');
+  $github_account = $client->api('current_user')->show();
+  $github_username = $github_account['login'];
 
-  // $repositories = $client->api('user')->repositories('Gizra');
-  // dpm($repositories);
+
+  try {
+    $repo = $client->api('repo')->show($github_username, 'jekyll-bootstrap');
+    // Repository already exists.
+    return;
+  }
+  catch (Exception $e) {
+  }
+
+  $repository = $client->api('repo')->forks()->create('Gizra', 'jekyll-bootstrap');
 }
 
 
 /**
  * Get Github access token.
- * 
+ *
  * @param null $account
  * @return mixed
  */
@@ -98,7 +105,7 @@ function dekyll_github_get_user_token($account = NULL) {
   }
 
   if (!$result = db_query("SELECT access_token FROM {github_connect_users} WHERE uid = :uid", array(':uid' => $account->uid))->fetchCol()) {
-    result;
+    return;
   }
-  return str_replce(array('access_token=', '&token_type=bearer'), '', $result[0]);
+  return str_replace(array('access_token=', '&token_type=bearer'), '', $result[0]);
 }
