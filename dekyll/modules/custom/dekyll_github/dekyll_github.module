@@ -64,15 +64,15 @@ function dekyll_github_create_repository_github_submit() {
 }
 
 function dekyll_github_init() {
+  return;
   $client = new Github\Client(
     new Github\HttpClient\CachedHttpClient(array('cache_dir' => 'temporary://github-api-cache'))
   );
-  $repos   = $client->getHttpClient()->get('repos/KnpLabs/php-github-api');
-  dpm($repos);
 
-  return;
+  $client->authenticate('773c59a19181c32f7c0c2c8c25a57be6e00ec63b', NULL, Github\Client::AUTH_HTTP_TOKEN);
 
+  // $repo = $client->api('repo')->create('my-new-repo', 'This is the description of a repo', 'http://my-repo-homepage.org');
 
-  $repositories = $client->api('user')->repositories('ornicar');
-  dpm($repositories);
+  // $repositories = $client->api('user')->repositories('Gizra');
+  // dpm($repositories);
 }
