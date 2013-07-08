@@ -1,0 +1,78 @@
+<?php
+/**
+ * @file
+ * Code for the Dekyll Github.
+ */
+
+use Github\Client;
+use Github\HttpClient\CachedHttpClient;
+
+/**
+ * Implements hook_menu().
+ */
+function dekyll_github_menu() {
+  $items = array();
+
+  $items['create-repository'] = array(
+    'title' => 'Create Repository on Github',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dekyll_github_create_repository_github'),
+    // @todo: Add access to github.
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Page callback; Create a new repository in Github.
+ */
+function dekyll_github_create_repository_github() {
+  $params = array(
+    '@github-account' => '',
+  );
+
+  $form['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Repository name'),
+    '#description' => t('The name of the repository that should be created under account @github-account in Github.', $params),
+    '#required' => TRUE,
+    // @todo: Add validate.
+  );
+
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Create'),
+  );
+
+  return $form;
+}
+
+
+/**
+ * Submit handler; Add "Create Repository" queue item.
+ */
+function dekyll_github_create_repository_github_submit() {
+  global $user;
+  $queue = DrupalQueue::get('dekyll_create_repository_github');
+  $data = array(
+    'uid' => $user->uid,
+  );
+  $queue->createItem($data);
+}
+
+function dekyll_github_init() {
+  $client = new Github\Client(
+    new Github\HttpClient\CachedHttpClient(array('cache_dir' => 'temporary://github-api-cache'))
+  );
+  $repos   = $client->getHttpClient()->get('repos/KnpLabs/php-github-api');
+  dpm($repos);
+
+  return;
+
+
+  $repositories = $client->api('user')->repositories('ornicar');
+  dpm($repositories);
+}

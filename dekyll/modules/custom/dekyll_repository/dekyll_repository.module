@@ -13,66 +13,6 @@ use GitWrapper\GitWorkingCopy;
 use GitWrapper\GitException;
 
 /**
- * Implements hook_menu().
- */
-function dekyll_repository_menu() {
-  $items = array();
-
-  // Add our own autocomplete callback to pass also the group and
-  // vocabulary info.
-  $items['create-repository'] = array(
-    'title' => 'Create Repository on Github',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('dekyll_repository_create_repository_github'),
-    // @todo: Add access to github.
-    'access callback' => 'user_is_logged_in',
-    'type' => MENU_CALLBACK,
-  );
-
-  return $items;
-}
-
-/**
- * Page callback; Create a new repository in Github.
- */
-function dekyll_repository_create_repository_github() {
-  $params = array(
-    '@github-account' => '',
-  );
-
-  $form['name'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Repository name'),
-    '#description' => t('The name of the repository that should be created under account @github-account in Github.', $params),
-    '#required' => TRUE,
-    // @todo: Add validate.
-  );
-
-  $form['actions'] = array('#type' => 'actions');
-  $form['actions']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Create'),
-  );
-
-  return $form;
-}
-
-
-/**
- * Submit handler; Add "Create Repository" queue item.
- */
-function dekyll_repository_create_repository_github_submit() {
-  global $user;
-  $queue = DrupalQueue::get('dekyll_create_repository_github');
-  $data = array(
-    'uid' => $user->uid,
-  );
-  $queue->createItem($data);
-}
-
-
-
-/**
  * Get the branch name from a group content.
  */
 function dekyll_repository_get_git_branch($node) {
