@@ -43,7 +43,7 @@ function dekyll_github_user_insert(&$edit, $account, $category) {
     return;
   }
 
-  $token = $edit['github_token'];
+  $token = dekyll_github_get_token_id($edit['github_token']);
 
   $client = new Github\Client(
     new Github\HttpClient\CachedHttpClient(array('cache_dir' => 'temporary://github-api-cache'))
@@ -263,7 +263,21 @@ function dekyll_github_get_user_token($account = NULL) {
   if (!$result = db_query("SELECT access_token FROM {github_connect_users} WHERE uid = :uid", array(':uid' => $account->uid))->fetchCol()) {
     return;
   }
-  return str_replace(array('access_token=', '&token_type=bearer'), '', $result[0]);
+  return dekyll_github_get_token_id($result[0]);
+}
+
+
+/**
+ * Get the token ID (i.e. just the number) from a token.
+ *
+ * Github returns tokens in the form of access_token=1234&token_type=bearer
+ * This function will return just the "1234" from the raw token.
+ *
+ * @param $raw_token
+ *   The raw token as returned from Github.
+ */
+function dekyll_github_get_token_id($raw_token) {
+  return str_replace(array('access_token=', '&token_type=bearer'), '', $raw_token);
 }
 
 /**
