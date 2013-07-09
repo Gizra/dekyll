@@ -158,7 +158,8 @@ function dekyll_page_get_permalink($node) {
   }
 
   // @todo: See how permalink works on pages.
-  return $wrapper->field_file_path->value();
+  // @todo: improve check.
+  return str_replace('.md', '.html', $wrapper->field_file_path->value());
 }
 
 
