@@ -45,6 +45,7 @@ function dekyll_github_create_repository_github_form() {
     '#title' => t('Repository name'),
     '#description' => t('The name of the repository that should be created under account @github-account in Github.', $params),
     '#required' => TRUE,
+    '#default_value' => 'jekyll-bootstrap',
     // @todo: Add validate.
   );
 
