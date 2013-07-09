@@ -153,6 +153,7 @@ function dekyll_set_variables() {
     'menu_rebuild_needed' => TRUE,
     'jquery_update_jquery_version' =>  '1.8',
     'site_name' => 'Drupal-Jekyll',
+    'site_frontpage' => 'homepage',
 
     // Page manager.
     'page_manager_node_view_disabled' => FALSE,
