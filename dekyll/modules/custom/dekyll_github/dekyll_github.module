@@ -29,6 +29,42 @@ function dekyll_github_menu() {
   return $items;
 }
 
+
+/**
+ * Implements hook_init().
+ */
+function dekyll_github_init() {
+  global $user;
+  if (!$user->uid) {
+    return;
+  }
+
+  if (variable_get('dekyll_installation_type', 'normal') != 'github_pages') {
+    return;
+  }
+
+  $item = menu_get_item();
+  if (strpos($item['path'], 'js/') === 0 || strpos($item['path'], 'batch/') === 0) {
+    return;
+  }
+
+  $gids = og_get_entity_groups();
+  $gids = !empty($gids['node']) ? $gids['node'] : array();
+
+  if (!$gids) {
+    if ($item['path'] != 'create-repository' && !user_access('administer site configuration')) {
+      drupal_goto('create-repository');
+    }
+    return;
+  }
+
+  if ($item['path'] == 'create-repository') {
+    // Redirect user to repository.
+    $gid = reset($gids);
+    drupal_goto('node/' . $gid);
+  }
+}
+
 /**
  * Page callback; Create a new repository in Github.
  */
