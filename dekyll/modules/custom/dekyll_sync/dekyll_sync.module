@@ -488,6 +488,9 @@ function dekyll_sync_import_file($file_path, $branch_id, GitWorkingCopy $git, $n
   // Set the Branch.
   $wrapper->field_repo_branch->set($branch_id);
 
+  // Set the node author.
+  $wrapper->author->set($branch_wrapper->author->value());
+
   // Prevent from synced nodes to be written back to files.
   $node = $wrapper->value();
   $node->_dekyll_sync = $sync;
