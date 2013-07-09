@@ -52,13 +52,13 @@ function dekyll_github_init() {
   $gids = !empty($gids['node']) ? $gids['node'] : array();
 
   if (!$gids) {
-    if ($item['path'] != 'create-repository' && !user_access('administer site configuration')) {
+    if (drupal_is_front_page()) {
       drupal_goto('create-repository');
     }
     return;
   }
 
-  if ($item['path'] == 'create-repository') {
+  if ($item['path'] == 'create-repository' || drupal_is_front_page()) {
     $nodes = entity_load('node', $gids);
     foreach ($nodes as $node) {
       if ($node->type == 'branch') {

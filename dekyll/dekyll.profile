@@ -148,7 +148,7 @@ function dekyll_set_variables() {
     'user_picture_dimensions' => '1024x1024',
     'user_picture_file_size' => '800',
     'user_picture_style' => 'thumbnail',
-    'user_register' => USER_REGISTER_VISITORS,
+    'user_register' => USER_REGISTER_ADMINISTRATORS_ONLY,
     // Update the menu router information.
     'menu_rebuild_needed' => TRUE,
     'jquery_update_jquery_version' =>  '1.8',
