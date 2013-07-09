@@ -11,9 +11,6 @@ use GitWrapper\GitWrapper;
 use GitWrapper\GitWorkingCopy;
 use GitWrapper\GitException;
 
-use Symfony\Component\Yaml\Parser;
-use Symfony\Component\Yaml\Dumper;
-
 /**
  * Implements hook_menu().
  */
@@ -164,13 +161,14 @@ function dekyll_github_get_user_token($account = NULL) {
  *
  * If a fork of Gizra/jekyll-bootstrap, configure the _config.yml
  */
-function dekyll_github_dekyll_repository_clone($node, GitWrapper\GitWorkingCopy $git) {
-  if (!$token = dekyll_github_get_user_token()) {
+function dekyll_github_dekyll_repository_clone($node, \GitWrapper\GitWorkingCopy $git) {
+  $account = user_load($node->uid);
+  if (!$token = dekyll_github_get_user_token($account)) {
     // No access token.
     return;
   }
   $wrapper = entity_metadata_wrapper('node', $node);
-  if ($wrapper->field_github_fork->value() != 'Gizra/jekyll-bootstrap') {
+  if ($wrapper->{OG_AUDIENCE_FIELD}->field_github_fork->value() != 'Gizra/jekyll-bootstrap') {
     return;
   }
 
@@ -189,23 +187,26 @@ function dekyll_github_dekyll_repository_clone($node, GitWrapper\GitWorkingCopy 
   $file_path = $path . '/_config.yml';
   $contents = file_get_contents($file_path);
 
-  $yaml = new Parser();
-  $yaml->parse($contents);
-
   $production_url = "http://$github_username.github.io/$repository_name";
-  $yaml['production_url'] = $production_url;
+  $contents = str_replace('production_url : http://username.github.io', "production_url : $production_url", $contents);
 
-  $dumper = new Dumper();
-  file_put_contents($file_path, $dumper->dump($yaml, 10));
+  file_put_contents($file_path, $contents);
 
   // Push to git.
   try {
     $git
       ->commit($file_path, array('m' => 'Configured _config.yml to point to ' . $production_url))
       ->push();
+
+    if (drupal_is_cli()) {
+      drush_log('_config.yml changed for forked repository.');
+    }
+
   }
   catch(GitException $e) {
-    // File didn't change, we can return;
+    if (drupal_is_cli()) {
+      drush_log('Error pushing _config.yml of a forked repository.');
+    }
     return;
   }
 
