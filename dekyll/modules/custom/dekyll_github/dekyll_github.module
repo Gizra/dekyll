@@ -29,6 +29,49 @@ function dekyll_github_menu() {
   return $items;
 }
 
+/**
+ * Implements hook_user_insert().
+ *
+ * Check if user already has a forked repository, and create a local repository
+ * and branch accordingly.
+ *
+ * @todo: Move to CLI, as the query to Github might be long?
+ */
+function dekyll_github_user_insert(&$edit, $account, $category) {
+  if (!$token = dekyll_github_get_user_token($account)) {
+    // No access token.
+    return;
+  }
+
+  $client = new Github\Client(
+    new Github\HttpClient\CachedHttpClient(array('cache_dir' => 'temporary://github-api-cache'))
+  );
+
+  $client->authenticate($token, NULL, Github\Client::AUTH_HTTP_TOKEN);
+
+  $github_account = $client->api('current_user')->show();
+  $github_username = $github_account['login'];
+
+  if (!$repos = $client->api('user')->repositories($github_username)) {
+    return;
+  }
+
+  foreach ($repos as $repo) {
+    if (!$repo['fork']) {
+      continue;
+    }
+
+    // Get extended information about the fork.
+    $repo = $client->api('repo')->show($github_username, 'jekyll-bootstrap');
+    if ($repo['parent']['full_name'] == 'Gizra/jekyll-bootstrap') {
+      // Create the Repository and Branch from the existing Github fork.
+      dekyll_github_create_repository_and_branch_from_fork($account, $repo['full_name']);
+
+      // We are done here.
+      return;
+    }
+  }
+}
 
 /**
  * Implements hook_init().
@@ -159,7 +202,17 @@ function dekyll_github_create_repository_github($uid, $repo_name = 'jekyll-boots
   }
 
   $full_repo_name = $github_username . '/' . $repo_name;
+  return dekyll_github_create_repository_and_branch_from_fork($account, $full_repo_name);
 
+}
+
+/**
+ * Create Repository and Branch from Gizra/jekyll-bootstrap fork.
+ *
+ * @return
+ *   The Branch node object.
+ */
+function dekyll_github_create_repository_and_branch_from_fork($account, $full_repo_name) {
   // Create a repository and branch nodes.
   $repo_node = (object)array(
     'type' => 'repository',
