@@ -7,6 +7,13 @@
 use Github\Client;
 use Github\HttpClient\CachedHttpClient;
 
+use GitWrapper\GitWrapper;
+use GitWrapper\GitWorkingCopy;
+use GitWrapper\GitException;
+
+use Symfony\Component\Yaml\Parser;
+use Symfony\Component\Yaml\Dumper;
+
 /**
  * Implements hook_menu().
  */
@@ -148,4 +155,69 @@ function dekyll_github_get_user_token($account = NULL) {
     return;
   }
   return str_replace(array('access_token=', '&token_type=bearer'), '', $result[0]);
+}
+
+/**
+ * Implements hook_dekyll_repository_clone().
+ *
+ * If a fork of Gizra/jekyll-bootstrap, configure the _config.yml
+ */
+function dekyll_github_dekyll_repository_clone($node, GitWrapper\GitWorkingCopy $git) {
+  if (!$token = dekyll_github_get_user_token()) {
+    // No access token.
+    return;
+  }
+  $wrapper = entity_metadata_wrapper('node', $node);
+  if (!strpos($wrapper->field_repo_url->value(), 'https://github.com/') === 0) {
+    // Not a Github repo.
+    return;
+  }
+
+  $client = new Github\Client(
+    new Github\HttpClient\CachedHttpClient(array('cache_dir' => 'temporary://github-api-cache'))
+  );
+
+  $client->authenticate($token, NULL, Github\Client::AUTH_HTTP_TOKEN);
+
+  $github_account = $client->api('current_user')->show();
+  $github_username = $github_account['login'];
+
+  $repository_name = $wrapper->{OG_AUDIENCE_FIELD}->label();
+
+  try {
+    $repository = $client->api('repo')->show($github_username, $repository_name);
+    return;
+  }
+  catch (Exception $e) {
+    // There was an error.
+    return;
+  }
+
+  // Not a fork.
+
+  $path = dekyll_repository_get_repo_path($node);
+
+  $file_path = $path . '/_config.yml';
+  $contents = file_get_contents($file_path);
+
+  $yaml = new Parser();
+  $yaml->parse($contents);
+
+  $production_url = "http://$github_username.github.io/$repository_name";
+  $yaml['production_url'] = $production_url;
+
+  $dumper = new Dumper();
+  file_put_contents($file_path, $dumper->dump($yaml, 10));
+
+  // Push to git.
+  try {
+    $git
+      ->commit($file_path, array('m' => 'Configured _config.yml to point to ' . $production_url))
+      ->push();
+  }
+  catch(GitException $e) {
+    // File didn't change, we can return;
+    return;
+  }
+
 }
