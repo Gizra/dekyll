@@ -114,7 +114,7 @@ function dekyll_github_create_repository_github($uid, $repo_name = 'jekyll-boots
   $repo_node = (object)array(
     'type' => 'repository',
     'uid' => $account->uid,
-    'title' => $repo_name,
+    'title' => $full_repo_name,
   );
 
   node_object_prepare($repo_node);
@@ -122,7 +122,7 @@ function dekyll_github_create_repository_github($uid, $repo_name = 'jekyll-boots
   $wrapper->{OG_GROUP_FIELD}->set(TRUE);
   $wrapper->{OG_GROUP_FIELD}->set(TRUE);
   $wrapper->field_repo_url->set('https://github.com/' . $full_repo_name);
-  $wrapper->field_repo_credentials->set('git@github.com:' . $full_repo_name);
+  $wrapper->field_repo_credentials->set('git@github.com:' . $full_repo_name . '.git');
   $wrapper->field_repo_canonical->set(FALSE);
   $wrapper->field_github_fork->set('Gizra/jekyll-bootstrap');
   $wrapper->save();
