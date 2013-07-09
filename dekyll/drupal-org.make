@@ -55,6 +55,7 @@ projects[github_connect][subdir] = "contrib"
 projects[github_connect][version] = "1.x"
 projects[github_connect][patch][] = "https://drupal.org/files/2037035-github-scope-1.patch"
 projects[github_connect][patch][] = "https://drupal.org/files/1895544-github-connect-return-user-4.patch"
+projects[github_connect][patch][] = "https://drupal.org/files/2038243-github-pass-token-1.patch"
 
 projects[inline_entity_form][subdir] = "contrib"
 projects[inline_entity_form][version] = "1.2"
