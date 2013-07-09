@@ -28,6 +28,7 @@ features[field][] = node-repository-group_group
 features[node][] = branch
 features[node][] = repository
 features[page_manager_handlers][] = node_view_panel_context
+features[page_manager_pages][] = homepage
 features[variable][] = comment_anonymous_branch
 features[variable][] = comment_anonymous_repository
 features[variable][] = comment_branch
