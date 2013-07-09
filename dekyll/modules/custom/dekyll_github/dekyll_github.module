@@ -97,14 +97,20 @@ function dekyll_github_create_repository_github_form() {
  */
 function dekyll_github_create_repository_github_form_submit($form, &$form_state) {
   global $user;
-  dekyll_github_create_repository_github($user->uid, $form_state['values']['name']);
-  drupal_set_message('Repository created.');
+  if ($node = dekyll_github_create_repository_github($user->uid, $form_state['values']['name'])) {
+    drupal_set_message('Repository created.');
+    drupal_goto('node/' . $node->nid);
+  }
+
 }
 
 /**
  * Fork Gizra/jekyll-bootstrap repository.
  *
  * @param $uid
+ *
+ * @return
+ *   The branch node object.
  */
 function dekyll_github_create_repository_github($uid, $repo_name = 'jekyll-bootstrap') {
   $account = user_load($uid);
@@ -178,6 +184,8 @@ function dekyll_github_create_repository_github($uid, $repo_name = 'jekyll-boots
   $wrapper->{OG_AUDIENCE_FIELD}->set($repo_node);
   $wrapper->field_jekyll_base_path->set('config');
   $wrapper->save();
+
+  return $branch_node;
 }
 
 
