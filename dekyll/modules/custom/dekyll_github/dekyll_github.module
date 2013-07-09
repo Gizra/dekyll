@@ -141,8 +141,13 @@ function dekyll_github_create_repository_github($uid, $repo_name = 'jekyll-boots
     return;
   }
 
-  // Add a deploy key.
-  $key = $client->api('repo')->keys()->create($github_username, $repo_name, array('title' => 'Dekyll', 'key' => variable_get('dekyll_ssh_key')));
+  // Add a deploy key if it doesn't exist.
+  try {
+    $client->api('repo')->keys()->create($github_username, $repo_name, array('title' => 'Dekyll', 'key' => variable_get('dekyll_ssh_key')));
+  }
+  catch (Exception $e) {
+  }
+
   $full_repo_name = $github_username . '/' . $repo_name;
 
   // Create a repository and branch nodes.
