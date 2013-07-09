@@ -15,6 +15,13 @@ function dekyll_repository_ctools_plugin_api() {
 }
 
 /**
+ * Implements hook_views_api().
+ */
+function dekyll_repository_views_api() {
+  return array("version" => "3.0");
+}
+
+/**
  * Implements hook_node_info().
  */
 function dekyll_repository_node_info() {
