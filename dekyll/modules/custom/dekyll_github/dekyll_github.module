@@ -195,7 +195,7 @@ function dekyll_github_dekyll_repository_clone($node, \GitWrapper\GitWorkingCopy
   // Push to git.
   try {
     $git
-      ->commit($file_path, array('m' => 'Configured _config.yml to point to ' . $production_url))
+      ->commit('_config.yml', array('m' => 'Configured _config.yml to point to ' . $production_url))
       ->push();
 
     if (drupal_is_cli()) {
