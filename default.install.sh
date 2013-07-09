@@ -17,3 +17,10 @@ drush si -y dekyll --account-pass=admin --db-url=mysql://root:root@localhost/dek
 
 # Set the SSH key
 drush vset dekyll_ssh_key "$(cat ~/.ssh/id_rsa.pub)"
+
+# Set Github Application
+# drush vset github_connect_client_id YOUR-CLIENT-ID
+# drush vset github_connect_client_secret YOUR-CLIENT-SECRET
+
+# Execute Dekyll queue workers.
+. ../dekyll.sh
