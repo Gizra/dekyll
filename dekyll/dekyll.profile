@@ -101,52 +101,6 @@ function dekyl_installation_type_form_submit($form, &$form_state) {
  * Task callback; Setup blocks.
  */
 function dekyll_setup_blocks() {
-  $default_theme = 'bootstrap';
-
-  $blocks = array();
-
-  $blocks[] = array(
-    'module' => 'system',
-    'delta' => 'navigation',
-    'theme' => $default_theme,
-    'status' => 1,
-    'weight' => 0,
-    'region' => 'sidebar_first',
-    'custom' => 0,
-    'visibility' => 0,
-    'pages' => '',
-    'title' => '<none>',
-    'cache' => DRUPAL_NO_CACHE,
-  );
-
-  drupal_static_reset();
-  _block_rehash($default_theme);
-  foreach ($blocks as $record) {
-    db_update('block')
-      ->fields($record)
-      ->condition('module', $record['module'])
-      ->condition('delta', $record['delta'])
-      ->condition('theme', $record['theme'])
-      ->execute();
-  }
-
-  // Set blocks roles.
-  $block_roles = array();
-
-  // Display the facebook login block only to anonymous users.
-  $block_roles[] = array(
-    'module' => 'fboauth',
-    'delta' => 'login',
-    'rid' => DRUPAL_ANONYMOUS_RID,
-  );
-
-  foreach ($block_roles as $block_role) {
-    db_merge('block_role')
-      ->fields($block_role)
-      ->condition('module', $block_role['module'])
-      ->condition('delta', $block_role['delta'])
-      ->execute();
-  }
 }
 
 /**
