@@ -124,6 +124,7 @@ function dekyll_github_create_repository_github($uid, $repo_name = 'jekyll-boots
   $wrapper->field_repo_url->set('https://github.com/' . $full_repo_name);
   $wrapper->field_repo_credentials->set('git@github.com:' . $full_repo_name);
   $wrapper->field_repo_canonical->set(FALSE);
+  $wrapper->field_github_fork->set('Gizra/jekyll-bootstrap');
   $wrapper->save();
 
   $branch_node = (object)array(
@@ -169,8 +170,7 @@ function dekyll_github_dekyll_repository_clone($node, GitWrapper\GitWorkingCopy 
     return;
   }
   $wrapper = entity_metadata_wrapper('node', $node);
-  if (!strpos($wrapper->field_repo_url->value(), 'https://github.com/') === 0) {
-    // Not a Github repo.
+  if ($wrapper->field_github_fork->value() != 'Gizra/jekyll-bootstrap') {
     return;
   }
 
@@ -185,19 +185,7 @@ function dekyll_github_dekyll_repository_clone($node, GitWrapper\GitWorkingCopy 
 
   $repository_name = $wrapper->{OG_AUDIENCE_FIELD}->label();
 
-  try {
-    $repository = $client->api('repo')->show($github_username, $repository_name);
-    return;
-  }
-  catch (Exception $e) {
-    // There was an error.
-    return;
-  }
-
-  // Not a fork.
-
   $path = dekyll_repository_get_repo_path($node);
-
   $file_path = $path . '/_config.yml';
   $contents = file_get_contents($file_path);
 
