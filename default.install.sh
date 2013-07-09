@@ -14,3 +14,6 @@ chmod -R 777 sites/default/files
 
 # Install profile, as "Github pages"
 drush si -y dekyll --account-pass=admin --db-url=mysql://root:root@localhost/dekyll dekyl_installation_type_form.dekyll_installation_type=github_pages
+
+# Set the SSH key
+drush vset dekyll_ssh_key "$(cat ~/.ssh/id_rsa.pub)"
