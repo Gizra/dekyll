@@ -181,13 +181,13 @@ function dekyll_github_dekyll_repository_clone($node, \GitWrapper\GitWorkingCopy
   $github_account = $client->api('current_user')->show();
   $github_username = $github_account['login'];
 
-  $repository_name = $wrapper->{OG_AUDIENCE_FIELD}->label();
+  $repository_name = explode('/', $wrapper->{OG_AUDIENCE_FIELD}->label());
 
   $path = dekyll_repository_get_repo_path($node);
   $file_path = $path . '/_config.yml';
   $contents = file_get_contents($file_path);
 
-  $production_url = "http://$github_username.github.io/$repository_name";
+  $production_url = "http://$github_username.github.io/$repository_name[1]";
   $contents = str_replace('production_url : http://username.github.io', "production_url : $production_url", $contents);
 
   file_put_contents($file_path, $contents);
