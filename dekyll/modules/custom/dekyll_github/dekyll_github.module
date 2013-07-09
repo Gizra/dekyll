@@ -69,7 +69,9 @@ function dekyll_github_user_insert(&$edit, $account, $category) {
       // Create the Repository and Branch from the existing Github fork.
       dekyll_github_create_repository_and_branch_from_fork($account, $repo['full_name']);
 
-      // We are done here.
+      // We are done here. We don't drupal_goto() as we are inside of a hook
+      // implementation.
+      drupal_set_message(t('@repo was automatically detected', array('@repo' => $repo['full_name'])));
       return;
     }
   }
@@ -218,11 +220,12 @@ function dekyll_github_create_repository_and_branch_from_fork($account, $full_re
   // Create a repository and branch nodes.
   $repo_node = (object)array(
     'type' => 'repository',
-    'uid' => $account->uid,
     'title' => $full_repo_name,
   );
 
   node_object_prepare($repo_node);
+  $repo_node->uid = $account->uid;
+
   $wrapper = entity_metadata_wrapper('node', $repo_node);
   $wrapper->{OG_GROUP_FIELD}->set(TRUE);
   $wrapper->{OG_GROUP_FIELD}->set(TRUE);
@@ -234,11 +237,12 @@ function dekyll_github_create_repository_and_branch_from_fork($account, $full_re
 
   $branch_node = (object)array(
     'type' => 'branch',
-    'uid' => $account->uid,
     'title' => 'gh-pages',
   );
 
   node_object_prepare($branch_node);
+
+  $branch_node->uid = $account->uid;
   $wrapper = entity_metadata_wrapper('node', $branch_node);
   $wrapper->{OG_AUDIENCE_FIELD}->set($repo_node);
   $wrapper->field_jekyll_base_path->set('config');
