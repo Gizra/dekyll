@@ -95,6 +95,9 @@ projects[og][version] = "2.2"
 projects[og_vocab][subdir] = "contrib"
 projects[og_vocab][version] = "1.1"
 
+projects[panels][subdir] = "contrib"
+projects[panels][version] = "3.x-dev"
+
 projects[pathauto][subdir] = "contrib"
 projects[pathauto][version] = "1.1"
 
