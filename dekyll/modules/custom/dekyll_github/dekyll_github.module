@@ -38,10 +38,12 @@ function dekyll_github_menu() {
  * @todo: Move to CLI, as the query to Github might be long?
  */
 function dekyll_github_user_insert(&$edit, $account, $category) {
-  if (!$token = dekyll_github_get_user_token($account)) {
+  if (empty($edit['github_token'])) {
     // No access token.
     return;
   }
+
+  $token = $edit['github_token'];
 
   $client = new Github\Client(
     new Github\HttpClient\CachedHttpClient(array('cache_dir' => 'temporary://github-api-cache'))
