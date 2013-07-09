@@ -20,6 +20,11 @@ function dekyll_form_install_configure_form_alter(&$form, $form_state) {
 function dekyll_install_tasks() {
   $tasks = array();
 
+  $tasks['dekyl_installation_type_form'] = array(
+    'display_name' => t('Choose installation type'),
+    'type' => 'form'
+  );
+
   $tasks['dekyll_create_roles'] = array(
     'display_name' => st('Create user roles'),
     'display' => FALSE,
@@ -51,6 +56,45 @@ function dekyll_install_tasks() {
   );
 
   return $tasks;
+}
+
+/**
+ * Task callback; Select installation form
+ */
+function dekyl_installation_type_form($form, &$form_state) {
+  $options = array(
+    'github_pages' => t('Single Jekyll site per user hosted on Github pages'),
+    'normal' => t('Normal installation, with no dependncy on Github'),
+  );
+
+  $form['dekyll_installation_type'] = array(
+    '#title' => t('Installation type'),
+    '#type' => 'radios',
+    '#options' => $options,
+    '#default_value' => 'github_pages',
+  );
+
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+
+  return $form;
+
+}
+
+
+/**
+ * Submit handler; Set installation type variable.
+ */
+function dekyl_installation_type_form_submit($form, &$form_state) {
+  $type = $form_state['input']['dekyll_installation_type'];
+  variable_set('dekyll_installation_type', $type);
+
+  if ($type == 'github_pages') {
+    module_enable(array('dekyll_github'));
+  }
 }
 
 /**

@@ -12,4 +12,5 @@ cd www
 mkdir sites/default/files
 chmod -R 777 sites/default/files
 
-drush si -y dekyll --account-pass=admin --db-url=mysql://root:root@localhost/dekyll
+# Install profile, as "Github pages"
+drush si -y dekyll --account-pass=admin --db-url=mysql://root:root@localhost/dekyll dekyl_installation_type_form.dekyll_installation_type=github_pages
