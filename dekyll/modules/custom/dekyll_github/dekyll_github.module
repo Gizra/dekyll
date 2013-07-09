@@ -59,9 +59,13 @@ function dekyll_github_init() {
   }
 
   if ($item['path'] == 'create-repository') {
-    // Redirect user to repository.
-    $gid = reset($gids);
-    drupal_goto('node/' . $gid);
+    $nodes = entity_load('node', $gids);
+    foreach ($nodes as $node) {
+      if ($node->type == 'branch') {
+        // Redirect user to the branch node.
+        drupal_goto('node/' . $node->nid);
+      }
+    }
   }
 }
 
