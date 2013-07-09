@@ -6,6 +6,8 @@
 
 include_once 'dekyll_page.features.inc';
 
+use Symfony\Component\Yaml\Parser;
+
 /**
  * Implements hook_form_FORM_ID_alter().
  *
@@ -170,6 +172,10 @@ function dekyll_page_node_view_alter(&$build) {
     return;
   }
 
+  if ($build['#view_mode'] != 'full') {
+    return;
+  }
+
   $wrapper = entity_metadata_wrapper('node', $node);
 
   if (!isset($wrapper->field_file_path)) {
@@ -186,7 +192,16 @@ function dekyll_page_node_view_alter(&$build) {
       break;
 
     case 'config':
+      $path = dekyll_repository_get_repo_path($node);
+      $file_path = $path . '/_config.yml';
+
       // @todo: Read from _config.yml
+      $contents = file_get_contents($file_path);
+
+      // Parse the contents.
+      $yaml = new Parser();
+      $yaml = $yaml->parse($contents);
+      $base = !empty($yaml['production_url']) ? $yaml['production_url'] : '';
       break;
 
     case 'other':
