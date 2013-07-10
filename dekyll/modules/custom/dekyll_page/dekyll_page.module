@@ -153,13 +153,26 @@ function dekyll_page_get_permalink($node) {
 
   $permalink = $wrapper->field_permalink->value();
 
-  if ($node->type == 'post' && $permalink) {
-    return $permalink;
+  $file_path = $wrapper->field_file_path->value();
+
+  if ($node->type == 'post') {
+    if ($permalink) {
+      return $permalink;
+    }
+
+    $file_path_elements = explode('/', $file_path);
+    $file_path = end($file_path_elements);
+
+    if ($file_path_elements[0] == '_posts') {
+      // Remove the date.
+      $file_path = substr($file_path, 11);
+    }
   }
+
 
   // @todo: See how permalink works on pages.
   // @todo: improve check.
-  return str_replace('.md', '.html', $wrapper->field_file_path->value());
+  return str_replace('.md', '.html', $file_path);
 }
 
 
