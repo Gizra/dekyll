@@ -30,6 +30,17 @@ function dekyll_github_menu() {
 }
 
 /**
+ * Implements hook_menu_alter().
+ *
+ * Remove a menu item that currently doesn't work.
+ *
+ * @see github_connect_menu().
+ */
+function dekyll_github_menu_alter(&$callbacks) {
+  unset($callbacks['user/%user/github']);
+}
+
+/**
  * Implements hook_user_insert().
  *
  * Check if user already has a forked repository, and create a local repository
@@ -320,6 +331,13 @@ function dekyll_github_dekyll_repository_clone($node, \GitWrapper\GitWorkingCopy
   $contents = str_replace('BASE_PATH : false', "BASE_PATH : $production_url", $contents);
 
   file_put_contents($file_path, $contents);
+
+  if (!$git->hasChanges()) {
+    if (drupal_is_cli()) {
+      drush_log(dt('No changes to commit.'));
+    }
+    return;
+  }
 
   // Push to git.
   try {
