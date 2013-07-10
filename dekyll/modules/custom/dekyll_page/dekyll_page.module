@@ -87,6 +87,9 @@ function dekyll_page_form_post_node_form_alter(&$form, $form_state) {
   $form['field_file_path']['#attributes']['class'][] = 'clearfix';
 
   $form['field_file_path'][LANGUAGE_NONE][0]['value']['#element_validate'][] = 'dekyll_page_field_file_path_element_validate';
+
+  // We will set the repository by the branch.
+  $form[OG_AUDIENCE_FIELD]['#access'] = FALSE;
 }
 
 /**

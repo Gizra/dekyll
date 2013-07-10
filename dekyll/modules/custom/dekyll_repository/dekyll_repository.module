@@ -21,6 +21,23 @@ function dekyll_repository_get_git_branch($node) {
 }
 
 /**
+ * Implements hook_node_presave()
+ *
+ * Set the Repository by the branch.
+ */
+function dekyll_repository_node_presave($node) {
+  if (in_array($node->type, array('branch', 'repository')) || !empty($node->nid)) {
+    return;
+  }
+
+  // Find the repository referenced from the branch.
+  $wrapper = entity_metadata_wrapper('node', $node);
+
+  $repo = $wrapper->field_repo_branch->{OG_AUDIENCE_FIELD}->value();
+  $wrapper->{OG_AUDIENCE_FIELD}->set($repo);
+}
+
+/**
  * Implements hook_node_insert()
  *
  * Add queue item to clone repo.
