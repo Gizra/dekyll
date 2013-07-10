@@ -13,10 +13,20 @@ use Symfony\Component\Yaml\Parser;
  */
 function dekyll_page_form_node_form_alter(&$form, $form_state, $form_id) {
   $node = $form['#node']->type;
+
+  if (in_array($node->type, array('repository', 'branch'))) {
+    return;
+  }
+
   if (empty($node->nid)) {
     // Try to set the layout by the node type.
     _dekyll_page_set_layout_by_node_type($form);
+
+    $form['field_file_path'][LANGUAGE_NONE][0]['value']['#attached']['js'][] = drupal_get_path('module', 'dekyll_page') . '/js/dekyll_page.js';
   }
+
+  // We will set the repository by the branch.
+  $form[OG_AUDIENCE_FIELD]['#access'] = FALSE;
 }
 
 /**
@@ -94,17 +104,10 @@ function dekyll_page_form_post_node_form_alter(&$form, $form_state) {
   $form['field_file_path'][LANGUAGE_NONE][0]['value']['#title_display'] = 'invisible';
   $form['field_file_path'][LANGUAGE_NONE][0]['value']['#attached']['css'][] = drupal_get_path('module', 'dekyll_page') . '/css/dekyll_page.css';
 
-  if (empty($node->nid)) {
-    $form['field_file_path'][LANGUAGE_NONE][0]['value']['#attached']['js'][] = drupal_get_path('module', 'dekyll_page') . '/js/dekyll_page.js';
-  }
-
   // Allow floating the inner elements.
   $form['field_file_path']['#attributes']['class'][] = 'clearfix';
 
   $form['field_file_path'][LANGUAGE_NONE][0]['value']['#element_validate'][] = 'dekyll_page_field_file_path_element_validate';
-
-  // We will set the repository by the branch.
-  $form[OG_AUDIENCE_FIELD]['#access'] = FALSE;
 }
 
 /**
