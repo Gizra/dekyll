@@ -9,6 +9,17 @@ include_once 'dekyll_page.features.inc';
 use Symfony\Component\Yaml\Parser;
 
 /**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function dekyll_page_form_node_form_alter(&$form, $form_state, $form_id) {
+  $node = $form['#node']->type;
+  if (empty($node->nid)) {
+    // Try to set the layout by the node type.
+    _dekyll_page_set_layout_by_node_type($form);
+  }
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  *
  * Help the file name creation for post content type.
@@ -94,6 +105,25 @@ function dekyll_page_form_post_node_form_alter(&$form, $form_state) {
 
   // We will set the repository by the branch.
   $form[OG_AUDIENCE_FIELD]['#access'] = FALSE;
+}
+
+/**
+ * After build; Try to set the layout by the node type.
+ */
+function _dekyll_page_set_layout_by_node_type(&$form) {
+  $element = &$form[OG_VOCAB_FIELD][LANGUAGE_NONE][0];
+  foreach ($element as $key => &$value) {
+    if (!is_numeric($key) || $value['#title'] != 'layout') {
+      continue;
+    }
+
+    $node = $value['#entity'];
+
+    if ($delta = array_search($node->type, $value['#options'])) {
+      $value['#default_value'] = $delta;
+      return;
+    }
+  }
 }
 
 /**
