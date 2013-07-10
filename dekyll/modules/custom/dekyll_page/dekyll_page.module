@@ -210,8 +210,8 @@ function dekyll_page_node_view_alter(&$build) {
   }
 
   // @todo: How to deal with non-pages?
-  // @todo: Deal with permalink.
-  $url = $base . '/' . dekyll_page_get_permalink($node);
+  // Append a timestamp to the URL to override cache.
+  $url = $base . '/' . dekyll_page_get_permalink($node) . '?' . time();
 
   // @todo: Add option to disable IFrame?
   $build['dekyll_site'] = array(
