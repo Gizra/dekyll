@@ -12,7 +12,7 @@ use Symfony\Component\Yaml\Parser;
  * Implements hook_form_BASE_FORM_ID_alter().
  */
 function dekyll_page_form_node_form_alter(&$form, $form_state, $form_id) {
-  $node = $form['#node']->type;
+  $node = $form['#node'];
 
   if (in_array($node->type, array('repository', 'branch'))) {
     return;
