@@ -358,14 +358,14 @@ class ExportManagerBase implements ExportManagerInterface {
         // Add files to git.
         $git->add($file_name);
         if (drupal_is_cli()) {
-          drush_log('Added @file to git.', array('@file' => $file_name));
+          drush_log(dt('Added @file to git.', array('@file' => $file_name)));
         }
       }
     }
 
     if (!$git->hasChanges()) {
       if (drupal_is_cli()) {
-        drush_log('No changes to commit.');
+        drush_log(dt('No changes to commit.'));
       }
       return;
     }
@@ -375,7 +375,7 @@ class ExportManagerBase implements ExportManagerInterface {
     // @todo: Move to a single function.
     try {
       if (drupal_is_cli()) {
-        drush_log('Pushing to git.');
+        drush_log(dt('Pushing to git.'));
       }
       $git
         ->pull()
@@ -385,10 +385,13 @@ class ExportManagerBase implements ExportManagerInterface {
     catch (GitException $e){
       // If we couldn't push, we might need to push. So re-sync.
       // @todo: Check if we have connection first, and throw error if not?
+      if (drupal_is_cli()) {
+        drush_log(dt('Git push error: @message.', array('@message' => $e->getMessage())), 'error');
+      }
     }
 
     if (drupal_is_cli()) {
-      drush_log('Export @id done.', array('@id' => $this->nid));
+      drush_log(dt('Export @id done.', array('@id' => $this->nid)));
     }
   }
 }

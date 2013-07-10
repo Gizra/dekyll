@@ -111,6 +111,9 @@ function dekyll_repository_clone_queue_worker($data) {
  *   The branch node ID, to checkout to.
  */
 function dekyll_repository_clone($branch_id) {
+  if (drupal_is_cli()) {
+    drush_log(dt('Starting clone of branch ID @id.', array('@id' => $branch_id)));
+  }
   $wrapper = entity_metadata_wrapper('node', $branch_id);
   $repo_wrapper = $wrapper->{OG_AUDIENCE_FIELD};
   $credentials = $repo_wrapper->field_repo_credentials->value();
