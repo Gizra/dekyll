@@ -236,7 +236,7 @@ function dekyll_sync_export($nid) {
 
   $plugin = dekyll_sync_get_export_manager($plugin_name);
   $export_manager = new $class($plugin, $nid);
-  dpm($export_manager->export()->getRoutes());
+  $export_manager->export();
 }
 
 /**
