@@ -16,6 +16,7 @@ use Symfony\Component\Yaml\Parser;
  * @todo: Add validate to make sure file is under _posts.
  */
 function dekyll_page_form_post_node_form_alter(&$form, $form_state) {
+  $node = $form['#node'];
   $file_path_parts = array();
 
   if ($default_value = &$form['field_file_path'][LANGUAGE_NONE][0]['value']['#default_value']) {
@@ -80,8 +81,11 @@ function dekyll_page_form_post_node_form_alter(&$form, $form_state) {
 
   $form['field_file_path'][LANGUAGE_NONE][0] += $element;
   $form['field_file_path'][LANGUAGE_NONE][0]['value']['#title_display'] = 'invisible';
-  $form['field_file_path'][LANGUAGE_NONE][0]['value']['#attached']['js'][] = drupal_get_path('module', 'dekyll_page') . '/js/dekyll_page.js';
   $form['field_file_path'][LANGUAGE_NONE][0]['value']['#attached']['css'][] = drupal_get_path('module', 'dekyll_page') . '/css/dekyll_page.css';
+
+  if (empty($node->nid)) {
+    $form['field_file_path'][LANGUAGE_NONE][0]['value']['#attached']['js'][] = drupal_get_path('module', 'dekyll_page') . '/js/dekyll_page.js';
+  }
 
   // Allow floating the inner elements.
   $form['field_file_path']['#attributes']['class'][] = 'clearfix';
