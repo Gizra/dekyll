@@ -64,7 +64,7 @@ function dekyll_github_user_insert(&$edit, $account, $category) {
     }
 
     // Get extended information about the fork.
-    $repo = $client->api('repo')->show($github_username, 'jekyll-bootstrap');
+    $repo = $client->api('repo')->show($github_username, $repo['name']);
     if ($repo['parent']['full_name'] == 'Gizra/jekyll-bootstrap') {
       // Create the Repository and Branch from the existing Github fork.
       dekyll_github_create_repository_and_branch_from_fork($account, $repo['full_name']);
