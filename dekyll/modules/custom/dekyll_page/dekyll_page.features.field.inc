@@ -946,7 +946,7 @@ function dekyll_page_field_default_fields() {
       'entity_type' => 'node',
       'field_name' => 'field_permalink',
       'label' => 'Permalink',
-      'required' => 0,
+      'required' => 1,
       'settings' => array(
         'content_sync' => array(
           'plugin_name' => 'raw',
