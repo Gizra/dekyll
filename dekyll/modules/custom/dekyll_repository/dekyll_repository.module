@@ -41,7 +41,7 @@ function dekyll_repository_node_insert($node) {
  * Return the repository path.
  *
  * @param $nid
- *   The node ID of the branch or page.
+ *   The node ID or object of the branch or page.
  *
  * @return
  *   The relative path.
@@ -129,6 +129,10 @@ function dekyll_repository_clone($branch_id) {
   }
 
   $wrapper->save();
+
+  // Let other modules know that a clone was performed, to allow them to change
+  // the files before the sync is performed.
+  module_invoke_all('dekyll_repository_clone', $wrapper->value(), $git);
 
   // Sync.
   dekyll_sync_import($branch_id);

@@ -425,6 +425,78 @@ function dekyll_repository_field_default_fields() {
     ),
   );
 
+  // Exported field: 'node-repository-field_github_fork'.
+  $fields['node-repository-field_github_fork'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_github_fork',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'text',
+      'settings' => array(
+        'max_length' => '255',
+      ),
+      'translatable' => '0',
+      'type' => 'text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'repository',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => 'If the repository is a fork from Github, indicate the name (e.g. Gizra/jekyll-bootstrap).',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 10,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_github_fork',
+      'label' => 'Github fork',
+      'required' => 0,
+      'settings' => array(
+        'content_sync' => array(
+          'plugin_name' => '',
+        ),
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => '60',
+        ),
+        'type' => 'text_textfield',
+        'weight' => '9',
+      ),
+    ),
+  );
+
   // Exported field: 'node-repository-field_repo_canonical'.
   $fields['node-repository-field_repo_canonical'] = array(
     'field_config' => array(
@@ -799,7 +871,9 @@ function dekyll_repository_field_default_fields() {
   t('Cloned');
   t('Credentials');
   t('Determine if this is an OG group.');
+  t('Github fork');
   t('Group');
+  t('If the repository is a fork from Github, indicate the name (e.g. Gizra/jekyll-bootstrap).');
   t('Repository');
   t('URL');
   t('When enabled, the exported nodes will overwrite the existing files.');

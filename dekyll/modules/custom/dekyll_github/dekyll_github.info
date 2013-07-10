@@ -1,0 +1,6 @@
+name = Dekyll Github
+core = 7.x
+package = Dekyll
+php = 5.2.4
+dependencies[] = dekyll_repository
+

@@ -6,6 +6,8 @@
 
 include_once 'dekyll_page.features.inc';
 
+use Symfony\Component\Yaml\Parser;
+
 /**
  * Implements hook_form_FORM_ID_alter().
  *
@@ -156,7 +158,8 @@ function dekyll_page_get_permalink($node) {
   }
 
   // @todo: See how permalink works on pages.
-  return $wrapper->field_file_path->value();
+  // @todo: improve check.
+  return str_replace('.md', '.html', $wrapper->field_file_path->value());
 }
 
 
@@ -167,6 +170,10 @@ function dekyll_page_node_view_alter(&$build) {
   $node = $build['#node'];
   if (empty($node->nid)) {
     // Node isn't saved yet (e.g. node preview).
+    return;
+  }
+
+  if ($build['#view_mode'] != 'full') {
     return;
   }
 
@@ -186,7 +193,16 @@ function dekyll_page_node_view_alter(&$build) {
       break;
 
     case 'config':
+      $path = dekyll_repository_get_repo_path($node);
+      $file_path = $path . '/_config.yml';
+
       // @todo: Read from _config.yml
+      $contents = file_get_contents($file_path);
+
+      // Parse the contents.
+      $yaml = new Parser();
+      $yaml = $yaml->parse($contents);
+      $base = !empty($yaml['production_url']) ? $yaml['production_url'] : '';
       break;
 
     case 'other':

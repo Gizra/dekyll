@@ -1,0 +1,342 @@
+<?php
+/**
+ * @file
+ * Code for the Dekyll Github.
+ */
+
+use Github\Client;
+use Github\HttpClient\CachedHttpClient;
+
+use GitWrapper\GitWrapper;
+use GitWrapper\GitWorkingCopy;
+use GitWrapper\GitException;
+
+/**
+ * Implements hook_menu().
+ */
+function dekyll_github_menu() {
+  $items = array();
+
+  $items['create-repository'] = array(
+    'title' => 'Create Repository on Github',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dekyll_github_create_repository_github_form'),
+    // @todo: Add access to github.
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_user_insert().
+ *
+ * Check if user already has a forked repository, and create a local repository
+ * and branch accordingly.
+ *
+ * @todo: Move to CLI, as the query to Github might be long?
+ */
+function dekyll_github_user_insert(&$edit, $account, $category) {
+  if (empty($edit['github_token'])) {
+    // No access token.
+    return;
+  }
+
+  $token = dekyll_github_get_token_id($edit['github_token']);
+
+  $client = new Github\Client(
+    new Github\HttpClient\CachedHttpClient(array('cache_dir' => 'temporary://github-api-cache'))
+  );
+
+  $client->authenticate($token, NULL, Github\Client::AUTH_HTTP_TOKEN);
+
+  $github_account = $client->api('current_user')->show();
+  $github_username = $github_account['login'];
+
+  if (!$repos = $client->api('user')->repositories($github_username)) {
+    return;
+  }
+
+  foreach ($repos as $repo) {
+    if (!$repo['fork']) {
+      continue;
+    }
+
+    // Get extended information about the fork.
+    $repo = $client->api('repo')->show($github_username, $repo['name']);
+    if ($repo['parent']['full_name'] == 'Gizra/jekyll-bootstrap') {
+      // Create the Repository and Branch from the existing Github fork.
+      dekyll_github_create_repository_and_branch_from_fork($account, $repo['full_name']);
+
+      // We are done here. We don't drupal_goto() as we are inside of a hook
+      // implementation.
+      drupal_set_message(t('@repo was automatically detected', array('@repo' => $repo['full_name'])));
+      return;
+    }
+  }
+}
+
+/**
+ * Implements hook_init().
+ */
+function dekyll_github_init() {
+  global $user;
+  if (!$user->uid) {
+    return;
+  }
+
+  if (variable_get('dekyll_installation_type', 'normal') != 'github_pages') {
+    return;
+  }
+
+  $item = menu_get_item();
+  if (strpos($item['path'], 'js/') === 0 || strpos($item['path'], 'batch/') === 0) {
+    return;
+  }
+
+  $gids = og_get_entity_groups();
+  $gids = !empty($gids['node']) ? $gids['node'] : array();
+
+  if (!$gids) {
+    if (drupal_is_front_page()) {
+      drupal_goto('create-repository');
+    }
+    return;
+  }
+
+  if ($item['path'] == 'create-repository' || drupal_is_front_page()) {
+    $nodes = entity_load('node', $gids);
+    foreach ($nodes as $node) {
+      if ($node->type == 'branch') {
+        // Redirect user to the branch node.
+        drupal_goto('node/' . $node->nid);
+      }
+    }
+  }
+}
+
+/**
+ * Page callback; Create a new repository in Github.
+ */
+function dekyll_github_create_repository_github_form() {
+  $params = array(
+    '@github-account' => '',
+  );
+
+  $form['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Repository name'),
+    '#description' => t('The name of the repository that should be created under account @github-account in Github.', $params),
+    '#required' => TRUE,
+    '#default_value' => 'jekyll-bootstrap',
+    // @todo: Add validate.
+  );
+
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Create'),
+  );
+
+  return $form;
+}
+
+
+/**
+ * Submit handler; Add "Create Repository" queue item.
+ */
+function dekyll_github_create_repository_github_form_submit($form, &$form_state) {
+  global $user;
+  if ($node = dekyll_github_create_repository_github($user->uid, $form_state['values']['name'])) {
+    drupal_set_message('Repository created.');
+    drupal_goto('node/' . $node->nid);
+  }
+
+}
+
+/**
+ * Fork Gizra/jekyll-bootstrap repository.
+ *
+ * @param $uid
+ *
+ * @return
+ *   The branch node object.
+ */
+function dekyll_github_create_repository_github($uid, $repo_name = 'jekyll-bootstrap') {
+  $account = user_load($uid);
+  if (!$token = dekyll_github_get_user_token($account)) {
+    // No access token.
+    return;
+  }
+
+  $client = new Github\Client(
+    new Github\HttpClient\CachedHttpClient(array('cache_dir' => 'temporary://github-api-cache'))
+  );
+
+  $client->authenticate($token, NULL, Github\Client::AUTH_HTTP_TOKEN);
+
+  $github_account = $client->api('current_user')->show();
+  $github_username = $github_account['login'];
+
+  try {
+    $client->api('repo')->show($github_username, 'jekyll-bootstrap');
+    // Repository already exists.
+    return;
+  }
+  catch (Exception $e) {
+  }
+
+  try {
+    $client->api('repo')->forks()->create('Gizra', 'jekyll-bootstrap');
+    if ($repo_name != 'jekyll-bootstrap') {
+      $client->api('repo')->update($github_username, 'jekyll-bootstrap', array('name' => $repo_name));
+    }
+  }
+  catch (Exception $e) {
+    // There was an error while forking.
+    return;
+  }
+
+  // Add a deploy key if it doesn't exist.
+  try {
+    $client->api('repo')->keys()->create($github_username, $repo_name, array('title' => 'Dekyll', 'key' => variable_get('dekyll_ssh_key')));
+  }
+  catch (Exception $e) {
+  }
+
+  $full_repo_name = $github_username . '/' . $repo_name;
+  return dekyll_github_create_repository_and_branch_from_fork($account, $full_repo_name);
+
+}
+
+/**
+ * Create Repository and Branch from Gizra/jekyll-bootstrap fork.
+ *
+ * @return
+ *   The Branch node object.
+ */
+function dekyll_github_create_repository_and_branch_from_fork($account, $full_repo_name) {
+  // Create a repository and branch nodes.
+  $repo_node = (object)array(
+    'type' => 'repository',
+    'title' => $full_repo_name,
+  );
+
+  node_object_prepare($repo_node);
+  $repo_node->uid = $account->uid;
+
+  $wrapper = entity_metadata_wrapper('node', $repo_node);
+  $wrapper->{OG_GROUP_FIELD}->set(TRUE);
+  $wrapper->{OG_GROUP_FIELD}->set(TRUE);
+  $wrapper->field_repo_url->set('https://github.com/' . $full_repo_name);
+  $wrapper->field_repo_credentials->set('git@github.com:' . $full_repo_name . '.git');
+  $wrapper->field_repo_canonical->set(FALSE);
+  $wrapper->field_github_fork->set('Gizra/jekyll-bootstrap');
+  $wrapper->save();
+
+  $branch_node = (object)array(
+    'type' => 'branch',
+    'title' => 'gh-pages',
+  );
+
+  node_object_prepare($branch_node);
+
+  $branch_node->uid = $account->uid;
+  $wrapper = entity_metadata_wrapper('node', $branch_node);
+  $wrapper->{OG_AUDIENCE_FIELD}->set($repo_node);
+  $wrapper->field_jekyll_base_path->set('config');
+  $wrapper->save();
+
+  return $branch_node;
+}
+
+
+/**
+ * Get Github access token.
+ *
+ * @param null $account
+ * @return mixed
+ */
+function dekyll_github_get_user_token($account = NULL) {
+  if (!$account) {
+    global $user;
+    $account = clone $user;
+  }
+
+  if (!$result = db_query("SELECT access_token FROM {github_connect_users} WHERE uid = :uid", array(':uid' => $account->uid))->fetchCol()) {
+    return;
+  }
+  return dekyll_github_get_token_id($result[0]);
+}
+
+
+/**
+ * Get the token ID (i.e. just the number) from a token.
+ *
+ * Github returns tokens in the form of access_token=1234&token_type=bearer
+ * This function will return just the "1234" from the raw token.
+ *
+ * @param $raw_token
+ *   The raw token as returned from Github.
+ */
+function dekyll_github_get_token_id($raw_token) {
+  return str_replace(array('access_token=', '&token_type=bearer'), '', $raw_token);
+}
+
+/**
+ * Implements hook_dekyll_repository_clone().
+ *
+ * If a fork of Gizra/jekyll-bootstrap, configure the _config.yml
+ */
+function dekyll_github_dekyll_repository_clone($node, \GitWrapper\GitWorkingCopy $git) {
+  $account = user_load($node->uid);
+  if (!$token = dekyll_github_get_user_token($account)) {
+    // No access token.
+    return;
+  }
+  $wrapper = entity_metadata_wrapper('node', $node);
+  if ($wrapper->{OG_AUDIENCE_FIELD}->field_github_fork->value() != 'Gizra/jekyll-bootstrap') {
+    return;
+  }
+
+  $client = new Github\Client(
+    new Github\HttpClient\CachedHttpClient(array('cache_dir' => 'temporary://github-api-cache'))
+  );
+
+  $client->authenticate($token, NULL, Github\Client::AUTH_HTTP_TOKEN);
+
+  $github_account = $client->api('current_user')->show();
+  $github_username = $github_account['login'];
+
+  $repository_name = explode('/', $wrapper->{OG_AUDIENCE_FIELD}->label());
+
+  $path = dekyll_repository_get_repo_path($node);
+  $file_path = $path . '/_config.yml';
+  $contents = file_get_contents($file_path);
+
+  $production_url = "http://$github_username.github.io/$repository_name[1]";
+  $contents = str_replace('production_url : http://username.github.io', "production_url : $production_url", $contents);
+  $contents = str_replace('BASE_PATH : false', "BASE_PATH : $production_url", $contents);
+
+  file_put_contents($file_path, $contents);
+
+  // Push to git.
+  try {
+    $git
+      ->commit('_config.yml', array('m' => 'Configured _config.yml to point to ' . $production_url))
+      ->push();
+
+    if (drupal_is_cli()) {
+      drush_log('_config.yml changed for forked repository.');
+    }
+
+  }
+  catch(GitException $e) {
+    if (drupal_is_cli()) {
+      drush_log('Error pushing _config.yml of a forked repository.');
+    }
+    return;
+  }
+
+}

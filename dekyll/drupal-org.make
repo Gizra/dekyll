@@ -52,7 +52,10 @@ projects[flag][subdir] = "contrib"
 projects[flag][version] = "2.0"
 
 projects[github_connect][subdir] = "contrib"
-projects[github_connect][version] = "1.1"
+projects[github_connect][version] = "1.x"
+projects[github_connect][patch][] = "https://drupal.org/files/2037035-github-scope-1.patch"
+projects[github_connect][patch][] = "https://drupal.org/files/1895544-github-connect-return-user-4.patch"
+projects[github_connect][patch][] = "https://drupal.org/files/2038243-github-pass-token-1.patch"
 
 projects[inline_entity_form][subdir] = "contrib"
 projects[inline_entity_form][version] = "1.2"
@@ -92,6 +95,9 @@ projects[og][version] = "2.2"
 
 projects[og_vocab][subdir] = "contrib"
 projects[og_vocab][version] = "1.1"
+
+projects[panels][subdir] = "contrib"
+projects[panels][version] = "3.x-dev"
 
 projects[pathauto][subdir] = "contrib"
 projects[pathauto][version] = "1.1"
