@@ -7,10 +7,6 @@
 use Github\Client;
 use Github\HttpClient\CachedHttpClient;
 
-use GitWrapper\GitWrapper;
-use GitWrapper\GitWorkingCopy;
-use GitWrapper\GitException;
-
 /**
  * Implements hook_menu().
  */
@@ -300,7 +296,7 @@ function dekyll_github_get_token_id($raw_token) {
  *
  * If a fork of Gizra/jekyll-bootstrap, configure the _config.yml
  */
-function dekyll_github_dekyll_repository_clone($node, \GitWrapper\GitWorkingCopy $git) {
+function dekyll_github_dekyll_repository_clone($node) {
   $account = user_load($node->uid);
   if (!$token = dekyll_github_get_user_token($account)) {
     // No access token.
@@ -311,50 +307,31 @@ function dekyll_github_dekyll_repository_clone($node, \GitWrapper\GitWorkingCopy
     return;
   }
 
-  $client = new Github\Client(
-    new Github\HttpClient\CachedHttpClient(array('cache_dir' => 'temporary://github-api-cache'))
-  );
+  list($github_username, $repository_name) = = explode('/', $wrapper->{OG_AUDIENCE_FIELD}->label());
 
-  $client->authenticate($token, NULL, Github\Client::AUTH_HTTP_TOKEN);
+  if ($page_node = dekyll_page_find_node_by_file_path($node->nid, '_config.yml')) {
+    $page_wrapper = entity_metadata_wrapper('node', $page_node);
+    $original_text = $text = $page_wrapper->body->value->value();
+    $production_url = "http://$github_username.github.io/$repository_name";
+    $text = str_replace('production_url : http://username.github.io', "production_url : $production_url", $text);
+    $text = str_replace('BASE_PATH : false', "BASE_PATH : $production_url", $text);
 
-  $github_account = $client->api('current_user')->show();
-  $github_username = $github_account['login'];
-
-  $repository_name = explode('/', $wrapper->{OG_AUDIENCE_FIELD}->label());
-
-  $path = dekyll_repository_get_repo_path($node);
-  $file_path = $path . '/_config.yml';
-  $contents = file_get_contents($file_path);
-
-  $production_url = "http://$github_username.github.io/$repository_name[1]";
-  $contents = str_replace('production_url : http://username.github.io', "production_url : $production_url", $contents);
-  $contents = str_replace('BASE_PATH : false', "BASE_PATH : $production_url", $contents);
-
-  file_put_contents($file_path, $contents);
-
-  if (!$git->hasChanges()) {
-    if (drupal_is_cli()) {
-      drush_log(dt('No changes to commit.'));
+    if ($text != $original_text) {
+      $page_wrapper->body->value->set($text);
+      $page_wrapper->save();
     }
-    return;
   }
 
-  // Push to git.
-  try {
-    $git
-      ->commit('_config.yml', array('m' => 'Configured _config.yml to point to ' . $production_url))
-      ->push();
+  if ($page_node = dekyll_page_find_node_by_file_path($node->nid, 'index.md')) {
+    $page_wrapper = entity_metadata_wrapper('node', $page_node);
+    $original_text = $text = $page_wrapper->body->value->value();
 
-    if (drupal_is_cli()) {
-      drush_log('_config.yml changed for forked repository.');
+    $text = str_replace('{{gh_url}}', $production_url, $text);
+    $text = str_replace('{{local_url_edit_hello}}', url('', array('absolute' => TRUE)), $text);
+
+    if ($text != $original_text) {
+      $page_wrapper->body->value->set($text);
+      $page_wrapper->save();
     }
-
   }
-  catch(GitException $e) {
-    if (drupal_is_cli()) {
-      drush_log('Error pushing _config.yml of a forked repository.');
-    }
-    return;
-  }
-
 }

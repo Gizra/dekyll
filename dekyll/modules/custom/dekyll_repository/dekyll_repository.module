@@ -150,11 +150,10 @@ function dekyll_repository_clone($branch_id) {
 
   $wrapper->save();
 
-  // Let other modules know that a clone was performed, to allow them to change
-  // the files before the sync is performed.
-  module_invoke_all('dekyll_repository_clone', $wrapper->value(), $git);
-
   // Sync.
   dekyll_sync_import($branch_id);
+
+  // Let other modules know that a clone and sync was performed.
+  module_invoke_all('dekyll_repository_clone', $wrapper->value());
 }
 

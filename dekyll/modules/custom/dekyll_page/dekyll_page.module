@@ -237,6 +237,34 @@ function dekyll_page_get_permalink($node) {
   return str_replace('.md', '.html', $file_path);
 }
 
+/**
+ * Find a node by the given file path.
+ *
+ * @param $branch_id
+ *   The branch ID.
+ * @param $file_path
+ *   The file path to search.
+ *
+ * @return
+ *   A node object, or FALSE if not found.
+ */
+function dekyll_page_find_node_by_file_path($branch_id, $file_path) {
+  $query = new EntityFieldQuery();
+  $result = $query
+    ->entityCondition('entity_type', 'node')
+    ->fieldCondition('field_repo_branch', 'target_id', $branch_id)
+    ->fieldCondition('field_file_path', 'value', $file_path)
+    ->range(0, 1)
+    ->execute();
+
+  if (empty($result['node'])) {
+    return;
+  }
+
+  $nid = reset($result['node']);
+  return node_load($nid);
+}
+
 
 /**
  * Implements hook_node_view_alter().
