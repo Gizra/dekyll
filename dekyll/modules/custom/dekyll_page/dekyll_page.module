@@ -313,7 +313,7 @@ function dekyll_page_node_view_alter(&$build) {
   }
 
   // @todo: How to deal with non-pages?
-  $url = $base . '/' . dekyll_page_get_permalink($node) . '?' . time();
+  $url = $base . '/' . dekyll_page_get_permalink($node);
 
   // @todo: Add option to disable IFrame?
   $build['dekyll_site'] = array(
