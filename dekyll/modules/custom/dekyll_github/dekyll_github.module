@@ -307,12 +307,12 @@ function dekyll_github_dekyll_repository_clone($node) {
     return;
   }
 
-  list($github_username, $repository_name) = = explode('/', $wrapper->{OG_AUDIENCE_FIELD}->label());
+  list($github_username, $repository_name) = explode('/', $wrapper->{OG_AUDIENCE_FIELD}->label());
+  $production_url = "http://$github_username.github.io/$repository_name";
 
   if ($page_node = dekyll_page_find_node_by_file_path($node->nid, '_config.yml')) {
     $page_wrapper = entity_metadata_wrapper('node', $page_node);
     $original_text = $text = $page_wrapper->body->value->value();
-    $production_url = "http://$github_username.github.io/$repository_name";
     $text = str_replace('production_url : http://username.github.io', "production_url : $production_url", $text);
     $text = str_replace('BASE_PATH : false', "BASE_PATH : $production_url", $text);
 

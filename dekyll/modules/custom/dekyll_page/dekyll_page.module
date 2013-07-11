@@ -261,7 +261,7 @@ function dekyll_page_find_node_by_file_path($branch_id, $file_path) {
     return;
   }
 
-  $nid = reset($result['node']);
+  $nid = key($result['node']);
   return node_load($nid);
 }
 
