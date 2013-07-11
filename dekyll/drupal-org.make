@@ -94,7 +94,8 @@ projects[og][subdir] = "contrib"
 projects[og][version] = "2.2"
 
 projects[og_vocab][subdir] = "contrib"
-projects[og_vocab][version] = "1.1"
+projects[og_vocab][version] = "1.x-dev"
+projects[og_vocab][patch][] = "https://drupal.org/files/2039597-og-vocab-notice-add-more-1.patch"
 
 projects[panels][subdir] = "contrib"
 projects[panels][version] = "3.x-dev"

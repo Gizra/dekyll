@@ -202,13 +202,35 @@ function dekyll_page_get_permalink($node) {
 
     $file_path_elements = explode('/', $file_path);
     $file_path = end($file_path_elements);
+    $post_date = '';
 
     if ($file_path_elements[0] == '_posts') {
       // Remove the date.
+      $post_date = substr($file_path, 0, 10);
       $file_path = substr($file_path, 11);
     }
-  }
 
+
+    // Check if this is a category.
+    $category = FALSE;
+    foreach ($wrapper->{OG_VOCAB_FIELD} as $sub_wrapper) {
+      if ($sub_wrapper->vocabulary->label() != 'category') {
+        continue;
+      }
+
+      $category = $sub_wrapper->label();
+      break;
+    }
+
+    if ($category) {
+      $category_path = array_merge(array($category), explode('-', $post_date));
+      $file_path = implode('/', $category_path) . '/' . $file_path;
+
+      // Remove the extension.
+      return str_replace(array('.md', '.html'), '', $file_path);
+
+    }
+  }
 
   // @todo: See how permalink works on pages.
   // @todo: improve check.
