@@ -52,6 +52,7 @@ function dekyll_repository_default_page_manager_handlers() {
       'default' => NULL,
       'left' => NULL,
       'right' => NULL,
+      'middle' => NULL,
     ),
   );
   $display->cache = array();
@@ -89,9 +90,6 @@ function dekyll_repository_default_page_manager_handlers() {
     $pane->access = array();
     $pane->configuration = array(
       'types' => array(
-        'product_page' => 'product_page',
-        'queue' => 'queue',
-        'image' => 'image',
         'page' => 'page',
         'post' => 'post',
       ),
@@ -199,7 +197,10 @@ function dekyll_repository_default_page_manager_pages() {
     $pane->style = array(
       'settings' => NULL,
     );
-    $pane->css = array();
+    $pane->css = array(
+      'css_id' => '',
+      'css_class' => 'hero-unit',
+    );
     $pane->extras = array();
     $pane->position = 0;
     $pane->locks = array();

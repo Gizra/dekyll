@@ -134,7 +134,7 @@ function dekyll_set_permissions() {
 function dekyll_set_variables() {
   $variables = array(
     // Set the default theme.
-    'theme_default' => 'bootstrap',
+    'theme_default' => 'bootstrap_subtheme',
     'admin_theme' => 'seven',
     // Date/Time settings.
     'date_default_timezone' => 'Asia/Jerusalem',
