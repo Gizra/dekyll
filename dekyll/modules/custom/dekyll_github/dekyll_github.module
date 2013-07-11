@@ -335,7 +335,7 @@ function dekyll_github_dekyll_repository_clone($node) {
   $file_path = $path . '/_config.yml';
   $contents = file_get_contents($file_path);
 
-  $production_url = "http://$github_username.github.io/$repository_name[1]";
+  $production_url = "http://$github_username.github.io/$repository_name";
   $contents = str_replace('production_url : http://username.github.io', "production_url : $production_url", $contents);
   $contents = str_replace('BASE_PATH : false', "BASE_PATH : $production_url", $contents);
 
