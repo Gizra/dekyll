@@ -132,11 +132,19 @@ function dekyll_repository_clone($branch_id) {
     drush_log('Cloning git using @credentials.', array('@credentials' => $credentials));
   }
 
+  $branch_name = $wrapper->label();
+
   if (!$git->isCloned() && !$git->clone($credentials)) {
     throw new Exception(format_string('Git repository could not be cloned with @credentials.', array('@credentials' => $credentials)));
   }
+  else {
+    // The repository might be already cloned, so make sure it is updated.
+    $git
+      ->checkout($branch_name)
+      ->fetch('origin')
+      ->run(array('reset --hard origin/' . $branch_name));
+  }
 
-  $branch_name = $wrapper->label();
   $git->checkout($branch_name);
 
   // Save clone status.
