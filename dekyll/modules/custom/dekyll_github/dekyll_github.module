@@ -7,6 +7,11 @@
 use Github\Client;
 use Github\HttpClient\CachedHttpClient;
 
+use GitWrapper\GitWrapper;
+use GitWrapper\GitWorkingCopy;
+use GitWrapper\GitException;
+
+
 /**
  * Implements hook_menu().
  */
@@ -310,18 +315,6 @@ function dekyll_github_dekyll_repository_clone($node) {
   list($github_username, $repository_name) = explode('/', $wrapper->{OG_AUDIENCE_FIELD}->label());
   $production_url = "http://$github_username.github.io/$repository_name";
 
-  if ($page_node = dekyll_page_find_node_by_file_path($node->nid, '_config.yml')) {
-    $page_wrapper = entity_metadata_wrapper('node', $page_node);
-    $original_text = $text = $page_wrapper->body->value->value();
-    $text = str_replace('production_url : http://username.github.io', "production_url : $production_url", $text);
-    $text = str_replace('BASE_PATH : false', "BASE_PATH : $production_url", $text);
-
-    if ($text != $original_text) {
-      $page_wrapper->body->value->set($text);
-      $page_wrapper->save();
-    }
-  }
-
   if ($page_node = dekyll_page_find_node_by_file_path($node->nid, 'index.md')) {
     $page_wrapper = entity_metadata_wrapper('node', $page_node);
     $original_text = $text = $page_wrapper->body->value->value();
@@ -332,6 +325,46 @@ function dekyll_github_dekyll_repository_clone($node) {
     if ($text != $original_text) {
       $page_wrapper->body->value->set($text);
       $page_wrapper->save();
+    }
+  }
+
+  // _config.yml isn't imported as page, so we need to call it directly.
+  // @todo: Add a fundtion to handle _config.yml
+
+  $path = dekyll_repository_get_repo_path($node);
+  $file_path = $path . '/_config.yml';
+  $contents = file_get_contents($file_path);
+
+  $production_url = "http://$github_username.github.io/$repository_name[1]";
+  $contents = str_replace('production_url : http://username.github.io', "production_url : $production_url", $contents);
+  $contents = str_replace('BASE_PATH : false', "BASE_PATH : $production_url", $contents);
+
+  file_put_contents($file_path, $contents);
+
+  $git_wrapper = new GitWrapper();
+  $git = $git_wrapper->workingCopy($path);
+
+  if (!$git->hasChanges()) {
+    if (drupal_is_cli()) {
+      drush_log(dt('No changes to commit.'));
+    }
+    return;
+  }
+
+  // Push to git.
+  try {
+    $git
+      ->commit('_config.yml', array('m' => 'Configured _config.yml to point to ' . $production_url))
+      ->push();
+
+    if (drupal_is_cli()) {
+      drush_log('_config.yml changed for forked repository.');
+    }
+
+  }
+  catch(GitException $e) {
+    if (drupal_is_cli()) {
+      drush_log('Error pushing _config.yml of a forked repository.');
     }
   }
 }
