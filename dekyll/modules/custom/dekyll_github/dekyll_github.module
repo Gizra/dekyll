@@ -319,8 +319,8 @@ function dekyll_github_dekyll_repository_clone($node) {
     $page_wrapper = entity_metadata_wrapper('node', $page_node);
     $original_text = $text = $page_wrapper->body->value->value();
 
-    $text = str_replace('{{gh_url}}', $production_url, $text);
-    $text = str_replace('{{local_url_edit_hello}}', url('', array('absolute' => TRUE)), $text);
+    $text = str_replace('[gh_url]', $production_url, $text);
+    $text = str_replace('[local_url_edit_hello]', url('node/' . $page_node->nid . '/edit', array('absolute' => TRUE)), $text);
 
     if ($text != $original_text) {
       $page_wrapper->body->value->set($text);
