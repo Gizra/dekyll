@@ -317,7 +317,7 @@ function dekyll_github_dekyll_repository_clone($node) {
 
   if ($page_node = dekyll_page_find_node_by_file_path($node->nid, 'index.md')) {
     $page_wrapper = entity_metadata_wrapper('node', $page_node);
-    $original_text = $text = $page_wrapper->body->value->value();
+    $original_text = $text = $page_wrapper->body->value->raw();
 
     $text = str_replace('[gh_url]', $production_url, $text);
     $text = str_replace('[local_url_edit_hello]', url('node/' . $page_node->nid . '/edit', array('absolute' => TRUE)), $text);
