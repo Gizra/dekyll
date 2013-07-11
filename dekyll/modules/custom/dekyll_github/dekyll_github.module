@@ -74,9 +74,15 @@ function dekyll_github_user_insert(&$edit, $account, $category) {
       continue;
     }
 
-    // Get extended information about the fork.
-    $repo = $client->api('repo')->show($github_username, $repo['name']);
-    if ($repo['parent']['full_name'] == 'Gizra/jekyll-bootstrap') {
+    try {
+      // Get extended information about the fork.
+      $repo = $client->api('repo')->show($github_username, $repo['name']);
+    }
+    catch(Exception $e) {
+      // We might have tried to query a repo that is still in the cache.
+    }
+
+    if (!empty($repo['parent']['full_name']) && $repo['parent']['full_name'] == 'Gizra/jekyll-bootstrap') {
       // Create the Repository and Branch from the existing Github fork.
       dekyll_github_create_repository_and_branch_from_fork($account, $repo['full_name']);
 
@@ -300,7 +306,7 @@ function dekyll_github_get_token_id($raw_token) {
  *
  * If a fork of Gizra/jekyll-bootstrap, configure the _config.yml
  */
-function dekyll_github_dekyll_repository_clone($node, \GitWrapper\GitWorkingCopy $git) {
+function dekyll_github_dekyll_repository_clone($node) {
   $account = user_load($node->uid);
   if (!$token = dekyll_github_get_user_token($account)) {
     // No access token.
@@ -311,26 +317,37 @@ function dekyll_github_dekyll_repository_clone($node, \GitWrapper\GitWorkingCopy
     return;
   }
 
-  $client = new Github\Client(
-    new Github\HttpClient\CachedHttpClient(array('cache_dir' => 'temporary://github-api-cache'))
-  );
+  list($github_username, $repository_name) = explode('/', $wrapper->{OG_AUDIENCE_FIELD}->label());
+  $production_url = "http://$github_username.github.io/$repository_name";
 
-  $client->authenticate($token, NULL, Github\Client::AUTH_HTTP_TOKEN);
+  if ($page_node = dekyll_page_find_node_by_file_path($node->nid, 'index.md')) {
+    $page_wrapper = entity_metadata_wrapper('node', $page_node);
+    $original_text = $text = $page_wrapper->body->value->raw();
 
-  $github_account = $client->api('current_user')->show();
-  $github_username = $github_account['login'];
+    $text = str_replace('[gh_url]', $production_url, $text);
+    $text = str_replace('[local_url_edit_hello]', url('node/' . $page_node->nid . '/edit', array('absolute' => TRUE)), $text);
 
-  $repository_name = explode('/', $wrapper->{OG_AUDIENCE_FIELD}->label());
+    if ($text != $original_text) {
+      $page_wrapper->body->value->set($text);
+      $page_wrapper->save();
+    }
+  }
+
+  // _config.yml isn't imported as page, so we need to call it directly.
+  // @todo: Add a fundtion to handle _config.yml
 
   $path = dekyll_repository_get_repo_path($node);
   $file_path = $path . '/_config.yml';
   $contents = file_get_contents($file_path);
 
-  $production_url = "http://$github_username.github.io/$repository_name[1]";
+  $production_url = "http://$github_username.github.io/$repository_name";
   $contents = str_replace('production_url : http://username.github.io', "production_url : $production_url", $contents);
   $contents = str_replace('BASE_PATH : false', "BASE_PATH : $production_url", $contents);
 
   file_put_contents($file_path, $contents);
+
+  $git_wrapper = new GitWrapper();
+  $git = $git_wrapper->workingCopy($path);
 
   if (!$git->hasChanges()) {
     if (drupal_is_cli()) {
@@ -354,7 +371,5 @@ function dekyll_github_dekyll_repository_clone($node, \GitWrapper\GitWorkingCopy
     if (drupal_is_cli()) {
       drush_log('Error pushing _config.yml of a forked repository.');
     }
-    return;
   }
-
 }

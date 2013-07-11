@@ -132,11 +132,19 @@ function dekyll_repository_clone($branch_id) {
     drush_log('Cloning git using @credentials.', array('@credentials' => $credentials));
   }
 
+  $branch_name = $wrapper->label();
+
   if (!$git->isCloned() && !$git->clone($credentials)) {
     throw new Exception(format_string('Git repository could not be cloned with @credentials.', array('@credentials' => $credentials)));
   }
+  else {
+    // The repository might be already cloned, so make sure it is updated.
+    $git
+      ->checkout($branch_name)
+      ->fetch('origin')
+      ->run(array('reset --hard origin/' . $branch_name));
+  }
 
-  $branch_name = $wrapper->label();
   $git->checkout($branch_name);
 
   // Save clone status.
@@ -150,11 +158,10 @@ function dekyll_repository_clone($branch_id) {
 
   $wrapper->save();
 
-  // Let other modules know that a clone was performed, to allow them to change
-  // the files before the sync is performed.
-  module_invoke_all('dekyll_repository_clone', $wrapper->value(), $git);
-
   // Sync.
   dekyll_sync_import($branch_id);
+
+  // Let other modules know that a clone and sync was performed.
+  module_invoke_all('dekyll_repository_clone', $wrapper->value());
 }
 
