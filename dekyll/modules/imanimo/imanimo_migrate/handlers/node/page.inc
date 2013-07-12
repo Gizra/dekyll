@@ -29,6 +29,11 @@ class ImanimoPageNodes extends ImanimoMigration {
       ->sourceMigration('ImanimoOfferCategoriesTerms');
 
     $this->addFieldMapping('language', 'language');
+
     $this->addFieldMapping('path', 'path');
+
+    $this
+      ->addFieldMapping('uid')
+      ->defaultValue(1);
   }
 }
