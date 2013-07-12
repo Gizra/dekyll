@@ -8,8 +8,8 @@ class ImanimoQueueNodes extends ImanimoMigration {
   public $bundle = 'queue';
 
   public $csvColumns = array(
-    array('Reference', 'field_queue_node'),
-    array('Limit', 'field_queue_limit'),
+    array('field_queue_node', 'Reference'),
+    array('field_queue_limit', 'Limit'),
   );
 
   public $dependencies = array(

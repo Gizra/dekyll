@@ -12,7 +12,10 @@ class ImanimoProductPageNodes extends ImanimoMigration {
   public $entityType = 'node';
   public $bundle = 'product_page';
 
-  public $dependencies = array('ImanimoProductCommerceProducts');
+  public $dependencies = array(
+    'ImanimoBranchNodes',
+    'ImanimoProductCommerceProducts',
+  );
 
   public function __construct() {
     parent::__construct();

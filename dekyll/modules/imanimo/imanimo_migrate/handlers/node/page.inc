@@ -5,9 +5,6 @@
  */
 class ImanimoPageNodes extends ImanimoMigration {
   public $csvColumns = array(
-    array('language', 'Language'),
-    array('path', 'Path'),
-    array('link_weight', 'Link weight'),
     array('body', 'Body'),
   );
 

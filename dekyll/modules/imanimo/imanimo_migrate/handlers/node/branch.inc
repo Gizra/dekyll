@@ -21,6 +21,10 @@ class ImanimoBranchNodes extends ImanimoMigration {
     $this->addFieldMapping(OG_GROUP_FIELD)->defaultValue(TRUE);
 
     $this
+      ->addFieldMapping(OG_AUDIENCE_FIELD, OG_AUDIENCE_FIELD)
+      ->sourceMigration('ImanimoRepositoryNodes');
+
+    $this
       ->addFieldMapping('field_jekyll_base_path', 'field_jekyll_base_path')
       ->defaultValue('local');
 
