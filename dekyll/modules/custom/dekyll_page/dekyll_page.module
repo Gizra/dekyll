@@ -114,6 +114,9 @@ function dekyll_page_form_post_node_form_alter(&$form, $form_state) {
  * After build; Try to set the layout by the node type.
  */
 function _dekyll_page_set_layout_by_node_type(&$form) {
+  if (empty($form[OG_VOCAB_FIELD][LANGUAGE_NONE][0])) {
+    return;
+  }
   $element = &$form[OG_VOCAB_FIELD][LANGUAGE_NONE][0];
   foreach ($element as $key => &$value) {
     if (!is_numeric($key) || $value['#title'] != 'layout') {
