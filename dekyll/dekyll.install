@@ -36,4 +36,7 @@ function dekyll_install() {
   // in order to make the YAML more readable.
   $guid = md5(time() . base_path());
   variable_set('dekyll_guid', $guid);
+
+  // Set the theme.
+  theme_enable(array('bootstrap', 'bootstrap_subtheme'));
 }

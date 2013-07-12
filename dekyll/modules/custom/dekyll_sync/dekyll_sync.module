@@ -236,7 +236,7 @@ function dekyll_sync_export($nid) {
 
   $plugin = dekyll_sync_get_export_manager($plugin_name);
   $export_manager = new $class($plugin, $nid);
-  dpm($export_manager->export()->getRoutes());
+  $export_manager->export();
 }
 
 /**
@@ -256,7 +256,7 @@ function dekyll_sync_import_queue_worker($data) {
  *   The Branch node ID.
  *
  * Iterate over all the files and create or update a node to link to them.
- * We use .dekyll/node_map.yml file to hold each file, its hash and the related
+ * We use .git/dekyll/node_map.yml file to hold each file, its hash and the related
  * node ID.
  */
 function dekyll_sync_import($branch_id, $sync_type = array('config', 'content'), $force_sync = FALSE) {
@@ -291,7 +291,7 @@ function dekyll_sync_import($branch_id, $sync_type = array('config', 'content'),
   // Content sync.
   if (in_array('content', $sync_type)) {
     // Map file path to the node ID.
-    $map = dekyll_sync_get_yml($branch_id, '.dekyll/node_map.yml');
+    $map = dekyll_sync_get_yml($branch_id, '.git/dekyll/node_map.yml');
 
     // Iterate over all the valid files, and compare them to the map value.
     $finder = new Finder();
@@ -330,7 +330,7 @@ function dekyll_sync_import($branch_id, $sync_type = array('config', 'content'),
       }
     }
 
-    dekyll_sync_save_yml($branch_id, '.dekyll/node_map.yml', $map);
+    dekyll_sync_save_yml($branch_id, '.git/dekyll/node_map.yml', $map);
   }
 }
 
@@ -487,6 +487,9 @@ function dekyll_sync_import_file($file_path, $branch_id, GitWorkingCopy $git, $n
 
   // Set the Branch.
   $wrapper->field_repo_branch->set($branch_id);
+
+  // Set the node author.
+  $wrapper->author->set($branch_wrapper->author->value());
 
   // Prevent from synced nodes to be written back to files.
   $node = $wrapper->value();

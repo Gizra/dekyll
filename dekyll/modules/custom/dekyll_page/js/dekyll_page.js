@@ -17,10 +17,10 @@
 
       var self = this;
       var source_id = '#edit-title';
-      var target = '#edit-field-file-path-und-0-value';
+      var target = '#edit-field-file-path-und-0-value, #edit-field-permalink-und-0-value';
       var $source = $(source_id, context).addClass('machine-name-source');
       var $target = $(target, context).addClass('machine-name-target');
-      var $suffix = $('.form-item-field-file-path-und-0-value', context).append('<div class="field-suffix"></div>').find('.field-suffix');
+      var $suffix = $('.form-item-field-file-path-und-0-value, .form-item-field-permalink-und-0-value', context).append('<div class="field-suffix"></div>').find('.field-suffix');
       var $wrapper = $target.closest('.form-item input');
 
       // All elements have to exist.

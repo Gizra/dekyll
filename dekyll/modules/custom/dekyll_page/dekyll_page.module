@@ -6,6 +6,29 @@
 
 include_once 'dekyll_page.features.inc';
 
+use Symfony\Component\Yaml\Parser;
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function dekyll_page_form_node_form_alter(&$form, $form_state, $form_id) {
+  $node = $form['#node'];
+
+  if (in_array($node->type, array('repository', 'branch'))) {
+    return;
+  }
+
+  if (empty($node->nid)) {
+    // Try to set the layout by the node type.
+    _dekyll_page_set_layout_by_node_type($form);
+
+    $form['field_file_path'][LANGUAGE_NONE][0]['value']['#attached']['js'][] = drupal_get_path('module', 'dekyll_page') . '/js/dekyll_page.js';
+  }
+
+  // We will set the repository by the branch.
+  $form[OG_AUDIENCE_FIELD]['#access'] = FALSE;
+}
+
 /**
  * Implements hook_form_FORM_ID_alter().
  *
@@ -14,6 +37,7 @@ include_once 'dekyll_page.features.inc';
  * @todo: Add validate to make sure file is under _posts.
  */
 function dekyll_page_form_post_node_form_alter(&$form, $form_state) {
+  $node = $form['#node'];
   $file_path_parts = array();
 
   if ($default_value = &$form['field_file_path'][LANGUAGE_NONE][0]['value']['#default_value']) {
@@ -78,13 +102,31 @@ function dekyll_page_form_post_node_form_alter(&$form, $form_state) {
 
   $form['field_file_path'][LANGUAGE_NONE][0] += $element;
   $form['field_file_path'][LANGUAGE_NONE][0]['value']['#title_display'] = 'invisible';
-  $form['field_file_path'][LANGUAGE_NONE][0]['value']['#attached']['js'][] = drupal_get_path('module', 'dekyll_page') . '/js/dekyll_page.js';
   $form['field_file_path'][LANGUAGE_NONE][0]['value']['#attached']['css'][] = drupal_get_path('module', 'dekyll_page') . '/css/dekyll_page.css';
 
   // Allow floating the inner elements.
   $form['field_file_path']['#attributes']['class'][] = 'clearfix';
 
   $form['field_file_path'][LANGUAGE_NONE][0]['value']['#element_validate'][] = 'dekyll_page_field_file_path_element_validate';
+}
+
+/**
+ * After build; Try to set the layout by the node type.
+ */
+function _dekyll_page_set_layout_by_node_type(&$form) {
+  $element = &$form[OG_VOCAB_FIELD][LANGUAGE_NONE][0];
+  foreach ($element as $key => &$value) {
+    if (!is_numeric($key) || $value['#title'] != 'layout') {
+      continue;
+    }
+
+    $node = $value['#entity'];
+
+    if ($delta = array_search($node->type, $value['#options'])) {
+      $value['#default_value'] = $delta;
+      return;
+    }
+  }
 }
 
 /**
@@ -151,12 +193,76 @@ function dekyll_page_get_permalink($node) {
 
   $permalink = $wrapper->field_permalink->value();
 
-  if ($node->type == 'post' && $permalink) {
-    return $permalink;
+  $file_path = $wrapper->field_file_path->value();
+
+  if ($node->type == 'post') {
+    if ($permalink) {
+      return $permalink;
+    }
+
+    $file_path_elements = explode('/', $file_path);
+    $file_path = end($file_path_elements);
+    $post_date = '';
+
+    if ($file_path_elements[0] == '_posts') {
+      // Remove the date.
+      $post_date = substr($file_path, 0, 10);
+      $file_path = substr($file_path, 11);
+    }
+
+
+    // Check if this is a category.
+    $category = FALSE;
+    foreach ($wrapper->{OG_VOCAB_FIELD} as $sub_wrapper) {
+      if ($sub_wrapper->vocabulary->label() != 'category') {
+        continue;
+      }
+
+      $category = $sub_wrapper->label();
+      break;
+    }
+
+    if ($category) {
+      $category_path = array_merge(array($category), explode('-', $post_date));
+      $file_path = implode('/', $category_path) . '/' . $file_path;
+
+      // Remove the extension.
+      return str_replace(array('.md', '.html'), '', $file_path);
+
+    }
   }
 
   // @todo: See how permalink works on pages.
-  return $wrapper->field_file_path->value();
+  // @todo: improve check.
+  return str_replace('.md', '.html', $file_path);
+}
+
+/**
+ * Find a node by the given file path.
+ *
+ * @param $branch_id
+ *   The branch ID.
+ * @param $file_path
+ *   The file path to search.
+ *
+ * @return
+ *   A node object, or FALSE if not found.
+ */
+function dekyll_page_find_node_by_file_path($branch_id, $file_path) {
+  $query = new EntityFieldQuery();
+  $result = $query
+    ->entityCondition('entity_type', 'node')
+    ->fieldCondition('field_repo_branch', 'target_id', $branch_id)
+    ->fieldCondition('field_file_path', 'value', $file_path)
+    ->range(0, 1)
+    ->execute();
+
+  if (empty($result['node'])) {
+    return;
+  }
+
+  $nid = key($result['node']);
+  return node_load($nid);
 }
 
 
@@ -167,6 +273,10 @@ function dekyll_page_node_view_alter(&$build) {
   $node = $build['#node'];
   if (empty($node->nid)) {
     // Node isn't saved yet (e.g. node preview).
+    return;
+  }
+
+  if ($build['#view_mode'] != 'full') {
     return;
   }
 
@@ -186,7 +296,16 @@ function dekyll_page_node_view_alter(&$build) {
       break;
 
     case 'config':
+      $path = dekyll_repository_get_repo_path($node);
+      $file_path = $path . '/_config.yml';
+
       // @todo: Read from _config.yml
+      $contents = file_get_contents($file_path);
+
+      // Parse the contents.
+      $yaml = new Parser();
+      $yaml = $yaml->parse($contents);
+      $base = !empty($yaml['production_url']) ? $yaml['production_url'] : '';
       break;
 
     case 'other':
@@ -194,13 +313,17 @@ function dekyll_page_node_view_alter(&$build) {
   }
 
   // @todo: How to deal with non-pages?
-  // @todo: Deal with permalink.
   $url = $base . '/' . dekyll_page_get_permalink($node);
 
   // @todo: Add option to disable IFrame?
   $build['dekyll_site'] = array(
     '#weight' => -99,
     'link' => array('#markup' => l('See page', $url)),
-    'iframe' => array('#markup' => "<div><iframe style='width: 100%; height: 600px;' src='$url'></iframe></div>"),
   );
+
+  // Append a timestamp to the URL to override cache.
+  $url .= '?' . time();
+  $build['dekyll_site']['iframe'] = array('#markup' => "<div><iframe style='width: 100%; height: 600px;' src='$url'></iframe></div>");
+
+  // @todo: Add link to github file.
 }

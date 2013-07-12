@@ -78,7 +78,7 @@ function dekyll_page_field_default_fields() {
           'summary_rows' => 5,
         ),
         'type' => 'text_textarea_with_summary',
-        'weight' => '2',
+        'weight' => '3',
       ),
     ),
   );
@@ -179,7 +179,7 @@ function dekyll_page_field_default_fields() {
         'module' => 'options',
         'settings' => array(),
         'type' => 'options_select',
-        'weight' => '11',
+        'weight' => '5',
       ),
     ),
   );
@@ -324,7 +324,7 @@ function dekyll_page_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '10',
+        'weight' => '2',
       ),
     ),
   );
@@ -434,7 +434,7 @@ function dekyll_page_field_default_fields() {
         'module' => 'og',
         'settings' => array(),
         'type' => 'og_complex',
-        'weight' => '8',
+        'weight' => '7',
       ),
     ),
   );
@@ -555,7 +555,7 @@ function dekyll_page_field_default_fields() {
         'module' => 'og',
         'settings' => array(),
         'type' => 'og_complex',
-        'weight' => '3',
+        'weight' => '6',
       ),
     ),
   );
@@ -630,7 +630,7 @@ function dekyll_page_field_default_fields() {
       ),
       'entity_type' => 'node',
       'field_name' => 'og_vocabulary',
-      'label' => 'Taxonomy',
+      'label' => 'Tags',
       'required' => 0,
       'settings' => array(
         'behaviors' => array(
@@ -731,7 +731,7 @@ function dekyll_page_field_default_fields() {
           'summary_rows' => 5,
         ),
         'type' => 'text_textarea_with_summary',
-        'weight' => '2',
+        'weight' => '3',
       ),
     ),
   );
@@ -889,7 +889,7 @@ function dekyll_page_field_default_fields() {
           'progress_indicator' => 'throbber',
         ),
         'type' => 'image_image',
-        'weight' => '10',
+        'weight' => '5',
       ),
     ),
   );
@@ -964,7 +964,7 @@ function dekyll_page_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '8',
+        'weight' => '2',
       ),
     ),
   );
@@ -1205,7 +1205,7 @@ function dekyll_page_field_default_fields() {
         'module' => 'og',
         'settings' => array(),
         'type' => 'og_complex',
-        'weight' => '3',
+        'weight' => '6',
       ),
     ),
   );
@@ -1280,7 +1280,7 @@ function dekyll_page_field_default_fields() {
       ),
       'entity_type' => 'node',
       'field_name' => 'og_vocabulary',
-      'label' => 'Taxonomy',
+      'label' => 'Tags',
       'required' => 0,
       'settings' => array(
         'behaviors' => array(
@@ -1315,7 +1315,7 @@ function dekyll_page_field_default_fields() {
   t('Permalink');
   t('Queue');
   t('Repository');
-  t('Taxonomy');
+  t('Tags');
 
   return $fields;
 }

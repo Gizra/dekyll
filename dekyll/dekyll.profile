@@ -20,6 +20,11 @@ function dekyll_form_install_configure_form_alter(&$form, $form_state) {
 function dekyll_install_tasks() {
   $tasks = array();
 
+  $tasks['dekyl_installation_type_form'] = array(
+    'display_name' => t('Choose installation type'),
+    'type' => 'form'
+  );
+
   $tasks['dekyll_create_roles'] = array(
     'display_name' => st('Create user roles'),
     'display' => FALSE,
@@ -54,55 +59,48 @@ function dekyll_install_tasks() {
 }
 
 /**
+ * Task callback; Select installation form
+ */
+function dekyl_installation_type_form($form, &$form_state) {
+  $options = array(
+    'github_pages' => t('Single Jekyll site per user hosted on Github pages'),
+    'normal' => t('Normal installation, with no dependncy on Github'),
+  );
+
+  $form['dekyll_installation_type'] = array(
+    '#title' => t('Installation type'),
+    '#type' => 'radios',
+    '#options' => $options,
+    '#default_value' => 'github_pages',
+  );
+
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+
+  return $form;
+
+}
+
+
+/**
+ * Submit handler; Set installation type variable.
+ */
+function dekyl_installation_type_form_submit($form, &$form_state) {
+  $type = $form_state['input']['dekyll_installation_type'];
+  variable_set('dekyll_installation_type', $type);
+
+  if ($type == 'github_pages') {
+    module_enable(array('dekyll_github'));
+  }
+}
+
+/**
  * Task callback; Setup blocks.
  */
 function dekyll_setup_blocks() {
-  $default_theme = 'bootstrap';
-
-  $blocks = array();
-
-  $blocks[] = array(
-    'module' => 'system',
-    'delta' => 'navigation',
-    'theme' => $default_theme,
-    'status' => 1,
-    'weight' => 0,
-    'region' => 'sidebar_first',
-    'custom' => 0,
-    'visibility' => 0,
-    'pages' => '',
-    'title' => '<none>',
-    'cache' => DRUPAL_NO_CACHE,
-  );
-
-  drupal_static_reset();
-  _block_rehash($default_theme);
-  foreach ($blocks as $record) {
-    db_update('block')
-      ->fields($record)
-      ->condition('module', $record['module'])
-      ->condition('delta', $record['delta'])
-      ->condition('theme', $record['theme'])
-      ->execute();
-  }
-
-  // Set blocks roles.
-  $block_roles = array();
-
-  // Display the facebook login block only to anonymous users.
-  $block_roles[] = array(
-    'module' => 'fboauth',
-    'delta' => 'login',
-    'rid' => DRUPAL_ANONYMOUS_RID,
-  );
-
-  foreach ($block_roles as $block_role) {
-    db_merge('block_role')
-      ->fields($block_role)
-      ->condition('module', $block_role['module'])
-      ->condition('delta', $block_role['delta'])
-      ->execute();
-  }
 }
 
 /**
@@ -136,7 +134,7 @@ function dekyll_set_permissions() {
 function dekyll_set_variables() {
   $variables = array(
     // Set the default theme.
-    'theme_default' => 'bootstrap',
+    'theme_default' => 'bootstrap_subtheme',
     'admin_theme' => 'seven',
     // Date/Time settings.
     'date_default_timezone' => 'Asia/Jerusalem',
@@ -150,22 +148,23 @@ function dekyll_set_variables() {
     'user_picture_dimensions' => '1024x1024',
     'user_picture_file_size' => '800',
     'user_picture_style' => 'thumbnail',
-    'user_register' => USER_REGISTER_VISITORS,
+    'user_register' => USER_REGISTER_ADMINISTRATORS_ONLY,
     // Update the menu router information.
     'menu_rebuild_needed' => TRUE,
-    'jquery_update_jquery_version' =>  '1.8',
+    'jquery_update_jquery_version' => '1.8',
     'site_name' => 'Drupal-Jekyll',
-
-    // Facebook connect.
-    'fboauth_id' => '487773171290610',
-    'fboauth_secret' => 'b6961d41870355c4fb8fe73f0e8456cc',
-    'fboauth_user_properties' => array('email'),
+    'site_frontpage' => 'homepage',
 
     // Page manager.
     'page_manager_node_view_disabled' => FALSE,
 
-    // Set RestWS login to all users.
-    'restws_basic_auth_user_regex' => '/.*/',
+    // Github connect scope.
+    'github_connect_scope' => 'user,public,repo',
+
+    // We need to make sure the tmp folder works for the Github API, so we set
+    // it to be under files/tmp.
+    // see file_directory_temp().
+    'file_temporary_path' => variable_get('file_public_path', conf_path() . '/files') . '/tmp',
   );
 
   foreach ($variables as $key => $value) {

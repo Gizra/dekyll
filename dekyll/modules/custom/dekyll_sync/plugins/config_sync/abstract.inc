@@ -89,6 +89,11 @@ abstract class ConfigSyncBase implements ConfigSyncInterface {
               'cardinality' => FIELD_CARDINALITY_UNLIMITED,
               'widget' => 'tags',
             ),
+            'category' => array(
+              'required' => FALSE,
+              'cardinality' => 1,
+              'widget' => 'autocomplete',
+            ),
           ),
         ),
       ),
