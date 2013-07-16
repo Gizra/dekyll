@@ -65,7 +65,7 @@ class MigrateDestinationFieldCollection extends MigrateDestinationEntity {
     $entity = entity_create('field_collection_item', array('field_name' => $this->bundle));
     $updating = FALSE;
     // The host entity cannot be reset - we only set it on initial insert
-    $host_entity = entity_load_single($this->hostEntityType, $collection->host_entity_id);
+    $host_entity = entity_load_single($this->hostEntityType, $collection->host_entity_id['destid1']);
     $entity->setHostEntity($this->hostEntityType, $host_entity);
 
     unset($collection->host_entity_id);

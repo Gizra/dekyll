@@ -8,6 +8,7 @@ dependencies[] = migrate_extras
 ; Migrate
 
 files[] = handlers/commerce_product/product.inc
+files[] = handlers/field_collection_item/field_inventory.inc
 files[] = handlers/node/branch.inc
 files[] = handlers/node/page.inc
 files[] = handlers/node/product_page.inc

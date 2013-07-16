@@ -33,7 +33,7 @@ class ImanimoFieldInventoryFieldCollections extends Migration {
 
     // Create a MigrateSource object.
     $this->source = new MigrateSourceCSV(drupal_get_path('module', 'imanimo_migrate') . '/csv/products.csv', $this->csvColumns, array('header_rows' => 1));
-    $this->destination = new BiblioMigrateDestinationFieldCollection('contributor_field_collection', array('host_entity_type' => 'commerce_product'));
+    $this->destination = new MigrateDestinationFieldCollection('field_inventory', array('host_entity_type' => 'commerce_product'));
 
     $this->addFieldMapping('host_entity_id', 'sku')
       ->sourceMigration('ImanimoProductCommerceProducts');
@@ -49,6 +49,5 @@ class ImanimoFieldInventoryFieldCollections extends Migration {
   }
 
   public function prepareRow($row) {
-    dpm($row);
   }
 }
