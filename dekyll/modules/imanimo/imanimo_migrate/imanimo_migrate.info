@@ -16,3 +16,4 @@ files[] = handlers/taxonomy_term/product_color.inc
 files[] = handlers/taxonomy_term/product_size.inc
 
 files[] = includes/imanimo_migrate.migrate.entity.inc
+files[] = includes/plugins/plugins/destinations/field_collection.inc

@@ -13,6 +13,9 @@ function imanimo_migrate_migrate_api() {
     // Commerce product.
     'ImanimoProductCommerceProducts',
 
+    // Field collection.
+    'ImanimoFieldInventoryFieldCollections'.
+
     // Node.
     'ImanimoBranchNodes',
     // 'ImanimoPageNodes',
