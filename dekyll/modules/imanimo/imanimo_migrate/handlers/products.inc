@@ -6,7 +6,7 @@
 class ImanimoProductCommerceProducts extends Migration {
   public $csvColumns = array(
     array('sku', 'SKU'),
-    array('_product_name', 'Product'),
+    array('title', 'Product'),
     array('_product_description', 'Description'),
     array('commerce_price', 'Price'),
     array('field_product_color', 'Color'),
@@ -32,7 +32,7 @@ class ImanimoProductCommerceProducts extends Migration {
     $this->source = new MigrateSourceCSV(drupal_get_path('module', 'imanimo_migrate') . '/csv/products.csv', $this->csvColumns, array('header_rows' => 1));
     $this->destination = new MigrateDestinationCommerceProduct('commerce_product', 'product');
 
-    $this->addFieldMapping('title');
+    $this->addFieldMapping('title', 'title');
 
     $this->addFieldMapping('sku', 'sku');
 
@@ -58,8 +58,7 @@ class ImanimoProductCommerceProducts extends Migration {
     $this->addFieldMapping('uid')->defaultValue(1);
   }
 
-  public function prepare($entity, $row) {
-    dpm($entity);
-    $row->title = $row->product . ' - ' . $row->color;
+  public function prepareRow($row) {
+    $row->title = ucwords($row->title . ' - ' . $row->field_product_color);
   }
 }
