@@ -56,8 +56,7 @@ class ImanimoFieldInventoryFieldCollections extends Migration {
 
       // Get the term ID of the size.
       $term = taxonomy_get_term_by_name($size, 'product_size');
-      dpm($term);
-      $return[] = $term[0];
+      $return[] = key($term);
     }
 
     return $return;
