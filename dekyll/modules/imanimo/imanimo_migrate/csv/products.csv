@@ -1,3 +1,3 @@
-SKU,Product,Description,Color,Stock,Images
-1234,Galina,Info about the black dress,black,"x|2,l|5",galina-black1.jpg|galina-black2.jpg
-4567,Galina,Info about the white dress,white,"x|2,l|5",galina-white.jpg
+SKU,Product,Description,Price,Color,Stock,Images
+1234,Galina,Info about the black dress,10,black,"x|2,l|5",galina-black1.jpg|galina-black2.jpg
+4567,Galina,Info about the white dress,20,white,"x|2,l|5",galina-white.jpg
