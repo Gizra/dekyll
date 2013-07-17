@@ -299,57 +299,43 @@ function dekyll_commerce_field_default_fields() {
       'entity_types' => array(),
       'field_name' => 'field_product_size',
       'foreign keys' => array(
-        'taxonomy_term_data' => array(
+        'tid' => array(
           'columns' => array(
-            'target_id' => 'tid',
+            'tid' => 'tid',
           ),
           'table' => 'taxonomy_term_data',
         ),
       ),
       'indexes' => array(
-        'target_id' => array(
-          0 => 'target_id',
+        'tid' => array(
+          0 => 'tid',
         ),
       ),
       'locked' => '0',
-      'module' => 'entityreference',
+      'module' => 'taxonomy',
       'settings' => array(
-        'handler' => 'base',
-        'handler_settings' => array(
-          'behaviors' => array(
-            'views-select-list' => array(
-              'status' => 0,
-            ),
-          ),
-          'sort' => array(
-            'direction' => 'ASC',
-            'property' => 'name',
-            'type' => 'property',
-          ),
-          'target_bundles' => array(
-            'product_size' => 'product_size',
+        'allowed_values' => array(
+          0 => array(
+            'vocabulary' => 'product_size',
+            'parent' => '0',
           ),
         ),
-        'target_type' => 'taxonomy_term',
       ),
       'translatable' => '0',
-      'type' => 'entityreference',
+      'type' => 'taxonomy_term_reference',
     ),
     'field_instance' => array(
       'bundle' => 'field_inventory',
       'default_value' => NULL,
-      'default_value_function' => '',
       'deleted' => '0',
       'description' => '',
       'display' => array(
         'default' => array(
           'label' => 'above',
-          'module' => 'entityreference',
-          'settings' => array(
-            'link' => FALSE,
-          ),
-          'type' => 'entityreference_label',
-          'weight' => 0,
+          'module' => 'taxonomy',
+          'settings' => array(),
+          'type' => 'taxonomy_term_reference_link',
+          'weight' => 2,
         ),
       ),
       'entity_type' => 'field_collection_item',
@@ -357,11 +343,6 @@ function dekyll_commerce_field_default_fields() {
       'label' => 'Size',
       'required' => 1,
       'settings' => array(
-        'behaviors' => array(
-          'prepopulate' => array(
-            'status' => 0,
-          ),
-        ),
         'content_sync' => array(
           'plugin_name' => '',
         ),
@@ -372,7 +353,7 @@ function dekyll_commerce_field_default_fields() {
         'module' => 'options',
         'settings' => array(),
         'type' => 'options_select',
-        'weight' => '1',
+        'weight' => '0',
       ),
     ),
   );
@@ -435,7 +416,7 @@ function dekyll_commerce_field_default_fields() {
         'module' => 'number',
         'settings' => array(),
         'type' => 'number',
-        'weight' => '2',
+        'weight' => '1',
       ),
     ),
   );

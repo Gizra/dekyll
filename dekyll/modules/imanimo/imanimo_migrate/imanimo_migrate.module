@@ -24,7 +24,6 @@ function imanimo_migrate_migrate_api() {
 
     // Taxonomy term.
     'ImanimoProductColorTerms',
-    'ImanimoProductSizeTerms',
   );
 
   foreach ($class_names as $class_name) {

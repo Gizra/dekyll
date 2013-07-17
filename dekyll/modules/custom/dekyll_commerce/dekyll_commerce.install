@@ -5,13 +5,6 @@
  */
 function dekyll_commerce_install() {
   $vocabulary = (object) array(
-    'name' => 'Size',
-    'description' => "Sizes of the products (e.g. small, medium, large).",
-    'machine_name' => 'product_size',
-  );
-  taxonomy_vocabulary_save($vocabulary);
-
-  $vocabulary = (object) array(
     'name' => 'Color',
     'description' => "Colors of the products (e.g. black, white).",
     'machine_name' => 'product_color',

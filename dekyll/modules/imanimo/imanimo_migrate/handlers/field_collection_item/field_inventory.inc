@@ -15,7 +15,6 @@ class ImanimoFieldInventoryFieldCollections extends Migration {
   );
 
   public $dependencies = array(
-    'ImanimoProductSizeTerms',
     'ImanimoProductCommerceProducts',
   );
 
@@ -41,6 +40,7 @@ class ImanimoFieldInventoryFieldCollections extends Migration {
     $this
       ->addFieldMapping('field_product_size', 'stock')
       ->separator(',')
+      ->arguments(array('create_term' => TRUE))
       ->callbacks(array($this, 'prepareProductSize'));
 
     $this
@@ -53,10 +53,7 @@ class ImanimoFieldInventoryFieldCollections extends Migration {
     $return = array();
     foreach ($values as $value) {
       list($size, $stock) = explode('|', $value);
-
-      // Get the term ID of the size.
-      $term = taxonomy_get_term_by_name($size, 'product_size');
-      $return[] = key($term);
+      $return[] = $size;
     }
 
     return $return;

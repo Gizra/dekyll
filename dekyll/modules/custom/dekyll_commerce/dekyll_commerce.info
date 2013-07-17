@@ -31,6 +31,7 @@ features[field][] = node-product_page-og_group_ref
 features[field][] = node-product_page-og_vocabulary
 features[field][] = taxonomy_term-product_color-field_product_color_image
 features[node][] = product_page
+features[taxonomy][] = product_size
 features[variable][] = comment_anonymous_product_page
 features[variable][] = comment_default_mode_product_page
 features[variable][] = comment_default_per_page_product_page
