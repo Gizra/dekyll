@@ -19,7 +19,7 @@ function imanimo_migrate_migrate_api() {
     // Node.
     'ImanimoBranchNodes',
     // 'ImanimoPageNodes',
-    // 'ImanimoProductPageNodes',
+    'ImanimoProductPageNodes',
     'ImanimoRepositoryNodes',
 
     // Taxonomy term.

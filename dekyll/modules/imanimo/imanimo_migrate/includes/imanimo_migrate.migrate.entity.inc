@@ -31,6 +31,10 @@ abstract class ImanimoMigration extends Migration {
         $this
           ->addFieldMapping(OG_AUDIENCE_FIELD, OG_AUDIENCE_FIELD)
           ->sourceMigration('ImanimoRepositoryNodes');
+
+        $this
+          ->addFieldMapping('uid')
+          ->defaultValue(1);
       }
 
       $csv_cols[] = array('title', 'Title');

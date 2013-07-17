@@ -28,12 +28,6 @@ class ImanimoBranchNodes extends ImanimoMigration {
     $this
       ->addFieldMapping('field_jekyll_base_path_url', 'field_jekyll_base_path_url')
       ->defaultValue('');
-
-    $this
-      ->addFieldMapping('uid')
-      ->defaultValue(1);
-
-
   }
 
   public function complete($entity, $row) {
