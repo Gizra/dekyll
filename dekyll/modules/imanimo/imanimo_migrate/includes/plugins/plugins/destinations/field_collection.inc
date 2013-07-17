@@ -62,38 +62,61 @@ class MigrateDestinationFieldCollection extends MigrateDestinationEntity {
    *  successful. FALSE on failure.
    */
   public function import(stdClass $collection, stdClass $row) {
-    $entity = entity_create('field_collection_item', array('field_name' => $this->bundle));
-    $updating = FALSE;
-    // The host entity cannot be reset - we only set it on initial insert
-    $host_entity = entity_load_single($this->hostEntityType, $collection->host_entity_id['destid1']);
-    $entity->setHostEntity($this->hostEntityType, $host_entity);
+    if (empty($collection->field_product_size)) {
+      return;
+    }
 
+    $return = array();
+
+    $host_entity = entity_load_single($this->hostEntityType, $collection->host_entity_id['destid1']);
     unset($collection->host_entity_id);
 
-    foreach ((array) $collection as $field => $value) {
-      $entity->{$field} = $value;
+    foreach (array_keys($collection->field_product_size) as $delta) {
+      if (!is_numeric($delta)) {
+        continue;
+      }
+      $entity = entity_create('field_collection_item', array('field_name' => $this->bundle));
+      $updating = FALSE;
+      // The host entity cannot be reset - we only set it on initial insert
+      $entity->setHostEntity($this->hostEntityType, $host_entity);
+
+      $field_names = array(
+        'field_product_size',
+        'field_product_stock',
+      );
+
+      foreach ($field_names as $field_name) {
+        $entity->{$field_name}[] = $collection->{$field_name}[$delta];
+
+        if (!empty($collection->{$field_name}['arguments'])) {
+          $entity->{$field_name}['arguments'] = $collection->{$field_name}['arguments'];
+        }
+      }
+
+      $this->prepare($entity, $row);
+
+      migrate_instrument_start('field_collection_save');
+      $entity->save();
+      migrate_instrument_stop('field_collection_save');
+
+      // TODO: status doesn't return correct value, so just check the
+      // entity was created.
+      if ($entity->item_id) {
+        $this->complete($entity, $row);
+        $return[] = $entity->item_id;
+      }
     }
-    $this->prepare($entity, $row);
 
-    migrate_instrument_start('field_collection_save');
-    $status = $entity->save();
-    migrate_instrument_stop('field_collection_save');
-
-    // TODO: status doesn't return correct value, so just check the
-    // entity was created.
-    if ($entity->item_id) {
-      $this->complete($entity, $row);
-      if ($updating) {
-        $this->numUpdated++;
-      }
-      else {
-        $this->numCreated++;
-      }
-      return array($entity->item_id);
+    if ($updating) {
+      $this->numUpdated++;
     }
     else {
-      return FALSE;
+      $this->numCreated++;
     }
+
+    // @todo: We are returning only the first field collection.
+
+    return array($return[0]);
   }
 
   /**

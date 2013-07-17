@@ -10,7 +10,7 @@ class ImanimoFieldInventoryFieldCollections extends Migration {
     array('_product_description', 'Description'),
     array('_commerce_price', 'Price'),
     array('_field_product_color', 'Color'),
-    array('stock', 'Stock'),
+    array('field_inventory', 'Inventory'),
     array('_field_images', 'Images'),
   );
 
@@ -38,13 +38,13 @@ class ImanimoFieldInventoryFieldCollections extends Migration {
       ->sourceMigration('ImanimoProductCommerceProducts');
 
     $this
-      ->addFieldMapping('field_product_size', 'stock')
+      ->addFieldMapping('field_product_size', 'field_inventory')
       ->separator(',')
       ->arguments(array('create_term' => TRUE))
       ->callbacks(array($this, 'prepareProductSize'));
 
     $this
-      ->addFieldMapping('field_product_stock', 'stock')
+      ->addFieldMapping('field_product_stock', 'field_inventory')
       ->separator(',')
       ->callbacks(array($this, 'prepareProductStock'));
   }
