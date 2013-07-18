@@ -334,10 +334,41 @@ class ExportManagerBase implements ExportManagerInterface {
 
     $this->setRoutes($routes);
 
+    $this->rsyncSite();
+
 
     // Add to Git.
     $this->AddToGit();
     return $this;
+  }
+
+  /**
+   * Build the Jekyll site, and rsync to remote or local folder.
+   */
+  public function rsyncSite() {
+    $wrapper = entity_metadata_wrapper('node', $this->branchId);
+    if (!$rsync = $wrapper->field_rsync->value()) {
+      return;
+    }
+
+    // Execute "jekyll build" command.
+    $output = array();
+    $path = dekyll_repository_get_repo_path($this->branchId);
+    exec("cd $path && jekyll build", $output);
+  }
+
+  /**
+   * Rsync to local.
+   *
+   * @todo: Improve getting path, once we use public://
+   */
+  public function rsyncSiteLocal() {
+    $path = dekyll_repository_get_repo_path($this->branchId);
+
+    $build_path = str_replace('files/repos', 'files/builds', $path);
+
+    $output = array();
+    exec("rsnc -avzr $path $build_path", $output);
   }
 
 
