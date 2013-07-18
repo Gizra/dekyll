@@ -376,8 +376,9 @@ class ExportManagerBase implements ExportManagerInterface {
     $dummy_config_path = drupal_realpath($dummy_config_path);
 
     // Execute "jekyll build" command.
+    // Use "safe" mode, so BASE_PATH is used.
     $output = array();
-    exec("cd $path && jekyll build --config $dummy_config_path", $output);
+    exec("cd $path && jekyll build --safe --config $dummy_config_path", $output);
 
     if ($rsync == 'local') {
       $this->rsyncSiteLocal();
