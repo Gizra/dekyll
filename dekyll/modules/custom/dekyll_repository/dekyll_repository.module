@@ -63,7 +63,7 @@ function dekyll_repository_node_insert($node) {
  * @return
  *   The relative path.
  */
-function dekyll_repository_get_repo_path($nid) {
+function dekyll_repository_get_repo_path($nid, $real_path = FALSE) {
   $wrapper = entity_metadata_wrapper('node', $nid);
 
   $bundle = $wrapper->getBundle();
@@ -78,10 +78,18 @@ function dekyll_repository_get_repo_path($nid) {
   $branch_name = $bundle == 'branch' ? $wrapper->label() : $wrapper->field_repo_branch->label();
 
   // @todo: Change to "public://".
-  return variable_get('file_public_path', conf_path() . '/files/repos') . '/' . $repo_url . '/' . $branch_name;
+  $path = 'public://repos/' . $repo_url . '/' . $branch_name;
+
+  // @todo: Might not work, if path doesn't exist yet.
+  return !$real_path ? $path : drupal_realpath($path);
 }
 
+function dekyll_repository_get_build_path($nid, $real_path = FALSE) {
+  $path = dekyll_repository_get_repo_path($nid);
+  $path = str_replace('public://repos', 'public://builds', $path);
 
+  return !$real_path ? $path : drupal_realpath($path);
+}
 
 /**
  * Implements hook_cron_queue_info().

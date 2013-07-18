@@ -338,7 +338,7 @@ class ExportManagerBase implements ExportManagerInterface {
 
 
     // Add to Git.
-    $this->AddToGit();
+    // $this->AddToGit();
     return $this;
   }
 
@@ -351,10 +351,37 @@ class ExportManagerBase implements ExportManagerInterface {
       return;
     }
 
+    $path = dekyll_repository_get_repo_path($this->branchId);
+    $build_path = dekyll_repository_get_build_path($this->branchId);
+
+    // @todo: Inject parser and dumper.
+    $parser = new Parser();
+    $dumper = new Dumper();
+
+    // Copy the _config file under .git/ and change the base_path to point
+    // to the "build path".
+    file_unmanaged_copy($path . '/_config.yml', $path . '/.git', FILE_EXISTS_REPLACE);
+
+    $dummy_config_path = $path . '/.git/_config.yml';
+    $contents = file_get_contents($path . '/_config.yml');
+    $yaml = $parser->parse($contents);
+
+    $url = file_create_url($build_path);
+    $yaml['production_url'] = $url;
+    $yaml['JB']['BASE_PATH'] = $url;
+
+    file_put_contents($dummy_config_path,  $dumper->dump($yaml, 5));
+
+    $path = drupal_realpath($path);
+    $dummy_config_path = drupal_realpath($dummy_config_path);
+
     // Execute "jekyll build" command.
     $output = array();
-    $path = dekyll_repository_get_repo_path($this->branchId);
-    exec("cd $path && jekyll build", $output);
+    exec("cd $path && jekyll build --config $dummy_config_path", $output);
+
+    if ($rsync == 'local') {
+      $this->rsyncSiteLocal();
+    }
   }
 
   /**
@@ -364,11 +391,18 @@ class ExportManagerBase implements ExportManagerInterface {
    */
   public function rsyncSiteLocal() {
     $path = dekyll_repository_get_repo_path($this->branchId);
+    $build_path = dekyll_repository_get_build_path($this->branchId);
 
-    $build_path = str_replace('files/repos', 'files/builds', $path);
+    if (!file_exists($build_path)) {
+      $status = drupal_mkdir($build_path, NULL, TRUE);
+    }
+
+    // Export only the rendered site.
+    $path = drupal_realpath($path) . '/_site/';
+    $build_path = drupal_realpath($build_path);
 
     $output = array();
-    exec("rsnc -avzr $path $build_path", $output);
+    exec("rsync -avzr $path $build_path", $output);
   }
 
 
