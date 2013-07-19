@@ -354,31 +354,30 @@ class ExportManagerBase implements ExportManagerInterface {
     $path = dekyll_repository_get_repo_path($this->branchId);
     $build_path = dekyll_repository_get_build_path($this->branchId);
 
-    // @todo: Inject parser and dumper.
-    $parser = new Parser();
-    $dumper = new Dumper();
-
-    // Copy the _config file under .git/ and change the base_path to point
-    // to the "build path".
-    file_unmanaged_copy($path . '/_config.yml', $path . '/.git', FILE_EXISTS_REPLACE);
-
+    // Create an overriding _config file under .git/ and change the base_path to
+    // point to the "build path".
     $dummy_config_path = $path . '/.git/_config.yml';
-    $contents = file_get_contents($path . '/_config.yml');
-    $yaml = $parser->parse($contents);
 
-    $url = file_create_url($build_path);
-    $yaml['production_url'] = $url;
-    $yaml['JB']['BASE_PATH'] = $url;
+    if (!file_exists($dummy_config_path)) {
+      // @todo: Inject parser and dumper.
+      $dumper = new Dumper();
+      $yaml = array();
 
-    file_put_contents($dummy_config_path,  $dumper->dump($yaml, 5));
+      $url = file_create_url($build_path);
+      $yaml['production_url'] = $url;
+      $yaml['JB']['BASE_PATH'] = $url;
+      // Use "safe" mode, so BASE_PATH is used.
+      $yaml['safe'] = TRUE;
+
+      file_put_contents($dummy_config_path,  $dumper->dump($yaml, 5));
+    }
 
     $path = drupal_realpath($path);
-    $dummy_config_path = drupal_realpath($dummy_config_path);
 
-    // Execute "jekyll build" command.
-    // Use "safe" mode, so BASE_PATH is used.
+    // Execute "jekyll build" command using the original config, and the dummy
+    // config that overrides the
     $output = array();
-    exec("cd $path && jekyll build --safe --config $dummy_config_path", $output);
+    exec("cd $path && jekyll build --config _config.yml,.git/_config.yml", $output);
 
     if ($rsync == 'local') {
       $this->rsyncSiteLocal();
