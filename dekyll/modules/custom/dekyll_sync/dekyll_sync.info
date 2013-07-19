@@ -6,4 +6,7 @@ files[] = plugins/config_sync/abstract.inc
 files[] = plugins/content_sync/abstract.inc
 files[] = plugins/export_manager/abstract.inc
 
+; Stream wrappers
+files[] = includes/DekyllPublicStreamWrapper.php
+
 

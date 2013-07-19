@@ -354,7 +354,7 @@ class ExportManagerBase implements ExportManagerInterface {
     $path = dekyll_repository_get_repo_path($this->branchId);
     $build_path = dekyll_repository_get_build_path($this->branchId);
 
-    // Create an overriding _config file under .git/ and change the base_path to
+    // Create an overriding _config file under .git/ and change the BASE_PATH to
     // point to the "build path".
     $dummy_config_path = $path . '/.git/_config.yml';
 

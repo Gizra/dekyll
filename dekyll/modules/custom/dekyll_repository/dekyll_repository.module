@@ -86,7 +86,7 @@ function dekyll_repository_get_repo_path($nid, $real_path = FALSE) {
 
 function dekyll_repository_get_build_path($nid, $real_path = FALSE) {
   $path = dekyll_repository_get_repo_path($nid);
-  $path = str_replace('public://repos', 'public://builds', $path);
+  $path = str_replace('public://repos', 'build://', $path);
 
   return !$real_path ? $path : drupal_realpath($path);
 }

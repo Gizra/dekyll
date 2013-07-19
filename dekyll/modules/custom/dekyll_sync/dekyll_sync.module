@@ -499,6 +499,21 @@ function dekyll_sync_import_file($file_path, $branch_id, GitWorkingCopy $git, $n
   return $wrapper->value();
 }
 
+/**
+ * Implements hook_stream_wrappers().
+ */
+function dekyll_sync_stream_wrappers() {
+  $wrappers = array(
+    'build' => array(
+      'name' => t('Public Jekyll sites'),
+      'class' => 'DekyllPublicStreamWrapper',
+      'description' => t('Sites built by Jekyll.'),
+      'type' => STREAM_WRAPPERS_LOCAL_NORMAL,
+    ),
+  );
+
+  return $wrappers;
+}
 
 
 // ------------------------------
