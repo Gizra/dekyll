@@ -10,6 +10,6 @@ class DekyllPublicStreamWrapper extends DrupalPublicStreamWrapper {
    * Implements abstract public function getDirectoryPath()
    */
   public function getDirectoryPath() {
-    return variable_get('dekyll_file_public_path', conf_path() . '/build');
+    return variable_get('dekyll_file_public_path', conf_path() . '/builds');
   }
 }

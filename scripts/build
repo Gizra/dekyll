@@ -18,6 +18,7 @@ set -xe
     mv www/sites/default sites-backup
   else
     mkdir -p www/sites/default
+    mkdir www/sites/default/builds
   fi
   chmod +w www/sites/* || true
   rm -Rf www || true
