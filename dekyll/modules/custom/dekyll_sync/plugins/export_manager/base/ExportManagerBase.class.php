@@ -334,46 +334,12 @@ class ExportManagerBase implements ExportManagerInterface {
 
     $this->setRoutes($routes);
 
-    $this->buildLocalSite();
+    dekyll_sync_build_local_jekyll_site($this->branchId);
 
 
     // Add to Git.
     // $this->AddToGit();
     return $this;
-  }
-
-  /**
-   * Build the Jekyll site, and rsync to remote or local folder.
-   */
-  public function buildLocalSite() {
-    $path = dekyll_repository_get_repo_path($this->branchId);
-    $build_path = dekyll_repository_get_build_path($this->branchId);
-
-    // Create an overriding _config file under .git/ and change the BASE_PATH to
-    // point to the "build path".
-    $dummy_config_path = $path . '/.git/_config.yml';
-
-    if (!file_exists($dummy_config_path)) {
-      // @todo: Inject parser and dumper.
-      $dumper = new Dumper();
-      $yaml = array();
-
-      $url = file_create_url($build_path);
-      $yaml['production_url'] = $url;
-      $yaml['JB']['BASE_PATH'] = $url;
-      // Use "safe" mode, so BASE_PATH is used.
-      $yaml['safe'] = TRUE;
-
-      file_put_contents($dummy_config_path,  $dumper->dump($yaml, 5));
-    }
-
-    $path = drupal_realpath($path);
-    $build_path = drupal_realpath($build_path);
-
-    // Execute "jekyll build" command using the original config, and the dummy
-    // config that overrides the
-    $output = array();
-    exec("jekyll build --source $path --destination $build_path --config $path/_config.yml,$path/.git/_config.yml", $output);
   }
 
   /**

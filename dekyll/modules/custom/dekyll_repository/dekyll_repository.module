@@ -188,6 +188,8 @@ function dekyll_repository_clone($branch_id) {
   // Sync.
   dekyll_sync_import($branch_id);
 
+  dekyll_sync_build_local_jekyll_site($branch_id);
+
   // Let other modules know that a clone and sync was performed.
   module_invoke_all('dekyll_repository_clone', $wrapper->value());
 }
