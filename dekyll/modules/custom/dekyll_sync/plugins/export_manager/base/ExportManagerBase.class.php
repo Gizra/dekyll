@@ -226,7 +226,6 @@ class ExportManagerBase implements ExportManagerInterface {
         continue;
       }
 
-      $yaml = array();
       $yaml_contents = array();
       $file_path = $route['file_path'];
       $route['file_names'] = array($file_path);

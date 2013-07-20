@@ -531,6 +531,10 @@ function dekyll_sync_build_local_jekyll_site($branch_id) {
   // config that overrides the
   $output = array();
   exec("jekyll build --source $path --destination $build_path --config $path/_config.yml,$path/.git/_config.yml", $output);
+
+  if (drupal_is_cli()) {
+    drush_log(dt('Branch @id jekyll site was built on @dest', array('@id' => $branch_id, '@dest' => $build_path)));
+  }
 }
 
 /**
