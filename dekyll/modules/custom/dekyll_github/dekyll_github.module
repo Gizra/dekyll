@@ -347,7 +347,7 @@ function dekyll_github_dekyll_repository_clone($node) {
   file_put_contents($file_path, $contents);
 
   $git_wrapper = new GitWrapper();
-  $git = $git_wrapper->workingCopy($path);
+  $git = $git_wrapper->workingCopy(dekyll_repository_get_repo_path($node, TRUE));
 
   if (!$git->hasChanges()) {
     if (drupal_is_cli()) {

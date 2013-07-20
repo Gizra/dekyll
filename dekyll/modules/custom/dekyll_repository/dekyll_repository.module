@@ -59,11 +59,14 @@ function dekyll_repository_node_insert($node) {
  *
  * @param $nid
  *   The node ID or object of the branch or page.
+ * @param $real_path
+ *   FALSE will return a stream wrapper (public://repos/...), TRUE
+ *   will return the full path.
  *
  * @return
  *   The relative path.
  */
-function dekyll_repository_get_repo_path($nid) {
+function dekyll_repository_get_repo_path($nid, $real_path = FALSE) {
   $wrapper = entity_metadata_wrapper('node', $nid);
 
   $bundle = $wrapper->getBundle();
@@ -77,8 +80,33 @@ function dekyll_repository_get_repo_path($nid) {
 
   $branch_name = $bundle == 'branch' ? $wrapper->label() : $wrapper->field_repo_branch->label();
 
-  // @todo: Change to "public://".
-  return variable_get('file_public_path', conf_path() . '/files') . '/' . $repo_url . '/' . $branch_name;
+  $path = 'public://repos/' . $repo_url . '/' . $branch_name;
+
+  if (!file_exists($path)) {
+    drupal_mkdir($path, NULL, TRUE);
+  }
+
+  return !$real_path ? $path : drupal_realpath($path);
+}
+
+/**
+ * Get the path of the local site built with Jekyll.
+ *
+ * @param $nid
+ *   The node ID or object of the branch or page.
+ * @param $real_path
+ *   FALSE will return a stream wrapper (build://...), TRUE
+ *   will return the full path.
+ */
+function dekyll_repository_get_build_path($nid, $real_path = FALSE) {
+  $path = dekyll_repository_get_repo_path($nid);
+  $path = str_replace('public://repos', 'build://', $path);
+
+  if (!file_exists($path)) {
+    drupal_mkdir($path, NULL, TRUE);
+  }
+
+  return !$real_path ? $path : drupal_realpath($path);
 }
 
 /**
@@ -117,7 +145,6 @@ function dekyll_repository_clone($branch_id) {
   $wrapper = entity_metadata_wrapper('node', $branch_id);
   $repo_wrapper = $wrapper->{OG_AUDIENCE_FIELD};
   $credentials = $repo_wrapper->field_repo_credentials->value();
-  $path = dekyll_repository_get_repo_path($branch_id);
 
   $git_wrapper = new GitWrapper();
 
@@ -126,7 +153,7 @@ function dekyll_repository_clone($branch_id) {
     $git_wrapper->setTimeout(600);
   }
 
-  $git = $git_wrapper->workingCopy($path);
+  $git = $git_wrapper->workingCopy(dekyll_repository_get_repo_path($branch_id, TRUE));
 
   if (drupal_is_cli()) {
     drush_log('Cloning git using @credentials.', array('@credentials' => $credentials));
@@ -160,6 +187,8 @@ function dekyll_repository_clone($branch_id) {
 
   // Sync.
   dekyll_sync_import($branch_id);
+
+  dekyll_sync_build_local_jekyll_site($branch_id);
 
   // Let other modules know that a clone and sync was performed.
   module_invoke_all('dekyll_repository_clone', $wrapper->value());

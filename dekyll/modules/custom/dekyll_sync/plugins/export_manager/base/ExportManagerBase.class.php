@@ -45,7 +45,11 @@ class ExportManagerBase implements ExportManagerInterface {
     $this->plugin = $plugin;
     $this->nid = $nid;
 
-    $wrapper = entity_metadata_wrapper('node', $nid);
+    // Make sure we get an updated node, even when running under "Waiting queue"
+    // in the command line.
+    $node = node_load($nid, NULL, TRUE);
+
+    $wrapper = entity_metadata_wrapper('node', $node);
     $this->branchId = $wrapper->field_repo_branch->value(array('identifier' => TRUE));
     $this->isCanonical = $wrapper->{OG_AUDIENCE_FIELD}->field_repo_canonical->value();
 
@@ -226,7 +230,6 @@ class ExportManagerBase implements ExportManagerInterface {
         continue;
       }
 
-      $yaml = array();
       $yaml_contents = array();
       $file_path = $route['file_path'];
       $route['file_names'] = array($file_path);
@@ -334,21 +337,20 @@ class ExportManagerBase implements ExportManagerInterface {
 
     $this->setRoutes($routes);
 
+    dekyll_sync_build_local_jekyll_site($this->branchId);
+
 
     // Add to Git.
-    $this->AddToGit();
+    // $this->AddToGit();
     return $this;
   }
-
 
   /**
    * Add files to Git, commit and push.
    */
   public function AddToGit() {
-    $path = dekyll_repository_get_repo_path($this->branchId);
-
     $git_wrapper = new GitWrapper();
-    $git = $git_wrapper->workingCopy($path);
+    $git = $git_wrapper->workingCopy(dekyll_repository_get_repo_path($this->branchId, TRUE));
 
     foreach ($this->getRoutes() as $route) {
       if (!$route['page']) {
