@@ -368,11 +368,12 @@ class ExportManagerBase implements ExportManagerInterface {
     }
 
     $path = drupal_realpath($path);
+    $build_path = drupal_realpath($build_path);
 
     // Execute "jekyll build" command using the original config, and the dummy
     // config that overrides the
     $output = array();
-    exec("cd $path && jekyll build --destination $build_path --config _config.yml,.git/_config.yml", $output);
+    exec("jekyll build --source $path --destination $build_path --config $path/_config.yml,$path/.git/_config.yml", $output);
   }
 
   /**
