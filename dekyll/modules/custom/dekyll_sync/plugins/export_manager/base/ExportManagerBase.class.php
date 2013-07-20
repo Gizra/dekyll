@@ -334,7 +334,7 @@ class ExportManagerBase implements ExportManagerInterface {
 
     $this->setRoutes($routes);
 
-    $this->rsyncSite();
+    $this->buildLocalSite();
 
 
     // Add to Git.
@@ -345,12 +345,7 @@ class ExportManagerBase implements ExportManagerInterface {
   /**
    * Build the Jekyll site, and rsync to remote or local folder.
    */
-  public function rsyncSite() {
-    $wrapper = entity_metadata_wrapper('node', $this->branchId);
-    if (!$rsync = $wrapper->field_rsync->value()) {
-      return;
-    }
-
+  public function buildLocalSite() {
     $path = dekyll_repository_get_repo_path($this->branchId);
     $build_path = dekyll_repository_get_build_path($this->branchId);
 
@@ -377,34 +372,8 @@ class ExportManagerBase implements ExportManagerInterface {
     // Execute "jekyll build" command using the original config, and the dummy
     // config that overrides the
     $output = array();
-    exec("cd $path && jekyll build --config _config.yml,.git/_config.yml", $output);
-
-    if ($rsync == 'local') {
-      $this->rsyncSiteLocal();
-    }
+    exec("cd $path && jekyll build --destination $build_path --config _config.yml,.git/_config.yml", $output);
   }
-
-  /**
-   * Rsync to local.
-   *
-   * @todo: Improve getting path, once we use public://
-   */
-  public function rsyncSiteLocal() {
-    $path = dekyll_repository_get_repo_path($this->branchId);
-    $build_path = dekyll_repository_get_build_path($this->branchId);
-
-    if (!file_exists($build_path)) {
-      $status = drupal_mkdir($build_path, NULL, TRUE);
-    }
-
-    // Export only the rendered site.
-    $path = drupal_realpath($path) . '/_site/';
-    $build_path = drupal_realpath($build_path);
-
-    $output = array();
-    exec("rsync -avzr $path $build_path", $output);
-  }
-
 
   /**
    * Add files to Git, commit and push.
