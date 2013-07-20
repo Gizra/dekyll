@@ -341,7 +341,7 @@ class ExportManagerBase implements ExportManagerInterface {
 
 
     // Add to Git.
-    // $this->AddToGit();
+    $this->AddToGit();
     return $this;
   }
 
