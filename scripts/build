@@ -33,4 +33,6 @@ set -xe
 
   # Move the profile in place.
   ln -s ../../dekyll www/profiles/dekyll
+
+  mkdir www/sites/default/builds
 )
