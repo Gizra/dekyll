@@ -263,7 +263,7 @@ function dekyll_sync_import($branch_id, $sync_type = array('config', 'content'),
   $path = dekyll_repository_get_repo_path($branch_id);
 
   $git_wrapper = new GitWrapper();
-  $git = $git_wrapper->workingCopy($path);
+  $git = $git_wrapper->workingCopy(dekyll_repository_get_repo_path($node, TRUE));
 
   try {
     $git->pull();
@@ -373,7 +373,7 @@ function dekyll_sync_save_yml($branch_id, $file_path, $data = array(), $commit_m
   $path = dekyll_repository_get_repo_path($branch_id);
 
   $git_wrapper = new GitWrapper();
-  $git = $git_wrapper->workingCopy($path);
+  $git = $git_wrapper->workingCopy(dekyll_repository_get_repo_path($node, TRUE));
 
   $full_path = $path . '/' . $file_path;
 

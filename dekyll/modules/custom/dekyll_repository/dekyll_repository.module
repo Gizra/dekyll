@@ -145,7 +145,6 @@ function dekyll_repository_clone($branch_id) {
   $wrapper = entity_metadata_wrapper('node', $branch_id);
   $repo_wrapper = $wrapper->{OG_AUDIENCE_FIELD};
   $credentials = $repo_wrapper->field_repo_credentials->value();
-  $path = dekyll_repository_get_repo_path($branch_id, TRUE);
 
   $git_wrapper = new GitWrapper();
 
@@ -154,7 +153,7 @@ function dekyll_repository_clone($branch_id) {
     $git_wrapper->setTimeout(600);
   }
 
-  $git = $git_wrapper->workingCopy($path);
+  $git = $git_wrapper->workingCopy(dekyll_repository_get_repo_path($branch_id, TRUE));
 
   if (drupal_is_cli()) {
     drush_log('Cloning git using @credentials.', array('@credentials' => $credentials));

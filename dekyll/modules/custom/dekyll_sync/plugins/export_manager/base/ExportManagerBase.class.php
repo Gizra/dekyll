@@ -382,7 +382,7 @@ class ExportManagerBase implements ExportManagerInterface {
     $path = dekyll_repository_get_repo_path($this->branchId);
 
     $git_wrapper = new GitWrapper();
-    $git = $git_wrapper->workingCopy($path);
+    $git = $git_wrapper->workingCopy(dekyll_repository_get_repo_path($node, TRUE));
 
     foreach ($this->getRoutes() as $route) {
       if (!$route['page']) {
