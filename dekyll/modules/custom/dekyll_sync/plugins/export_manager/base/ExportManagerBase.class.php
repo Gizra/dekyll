@@ -45,7 +45,11 @@ class ExportManagerBase implements ExportManagerInterface {
     $this->plugin = $plugin;
     $this->nid = $nid;
 
-    $wrapper = entity_metadata_wrapper('node', $nid);
+    // Make sure we get an updated node, even when running under "Waiting queue"
+    // in the command line.
+    $node = node_load($nid, NULL, TRUE);
+
+    $wrapper = entity_metadata_wrapper('node', $node);
     $this->branchId = $wrapper->field_repo_branch->value(array('identifier' => TRUE));
     $this->isCanonical = $wrapper->{OG_AUDIENCE_FIELD}->field_repo_canonical->value();
 
