@@ -64,10 +64,26 @@ function dekyll_build_build_jekyll_site($branch_id, Message $message = NULL) {
   }
 
   if (!empty($message)) {
-    $wrapper = entity_metadata_wrapper('message', $message);
-    $wrapper->field_jekyll_build_status->set(DEKYLL_MESSAGE_BUILD_DONE);
-    $wrapper->save();
+    $message_wrapper = entity_metadata_wrapper('message', $message);
+    $message_wrapper->field_jekyll_build_status->set(DEKYLL_MESSAGE_BUILD_DONE);
+    $message_wrapper->save();
   }
+
+  $wrapper = entity_metadata_wrapper('node', $branch_id);
+
+  $remote_path = $wrapper->field_build_remote_path->value();
+  $remote_ssh = $wrapper->field_build_remote_ssh->value();
+
+  if (!$remote_path || !$remote_ssh) {
+    return;
+  }
+
+  // Rsync to remote.
+  $output = array();
+  exec("rsync -azvr $build_path", $output);
+
+  $message_wrapper->field_rsync_status->set(DEKYLL_MESSAGE_BUILD_RSYNC_DONE);
+  $message_wrapper->save();
 }
 
 /**

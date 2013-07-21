@@ -82,14 +82,14 @@ function dekyll_repository_field_default_fields() {
     ),
   );
 
-  // Exported field: 'node-branch-field_build_ssh'.
-  $fields['node-branch-field_build_ssh'] = array(
+  // Exported field: 'node-branch-field_build_remote_ssh'.
+  $fields['node-branch-field_build_remote_ssh'] = array(
     'field_config' => array(
       'active' => '1',
       'cardinality' => '1',
       'deleted' => '0',
       'entity_types' => array(),
-      'field_name' => 'field_build_ssh',
+      'field_name' => 'field_build_remote_ssh',
       'foreign keys' => array(
         'format' => array(
           'columns' => array(
@@ -122,7 +122,7 @@ function dekyll_repository_field_default_fields() {
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => 6,
+          'weight' => 7,
         ),
         'teaser' => array(
           'label' => 'above',
@@ -132,8 +132,8 @@ function dekyll_repository_field_default_fields() {
         ),
       ),
       'entity_type' => 'node',
-      'field_name' => 'field_build_ssh',
-      'label' => 'Build ssh',
+      'field_name' => 'field_build_remote_ssh',
+      'label' => 'Build remote ssh',
       'required' => 0,
       'settings' => array(
         'content_sync' => array(
@@ -149,7 +149,7 @@ function dekyll_repository_field_default_fields() {
           'size' => '60',
         ),
         'type' => 'text_textfield',
-        'weight' => '7',
+        'weight' => '8',
       ),
     ),
   );
@@ -1012,7 +1012,7 @@ function dekyll_repository_field_default_fields() {
   t('Base path');
   t('Base path URL');
   t('Build remote path');
-  t('Build ssh');
+  t('Build remote ssh');
   t('Canonical');
   t('Cloned');
   t('Credentials');
