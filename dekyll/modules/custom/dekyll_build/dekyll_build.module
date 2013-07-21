@@ -71,16 +71,21 @@ function dekyll_build_build_jekyll_site($branch_id, Message $message = NULL) {
 
   $wrapper = entity_metadata_wrapper('node', $branch_id);
 
-  $remote_path = $wrapper->field_build_remote_path->value();
+  $remote_path = rtrim($wrapper->field_build_remote_path->value(), '/') . ;
   $remote_ssh = $wrapper->field_build_remote_ssh->value();
 
   if (!$remote_path || !$remote_ssh) {
     return;
   }
 
-  // Rsync to remote.
+  // Add the repo path.
+  $remote_path .= 'builds/' . str_replace('public://', '', dekyll_repository_get_repo_path($branch_id));
+
   $output = array();
-  exec("rsync -azvr $build_path", $output);
+  // Create build directory.
+  exec("$ssh mkdir -p $remote_path");
+  // Rsync to remote.
+  exec("rsync -azvr $build_path $remote_ssh:$remote_path", $output);
 
   $message_wrapper->field_rsync_status->set(DEKYLL_MESSAGE_BUILD_RSYNC_DONE);
   $message_wrapper->save();
