@@ -25,8 +25,11 @@ define ('DEKYLL_MESSAGE_BUILD_ERROR', 2);
 /**
  * Create a new message upon export.
  *
- * @param
+ * @param $nid
  *   The node ID or object of the page or post.
+ *
+ * @return
+ *   The Message object.
  */
 function dekyll_message_create_message_export($nid) {
   $wrapper = entity_metadata_wrapper('node', $nid);
@@ -45,5 +48,39 @@ function dekyll_message_create_message_export($nid) {
   $wrapper->field_message_page->set($node);
   $wrapper->field_jekyll_build_status->set(DEKYLL_MESSAGE_NEEDS_BUILD);
   $wrapper->save();
+  return $message;
+}
+
+/**
+ * Gets the last message by node.
+ *
+ * @param $nid
+ *   The node ID of the page or post.
+ * @param $build_status
+ *  Optional; Filter by the build status.
+ *
+ * @return
+ *   The Message object if found, or NULL.
+ */
+function dekyll_message_get_message_export($nid, $build_status = NULL) {
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'message')
+    ->entityCondition('bundle', 'dekyll_export', '=')
+    ->fieldCondition('field_message_page', 'target_id', $nid, '=')
+    ->propertyOrderBy('mid', 'DESC')
+    ->range(0, 1);
+
+  if (isset($build_status)) {
+    $query->fieldCondition('field_jekyll_build_status', 'value', $build_status, '=');
+  }
+
+  $result = $query->execute();
+
+  if (empty($result['message'])) {
+    return;
+  }
+
+  $message = reset($result['message']);
   return $message;
 }
