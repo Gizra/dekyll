@@ -29,16 +29,17 @@ define ('DEKYLL_MESSAGE_BUILD_ERROR', 2);
  *   The node object of the page or post.
  */
 function dekyll_message_create_message_export($nid) {
-  $node = node_load($nid);
+  $wrapper = entity_metadata_wrapper('node', $nid);
+  $node = $wrapper->value();
   if (!og_is_group_content_type('node', $node->type)) {
     return;
   }
 
+  $branch_id = $wrapper->field_repo_branch->getIdentifier();
+
   $message = message_create('dekyll_export', array('uid' => $node->uid));
 
   $wrapper = entity_metadata_wrapper('message', $message);
-
-  $branch_id = $wrapper->field_repo_branch->getIdentifier();
 
   $wrapper->field_message_repo_branch->set($branch_id);
   $wrapper->field_message_page->set($node);
