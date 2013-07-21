@@ -83,7 +83,7 @@ function dekyll_build_build_jekyll_site($branch_id, Message $message = NULL) {
 
   $output = array();
   // Create build directory.
-  exec("$ssh mkdir -p $remote_path");
+  exec("$remote_ssh mkdir -p $remote_path");
   // Rsync to remote.
   exec("rsync -azvr $build_path $remote_ssh:$remote_path", $output);
 
