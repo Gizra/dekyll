@@ -5,3 +5,18 @@
  */
 
 include_once 'dekyll_message.features.inc';
+
+/**
+ * Indicate the jekyll site needs to be built.
+ */
+define ('DEKYLL_MESSAGE_NEEDS_BUILD', 0);
+
+/**
+ * Indicate the jekyll site was built successfully.
+ */
+define ('DEKYLL_MESSAGE_BUILD_DONE', 1);
+
+/**
+ * Indicate the jekyll site was not built due to error.
+ */
+define ('DEKYLL_MESSAGE_BUILD_ERROR', 2);
