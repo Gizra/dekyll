@@ -127,6 +127,7 @@ function dekyll_create_roles() {
  */
 function dekyll_set_permissions() {
   $permissions = array(
+    'create messages',
     'access resource message',
   );
 
