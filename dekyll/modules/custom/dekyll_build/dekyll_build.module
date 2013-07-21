@@ -5,6 +5,8 @@
  * Build a Jekyll site locally or remotely.
  */
 
+use Symfony\Component\Yaml\Dumper;
+
 /**
  * Get the path of the local site built with Jekyll.
  *
@@ -31,24 +33,29 @@ function dekyll_build_get_build_path($nid, $real_path = FALSE) {
 function dekyll_build_build_jekyll_site($branch_id, Message $message = NULL) {
   $path = dekyll_repository_get_repo_path($branch_id);
   $build_path = dekyll_build_get_build_path($branch_id);
+  $wrapper = entity_metadata_wrapper('node', $branch_id);
 
   // Create an overriding _config file under .git/ and change the BASE_PATH to
   // point to the "build path".
   $dummy_config_path = $path . '/.git/_config.yml';
 
-  if (!file_exists($dummy_config_path)) {
-    // @todo: Inject parser and dumper.
-    $dumper = new Dumper();
-    $yaml = array();
+  // @todo: Inject parser and dumper.
+  $dumper = new Dumper();
+  $yaml = array();
 
-    $url = file_create_url($build_path);
-    $yaml['production_url'] = $url;
-    $yaml['JB']['BASE_PATH'] = $url;
-    // Use "safe" mode, so BASE_PATH is used.
-    $yaml['safe'] = TRUE;
-
-    file_put_contents($dummy_config_path,  $dumper->dump($yaml, 5));
+  if ($url = $wrapper->field_build_remote_url->value()) {
+    $url .= str_replace('public://repos', '/builds/', dekyll_repository_get_repo_path($branch_id));
   }
+  else {
+    $url = file_create_url($build_path);
+  }
+
+  $yaml['production_url'] = $url;
+  $yaml['JB']['BASE_PATH'] = $url;
+  // Use "safe" mode, so BASE_PATH is used.
+  $yaml['safe'] = TRUE;
+
+  file_put_contents($dummy_config_path,  $dumper->dump($yaml, 5));
 
   $path = drupal_realpath($path);
   $build_path = drupal_realpath($build_path);
@@ -69,21 +76,23 @@ function dekyll_build_build_jekyll_site($branch_id, Message $message = NULL) {
     $message_wrapper->save();
   }
 
-  $wrapper = entity_metadata_wrapper('node', $branch_id);
-
   $remote_path = rtrim($wrapper->field_build_remote_path->value(), '/');
-  $remote_ssh = $wrapper->field_build_remote_ssh->value();
+  $remote_ssh = str_replace('ssh ', '', $wrapper->field_build_remote_ssh->value());
 
   if (!$remote_path || !$remote_ssh) {
     return;
   }
 
   // Add the repo path.
-  $remote_path .= 'builds/' . str_replace('public://', '', dekyll_repository_get_repo_path($branch_id));
+  $remote_path .= str_replace('public://repos', '/builds/', dekyll_repository_get_repo_path($branch_id));
 
   $output = array();
   // Create build directory, and Rsync to remote.
-  exec("$remote_ssh mkdir -p $remote_path && rsync -azvr $build_path $remote_ssh:$remote_path", $output);
+  exec("ssh $remote_ssh mkdir -p $remote_path && rsync -azvr $build_path/ $remote_ssh:$remote_path", $output);
+
+  if (drupal_is_cli()) {
+    drush_log(dt('Branch @id rsynced to @dest', array('@id' => $branch_id, '@dest' => "$remote_ssh:$remote_path")));
+  }
 
   $message_wrapper->field_rsync_status->set(DEKYLL_MESSAGE_BUILD_RSYNC_DONE);
   $message_wrapper->save();
