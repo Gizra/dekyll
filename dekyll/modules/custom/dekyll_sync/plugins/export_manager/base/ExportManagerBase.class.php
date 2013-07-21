@@ -338,7 +338,7 @@ class ExportManagerBase implements ExportManagerInterface {
 
     $this->setRoutes($routes);
 
-    dekyll_sync_build_local_jekyll_site($this->branchId, $message);
+    dekyll_build_build_jekyll_site($this->branchId, $message);
 
 
     // Add to Git.

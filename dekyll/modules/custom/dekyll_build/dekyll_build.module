@@ -1,0 +1,86 @@
+<?php
+
+/**
+ * @file
+ * Build a Jekyll site locally or remotely.
+ */
+
+/**
+ * Get the path of the local site built with Jekyll.
+ *
+ * @param $nid
+ *   The node ID or object of the branch or page.
+ * @param $real_path
+ *   FALSE will return a stream wrapper (build://...), TRUE
+ *   will return the full path.
+ */
+function dekyll_build_get_build_path($nid, $real_path = FALSE) {
+  $path = dekyll_repository_get_repo_path($nid);
+  $path = str_replace('public://repos', 'build://', $path);
+
+  if (!file_exists($path)) {
+    drupal_mkdir($path, NULL, TRUE);
+  }
+
+  return !$real_path ? $path : drupal_realpath($path);
+}
+
+/**
+ * Build a local Jekyll site.
+ */
+function dekyll_build_build_jekyll_site($branch_id, Message $message = NULL) {
+  $path = dekyll_repository_get_repo_path($branch_id);
+  $build_path = dekyll_build_get_build_path($branch_id);
+
+  // Create an overriding _config file under .git/ and change the BASE_PATH to
+  // point to the "build path".
+  $dummy_config_path = $path . '/.git/_config.yml';
+
+  if (!file_exists($dummy_config_path)) {
+    // @todo: Inject parser and dumper.
+    $dumper = new Dumper();
+    $yaml = array();
+
+    $url = file_create_url($build_path);
+    $yaml['production_url'] = $url;
+    $yaml['JB']['BASE_PATH'] = $url;
+    // Use "safe" mode, so BASE_PATH is used.
+    $yaml['safe'] = TRUE;
+
+    file_put_contents($dummy_config_path,  $dumper->dump($yaml, 5));
+  }
+
+  $path = drupal_realpath($path);
+  $build_path = drupal_realpath($build_path);
+
+  // Execute "jekyll build" command using the original config, and the dummy
+  // config that overrides the
+  $output = array();
+  exec("jekyll build --source $path --destination $build_path --config $path/_config.yml,$path/.git/_config.yml", $output);
+
+  if (drupal_is_cli()) {
+    drush_log(dt('Branch @id jekyll site was built on @dest', array('@id' => $branch_id, '@dest' => $build_path)));
+  }
+
+  if (!empty($message)) {
+    $wrapper = entity_metadata_wrapper('message', $message);
+    $wrapper->field_jekyll_build_status->set(DEKYLL_MESSAGE_BUILD_DONE);
+    $wrapper->save();
+  }
+}
+
+/**
+ * Implements hook_stream_wrappers().
+ */
+function dekyll_build_stream_wrappers() {
+  $wrappers = array(
+    'build' => array(
+      'name' => t('Public Jekyll sites'),
+      'class' => 'DekyllPublicStreamWrapper',
+      'description' => t('Sites built by Jekyll.'),
+      'type' => STREAM_WRAPPERS_LOCAL_NORMAL,
+    ),
+  );
+
+  return $wrappers;
+}

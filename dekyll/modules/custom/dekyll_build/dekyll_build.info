@@ -1,0 +1,8 @@
+name = Dekyll Build
+description = Build a Jekyll site locally or remotely.
+core = 7.x
+
+; Stream wrappers
+files[] = includes/DekyllPublicStreamWrapper.php
+
+

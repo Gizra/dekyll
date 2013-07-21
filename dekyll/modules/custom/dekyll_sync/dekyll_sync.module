@@ -502,9 +502,9 @@ function dekyll_sync_import_file($file_path, $branch_id, GitWorkingCopy $git, $n
 /**
  * Build a local Jekyll site.
  */
-function dekyll_sync_build_local_jekyll_site($branch_id, Message $message = NULL) {
+function dekyll_build_build_jekyll_site($branch_id, Message $message = NULL) {
   $path = dekyll_repository_get_repo_path($branch_id);
-  $build_path = dekyll_repository_get_build_path($branch_id);
+  $build_path = dekyll_build_get_build_path($branch_id);
 
   // Create an overriding _config file under .git/ and change the BASE_PATH to
   // point to the "build path".
