@@ -20,3 +20,23 @@ define ('DEKYLL_MESSAGE_BUILD_DONE', 1);
  * Indicate the jekyll site was not built due to error.
  */
 define ('DEKYLL_MESSAGE_BUILD_ERROR', 2);
+
+
+/**
+ * Implements hook_node_insert().
+ */
+function dekyll_message_node_insert($node) {
+  if (!og_is_group_content_type('node', $node->type)) {
+    return;
+  }
+
+  $message = message_create('dekyll_export', array('uid' => $node->uid));
+
+  $wrapper = entity_metadata_wrapper('message', $message);
+
+  $branch_id = $wrapper->field_repo_branch->getIdentifier();
+
+  $wrapper->field_message_repo_branch->set($branch_id);
+  $wrapper->field_message_page->set($node);
+  $wrapper->field_jekyll_build_status->set(DEKYLL_MESSAGE_NEEDS_BUILD);
+}
