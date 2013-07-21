@@ -126,6 +126,11 @@ function dekyll_create_roles() {
  * Task callback; Set permissions.
  */
 function dekyll_set_permissions() {
+  $permissions = array(
+    'access resource message',
+  );
+
+  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, $permissions);
 }
 
 /**
