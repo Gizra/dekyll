@@ -17,9 +17,26 @@ define ('DEKYLL_MESSAGE_NEEDS_BUILD', 0);
 define ('DEKYLL_MESSAGE_BUILD_DONE', 1);
 
 /**
- * Indicate the jekyll site was not built due to error.
+ * Indicate the jekyll site was not built due to an error.
  */
 define ('DEKYLL_MESSAGE_BUILD_ERROR', 2);
+
+
+/**
+ * Indicate no rsync was done from local Jekyll site.
+ */
+define ('DEKYLL_MESSAGE_BUILD_NO_RSYNC', 0);
+
+/**
+ * Indicate rsync was done successfully from local Jekyll site.
+ */
+define ('DEKYLL_MESSAGE_BUILD_RSYNC_DONE', 1);
+
+
+/**
+ * Indicate the jekyll site was not rsynced due to an error.
+ */
+define ('DEKYLL_MESSAGE_BUILD_RSYNC_ERROR', 2);
 
 
 /**
