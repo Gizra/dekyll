@@ -86,6 +86,10 @@ function dekyll_build_build_jekyll_site($branch_id, Message $message = NULL) {
   // Add the repo path.
   $remote_path .= str_replace('public://repos', '/builds/', dekyll_repository_get_repo_path($branch_id));
 
+  if (drupal_is_cli()) {
+    drush_log(dt('Starting rsync'));
+  }
+
   $output = array();
   // Create build directory, and Rsync to remote.
   exec("ssh $remote_ssh mkdir -p $remote_path && rsync -azvr $build_path/ $remote_ssh:$remote_path", $output);
