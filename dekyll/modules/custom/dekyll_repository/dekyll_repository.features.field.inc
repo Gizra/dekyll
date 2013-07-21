@@ -10,6 +10,150 @@
 function dekyll_repository_field_default_fields() {
   $fields = array();
 
+  // Exported field: 'node-branch-field_build_remote_path'.
+  $fields['node-branch-field_build_remote_path'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_build_remote_path',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'text',
+      'settings' => array(
+        'max_length' => '255',
+      ),
+      'translatable' => '0',
+      'type' => 'text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'branch',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => 'The base path of the remote server, the Jekyll site will be rsynced to, for example <code>http://example.com</code>',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 5,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_build_remote_path',
+      'label' => 'Build remote path',
+      'required' => 0,
+      'settings' => array(
+        'content_sync' => array(
+          'plugin_name' => '',
+        ),
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => '60',
+        ),
+        'type' => 'text_textfield',
+        'weight' => '6',
+      ),
+    ),
+  );
+
+  // Exported field: 'node-branch-field_build_ssh'.
+  $fields['node-branch-field_build_ssh'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_build_ssh',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'text',
+      'settings' => array(
+        'max_length' => '255',
+      ),
+      'translatable' => '0',
+      'type' => 'text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'branch',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => 'The ssh command to be used with <code>sync</code>. For example <code>foo@bar.com</code>',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 6,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_build_ssh',
+      'label' => 'Build ssh',
+      'required' => 0,
+      'settings' => array(
+        'content_sync' => array(
+          'plugin_name' => '',
+        ),
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => '60',
+        ),
+        'type' => 'text_textfield',
+        'weight' => '7',
+      ),
+    ),
+  );
+
   // Exported field: 'node-branch-field_jekyll_base_path'.
   $fields['node-branch-field_jekyll_base_path'] = array(
     'field_config' => array(
@@ -867,6 +1011,8 @@ function dekyll_repository_field_default_fields() {
   // Included for use with string extractors like potx.
   t('Base path');
   t('Base path URL');
+  t('Build remote path');
+  t('Build ssh');
   t('Canonical');
   t('Cloned');
   t('Credentials');
@@ -875,6 +1021,8 @@ function dekyll_repository_field_default_fields() {
   t('Group');
   t('If the repository is a fork from Github, indicate the name (e.g. Gizra/jekyll-bootstrap).');
   t('Repository');
+  t('The base path of the remote server, the Jekyll site will be rsynced to, for example <code>http://example.com</code>');
+  t('The ssh command to be used with <code>sync</code>. For example <code>foo@bar.com</code>');
   t('URL');
   t('When enabled, the exported nodes will overwrite the existing files.');
   t('Write access');
