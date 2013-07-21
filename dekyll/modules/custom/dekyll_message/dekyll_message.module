@@ -26,7 +26,7 @@ define ('DEKYLL_MESSAGE_BUILD_ERROR', 2);
  * Create a new message upon export.
  *
  * @param
- *   The node object of the page or post.
+ *   The node ID or object of the page or post.
  */
 function dekyll_message_create_message_export($nid) {
   $wrapper = entity_metadata_wrapper('node', $nid);
