@@ -71,7 +71,7 @@ function dekyll_build_build_jekyll_site($branch_id, Message $message = NULL) {
 
   $wrapper = entity_metadata_wrapper('node', $branch_id);
 
-  $remote_path = rtrim($wrapper->field_build_remote_path->value(), '/') . ;
+  $remote_path = rtrim($wrapper->field_build_remote_path->value(), '/');
   $remote_ssh = $wrapper->field_build_remote_ssh->value();
 
   if (!$remote_path || !$remote_ssh) {
