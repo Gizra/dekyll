@@ -15,6 +15,9 @@
  *   will return the full path.
  */
 function dekyll_build_get_build_path($nid, $real_path = FALSE) {
+  if ($remote_path = variable_get('dekyll_build_remote')) {
+    return $remote_path;
+  }
   $path = dekyll_repository_get_repo_path($nid);
   $path = str_replace('public://repos', 'build://', $path);
 
@@ -56,7 +59,13 @@ function dekyll_build_build_jekyll_site($branch_id, Message $message = NULL) {
   // Execute "jekyll build" command using the original config, and the dummy
   // config that overrides the
   $output = array();
-  exec("jekyll build --source $path --destination $build_path --config $path/_config.yml,$path/.git/_config.yml", $output);
+
+  // We allow building Jekyll on a remote server, by proving the SSH
+  // credentials.
+  // @todo: Move per repository?
+  $ssh = varaible_get('dekyll_build_remote_ssh');
+
+  exec("$ssh jekyll build --source $path --destination $build_path --config $path/_config.yml,$path/.git/_config.yml", $output);
 
   if (drupal_is_cli()) {
     drush_log(dt('Branch @id jekyll site was built on @dest', array('@id' => $branch_id, '@dest' => $build_path)));

@@ -348,7 +348,6 @@ class ExportManagerBase implements ExportManagerInterface {
 
   /**
    * Add files to Git, commit and push.
-   */
   public function AddToGit() {
     $git_wrapper = new GitWrapper();
     $git = $git_wrapper->workingCopy(dekyll_repository_get_repo_path($this->branchId, TRUE));
