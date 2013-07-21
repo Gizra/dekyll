@@ -325,9 +325,18 @@ function dekyll_page_node_view_alter(&$build) {
     'link' => array('#markup' => l('See page', $url)),
   );
 
-  // Append a timestamp to the URL to override cache.
   $build_path = dekyll_build_get_build_path($node);
-  $url =  file_create_url($build_path). '/' . $permalink . '?' . time();
+
+  if ($remote_url = $wrapper->field_repo_branch->field_build_remote_url->value()) {
+    $branch_id = $wrapper->field_repo_branch->getIdentifier();
+    $url = $remote_url .  str_replace('public://repos', '/builds/', dekyll_repository_get_repo_path($branch_id));
+  }
+  else {
+    $url = file_create_url($build_path). '/' . $permalink;
+  }
+
+  // Append a timestamp to the URL to override cache.
+  $url .= '?' . time();
 
   if ($message = dekyll_message_get_message_export($node->nid, DEKYLL_MESSAGE_NEEDS_BUILD)) {
     // Add JS to query the server until the Jekyll build is done.
