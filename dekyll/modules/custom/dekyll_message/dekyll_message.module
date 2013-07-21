@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Dekyll message feature.
+ */
+
+include_once 'dekyll_message.features.inc';
