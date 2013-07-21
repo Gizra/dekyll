@@ -500,9 +500,9 @@ function dekyll_sync_import_file($file_path, $branch_id, GitWorkingCopy $git, $n
 }
 
 /**
- * Build the Jekyll site, and rsync to remote or local folder.
+ * Build a local Jekyll site.
  */
-function dekyll_sync_build_local_jekyll_site($branch_id) {
+function dekyll_sync_build_local_jekyll_site($branch_id, Message $message = NULL) {
   $path = dekyll_repository_get_repo_path($branch_id);
   $build_path = dekyll_repository_get_build_path($branch_id);
 
@@ -534,6 +534,12 @@ function dekyll_sync_build_local_jekyll_site($branch_id) {
 
   if (drupal_is_cli()) {
     drush_log(dt('Branch @id jekyll site was built on @dest', array('@id' => $branch_id, '@dest' => $build_path)));
+  }
+
+  if (!empty($message)) {
+    $wrapper = entity_metadata_wrapper('message', $message);
+    $wrapper->field_jekyll_build_status->set(DEKYLL_MESSAGE_BUILD_DONE);
+    $wrapper->save();
   }
 }
 

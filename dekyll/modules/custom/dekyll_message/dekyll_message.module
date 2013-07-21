@@ -23,9 +23,13 @@ define ('DEKYLL_MESSAGE_BUILD_ERROR', 2);
 
 
 /**
- * Implements hook_node_insert().
+ * Create a new message upon export.
+ *
+ * @param
+ *   The node object of the page or post.
  */
-function dekyll_message_node_insert($node) {
+function dekyll_message_create_message_export($nid) {
+  $node = node_load($nid);
   if (!og_is_group_content_type('node', $node->type)) {
     return;
   }
@@ -39,4 +43,6 @@ function dekyll_message_node_insert($node) {
   $wrapper->field_message_repo_branch->set($branch_id);
   $wrapper->field_message_page->set($node);
   $wrapper->field_jekyll_build_status->set(DEKYLL_MESSAGE_NEEDS_BUILD);
+  $wrapper->save();
+  return $message;
 }
