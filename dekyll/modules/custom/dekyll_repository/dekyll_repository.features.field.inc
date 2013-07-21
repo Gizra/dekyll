@@ -154,6 +154,78 @@ function dekyll_repository_field_default_fields() {
     ),
   );
 
+  // Exported field: 'node-branch-field_build_remote_url'.
+  $fields['node-branch-field_build_remote_url'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_build_remote_url',
+      'foreign keys' => array(
+        'format' => array(
+          'columns' => array(
+            'format' => 'format',
+          ),
+          'table' => 'filter_format',
+        ),
+      ),
+      'indexes' => array(
+        'format' => array(
+          0 => 'format',
+        ),
+      ),
+      'locked' => '0',
+      'module' => 'text',
+      'settings' => array(
+        'max_length' => '255',
+      ),
+      'translatable' => '0',
+      'type' => 'text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'branch',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => 'The remote URL, for example <code>http://example.com/dekyll-builds</code>',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'text',
+          'settings' => array(),
+          'type' => 'text_default',
+          'weight' => 8,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_build_remote_url',
+      'label' => 'Build remote url',
+      'required' => 0,
+      'settings' => array(
+        'content_sync' => array(
+          'plugin_name' => '',
+        ),
+        'text_processing' => '0',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'text',
+        'settings' => array(
+          'size' => '60',
+        ),
+        'type' => 'text_textfield',
+        'weight' => '9',
+      ),
+    ),
+  );
+
   // Exported field: 'node-branch-field_jekyll_base_path'.
   $fields['node-branch-field_jekyll_base_path'] = array(
     'field_config' => array(
@@ -1013,6 +1085,7 @@ function dekyll_repository_field_default_fields() {
   t('Base path URL');
   t('Build remote path');
   t('Build remote ssh');
+  t('Build remote url');
   t('Canonical');
   t('Cloned');
   t('Credentials');
@@ -1022,6 +1095,7 @@ function dekyll_repository_field_default_fields() {
   t('If the repository is a fork from Github, indicate the name (e.g. Gizra/jekyll-bootstrap).');
   t('Repository');
   t('The base path of the remote server, the Jekyll site will be rsynced to, for example <code>http://example.com</code>');
+  t('The remote URL, for example <code>http://example.com/dekyll-builds</code>');
   t('The ssh command to be used with <code>sync</code>. For example <code>foo@bar.com</code>');
   t('URL');
   t('When enabled, the exported nodes will overwrite the existing files.');
