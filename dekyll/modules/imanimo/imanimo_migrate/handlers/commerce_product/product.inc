@@ -62,6 +62,7 @@ class ImanimoProductCommerceProducts extends Migration {
   }
 
   public function prepareRow($row) {
+    $row->original_title = $row->title;
     $row->title = ucwords($row->title . ' - ' . $row->field_product_color);
   }
 
@@ -77,7 +78,7 @@ class ImanimoProductCommerceProducts extends Migration {
    * queried node.
    */
   public function complete($entity, stdClass $row) {
-    $node = $this->getProductPageNode($row->title);
+    $node = $this->getProductPageNode($row->original_title);
     $wrapper = entity_metadata_wrapper('node', $node);
     $wrapper->field_product[] = $entity;
     $wrapper->save();
@@ -96,7 +97,7 @@ class ImanimoProductCommerceProducts extends Migration {
     $cache = &drupal_static(__METHOD__, array());
 
     if (isset($cache[$title])) {
-      return node_load($cache[$title]);
+      return $cache[$title];
     }
 
     // Reset cache.
@@ -112,20 +113,9 @@ class ImanimoProductCommerceProducts extends Migration {
 
     if (!empty($result['node'])) {
       $cache[$title] = key($result['node']);
-      return node_load($cache[$title]);
+      return $cache[$title];
     }
 
-    // Create a new node.
-    $node = (object)array(
-      'type' => 'product_page',
-      'title' => $title,
-    );
-
-    node_object_prepare($node);
-    $node->uid = 1;
-
-    node_save($node);
-    $cache[$title] = $node->nid;
-    return $node;
+    throw new MigrateException(format_string('Product page @title does not exist.', array('@title' => $title)));
   }
 }
