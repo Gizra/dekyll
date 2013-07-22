@@ -288,8 +288,11 @@ function dekyll_sync_import($branch_id, $sync_type = array('config', 'content'),
     }
   }
 
-  // Content sync.
-  if (in_array('content', $sync_type)) {
+  $wrapper = entity_metadata_wrapper('node', $branch_id);
+  $is_canonical = $wrapper->{OG_AUDIENCE_FIELD}->field_repo_canonical->value();
+
+  // Content sync, only if not canonical, or we are forced to sync.
+  if ((!$is_canonical || $force_sync) && in_array('content', $sync_type)) {
     // Map file path to the node ID.
     $map = dekyll_sync_get_yml($branch_id, '.git/dekyll/node_map.yml');
 
