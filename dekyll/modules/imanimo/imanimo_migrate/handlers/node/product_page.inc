@@ -10,7 +10,7 @@ class ImanimoProductPageNodes extends Migration {
   );
 
   public $csvColumns = array(
-    array('_sku', 'SKU'),
+    array('sku', 'SKU'),
     array('title', 'Product'),
     array('body', 'Description'),
     array('_commerce_price', 'Price'),
@@ -22,9 +22,11 @@ class ImanimoProductPageNodes extends Migration {
   public function __construct() {
     parent::__construct();
 
-    // Create a map object for tracking the relationships between source rows
+    // Create a map object for tracking the relationships between source rows.
+    // We set the SKU, just to allow us to go over duplicate rows.
+    // see ImanimoProductPageNodes::prepareRow().
     $key = array(
-      'title' => array(
+      'sku' => array(
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
@@ -54,9 +56,19 @@ class ImanimoProductPageNodes extends Migration {
   }
 
   /**
-   * Ignore empty lines.
+   * Ignore existing nodes.
    */
   public function prepareRow($row) {
-    return !empty($row->title);
+    $query = new EntityFieldQuery();
+    $result = $query
+      ->entityCondition('entity_type', 'node')
+      ->entityCondition('bundle', 'product_page')
+      ->propertyCondition('title', $row->title, '=')
+      ->range(0, 1)
+      ->count()
+      ->execute();
+
+    // If node exists, return FALSE to prevent re-processing the same node.
+    return !$result;
   }
 }
