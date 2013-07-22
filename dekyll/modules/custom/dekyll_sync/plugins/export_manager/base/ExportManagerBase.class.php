@@ -218,6 +218,7 @@ class ExportManagerBase implements ExportManagerInterface {
    * Implements ExportManagerInterface::export().
    */
   public function export() {
+    $message = dekyll_message_create_message_export($this->nid);
     $parser = new Parser();
     $dumper = new Dumper();
 
@@ -337,11 +338,11 @@ class ExportManagerBase implements ExportManagerInterface {
 
     $this->setRoutes($routes);
 
-    dekyll_sync_build_local_jekyll_site($this->branchId);
+    dekyll_build_build_jekyll_site($this->branchId, $message);
 
 
     // Add to Git.
-    // $this->AddToGit();
+    $this->AddToGit();
     return $this;
   }
 

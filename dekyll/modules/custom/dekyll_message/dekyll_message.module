@@ -1,0 +1,103 @@
+<?php
+/**
+ * @file
+ * Code for the Dekyll message feature.
+ */
+
+include_once 'dekyll_message.features.inc';
+
+/**
+ * Indicate the jekyll site needs to be built.
+ */
+define ('DEKYLL_MESSAGE_NEEDS_BUILD', 0);
+
+/**
+ * Indicate the jekyll site was built successfully.
+ */
+define ('DEKYLL_MESSAGE_BUILD_DONE', 1);
+
+/**
+ * Indicate the jekyll site was not built due to an error.
+ */
+define ('DEKYLL_MESSAGE_BUILD_ERROR', 2);
+
+
+/**
+ * Indicate no rsync was done from local Jekyll site.
+ */
+define ('DEKYLL_MESSAGE_BUILD_NO_RSYNC', 0);
+
+/**
+ * Indicate rsync was done successfully from local Jekyll site.
+ */
+define ('DEKYLL_MESSAGE_BUILD_RSYNC_DONE', 1);
+
+
+/**
+ * Indicate the jekyll site was not rsynced due to an error.
+ */
+define ('DEKYLL_MESSAGE_BUILD_RSYNC_ERROR', 2);
+
+
+/**
+ * Create a new message upon export.
+ *
+ * @param $nid
+ *   The node ID or object of the page or post.
+ *
+ * @return
+ *   The Message object.
+ */
+function dekyll_message_create_message_export($nid) {
+  $wrapper = entity_metadata_wrapper('node', $nid);
+  $node = $wrapper->value();
+  if (!og_is_group_content_type('node', $node->type)) {
+    return;
+  }
+
+  $branch_id = $wrapper->field_repo_branch->getIdentifier();
+
+  $message = message_create('dekyll_export', array('uid' => $node->uid));
+
+  $wrapper = entity_metadata_wrapper('message', $message);
+
+  $wrapper->field_message_repo_branch->set($branch_id);
+  $wrapper->field_message_page->set($node);
+  $wrapper->field_jekyll_build_status->set(DEKYLL_MESSAGE_NEEDS_BUILD);
+  $wrapper->save();
+  return $message;
+}
+
+/**
+ * Gets the last message by node.
+ *
+ * @param $nid
+ *   The node ID of the page or post.
+ * @param $build_status
+ *  Optional; Filter by the build status.
+ *
+ * @return
+ *   The Message object if found, or NULL.
+ */
+function dekyll_message_get_message_export($nid, $build_status = NULL) {
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'message')
+    ->entityCondition('bundle', 'dekyll_export', '=')
+    ->fieldCondition('field_message_page', 'target_id', $nid, '=')
+    ->propertyOrderBy('mid', 'DESC')
+    ->range(0, 1);
+
+  if (isset($build_status)) {
+    $query->fieldCondition('field_jekyll_build_status', 'value', $build_status, '=');
+  }
+
+  $result = $query->execute();
+
+  if (empty($result['message'])) {
+    return;
+  }
+
+  $message = reset($result['message']);
+  return $message;
+}
