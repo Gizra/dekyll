@@ -39,13 +39,14 @@ class ImanimoProductPageNodes extends Migration {
 
     $this->addFieldMapping('title', 'title');
 
-    $this
-      ->addFieldMapping('body', 'body')
-      ->arguments(array('format' => 'full_html'));
-
+    // Hardcode to the only branch we have.
     $this
       ->addFieldMapping('field_repo_branch')
       ->defaultValue(2);
+
+    $this
+      ->addFieldMapping('body', 'body')
+      ->arguments(array('format' => 'full_html'));
 
     $this
       ->addFieldMapping('uid')
@@ -58,5 +59,4 @@ class ImanimoProductPageNodes extends Migration {
   public function prepareRow($row) {
     return !empty($row->title);
   }
-
 }

@@ -77,7 +77,7 @@ class ImanimoProductCommerceProducts extends Migration {
    * queried node.
    */
   public function complete($entity, stdClass $row) {
-    $node = getProductPageNode($row->title);
+    $node = $this->getProductPageNode($row->title);
     $wrapper = entity_metadata_wrapper('node', $node);
     $wrapper->field_product[] = $entity;
     $wrapper->save();

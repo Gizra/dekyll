@@ -8,6 +8,7 @@ class ImanimoBranchNodes extends ImanimoMigration {
   public $bundle = 'branch';
 
   public $csvColumns = array(
+    array(OG_AUDIENCE_FIELD, 'Repository'),
     array('field_jekyll_base_path', 'Base path'),
     array('field_jekyll_base_path_url', 'Base path URL'),
   );
@@ -19,6 +20,10 @@ class ImanimoBranchNodes extends ImanimoMigration {
 
     // Branch is a group.
     $this->addFieldMapping(OG_GROUP_FIELD)->defaultValue(TRUE);
+
+    $this
+      ->addFieldMapping(OG_AUDIENCE_FIELD, OG_AUDIENCE_FIELD)
+      ->sourceMigration('ImanimoRepositoryNodes');
 
     $this
       ->addFieldMapping('field_jekyll_base_path', 'field_jekyll_base_path')

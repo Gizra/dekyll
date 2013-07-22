@@ -23,19 +23,9 @@ abstract class ImanimoMigration extends Migration {
       $this->addFieldMapping('title', 'title');
       $class_name = 'MigrateDestinationNode';
 
-      if (og_is_group_content_type('node', $this->bundle)) {
-        // @todo: Add branch.
-        $csv_cols[] = array(OG_AUDIENCE_FIELD, 'Repository');
-        $this->dependencies[] = 'ImanimoRepositoryNodes';
-
-        $this
-          ->addFieldMapping(OG_AUDIENCE_FIELD, OG_AUDIENCE_FIELD)
-          ->sourceMigration('ImanimoRepositoryNodes');
-
-        $this
-          ->addFieldMapping('uid')
-          ->defaultValue(1);
-      }
+      $this
+        ->addFieldMapping('uid')
+        ->defaultValue(1);
 
       $csv_cols[] = array('title', 'Title');
     }
