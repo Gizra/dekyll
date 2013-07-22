@@ -19,7 +19,7 @@ class ImanimoProductCommerceProducts extends Migration {
 
     $this->dependencies = array(
       'ImanimoProductColorTerms',
-      'ImanimoProductCommerceProducts',
+      'ImanimoProductPageNodes',
     );
 
     $key = array(

@@ -1,3 +1,3 @@
 SKU,Product,Description,Price,Color,Inventory,Images
 1234,Galina,Info about the black dress,10,black,"Small|2,Large|5",galina-black1.jpg|galina-black2.jpg
-4567,Galina,Info about the white dress,20,white,"X-Large|2,Large|5",galina-white.jpg
+4567,,Info about the white dress,20,white,"X-Large|2,Large|5",galina-white.jpg
