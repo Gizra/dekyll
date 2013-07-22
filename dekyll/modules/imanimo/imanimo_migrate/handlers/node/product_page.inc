@@ -7,7 +7,6 @@ class ImanimoProductPageNodes extends Migration {
 
   public $dependencies = array(
     'ImanimoBranchNodes',
-    'ImanimoProductCommerceProducts',
   );
 
   public $csvColumns = array(

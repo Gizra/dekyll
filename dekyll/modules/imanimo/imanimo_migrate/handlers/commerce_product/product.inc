@@ -17,7 +17,10 @@ class ImanimoProductCommerceProducts extends Migration {
   public function __construct() {
     parent::__construct();
 
-    $this->dependencies = array('ImanimoProductColorTerms');
+    $this->dependencies = array(
+      'ImanimoProductColorTerms',
+      'ImanimoProductCommerceProducts',
+    );
 
     $key = array(
       'sku' => array(
@@ -60,5 +63,69 @@ class ImanimoProductCommerceProducts extends Migration {
 
   public function prepareRow($row) {
     $row->title = ucwords($row->title . ' - ' . $row->field_product_color);
+  }
+
+  /**
+   * Associate the commerce product with the product page node.
+   *
+   * We do this here, as the CSV file tries to be user friendly and allows
+   * entering the commerce product on each line along with the node it belongs
+   * to.
+   *
+   * To prevent hitting the database for getting the same product page node over
+   * and over again, we maintain a static variable that holds only the last
+   * queried node.
+   */
+  public function complete($entity, stdClass $row) {
+    $node = getProductPageNode($row->title);
+    $wrapper = entity_metadata_wrapper('node', $node);
+    $wrapper->field_product[] = $entity;
+    $wrapper->save();
+  }
+
+  /**
+   * Get an existing or create a new product page node by title.
+   *
+   * @param $title
+   *   The node title to get or create.
+   *
+   * @return
+   *   An existing or new (saved) node object.
+   */
+  private function getProductPageNode($title) {
+    $cache = &drupal_static(__METHOD__, array());
+
+    if (isset($cache[$title])) {
+      return node_load($cache[$title]);
+    }
+
+    // Reset cache.
+    $cache = array();
+
+    $query = new EntityFieldQuery();
+    $result = $query
+      ->entityCondition('entity_type', 'node')
+      ->entityCondition('bundle', 'product_page')
+      ->propertyCondition('title', $title, '=')
+      ->range(0, 1)
+      ->execute();
+
+    if (!empty($result['node'])) {
+      $cache[$title] = key($result['node']);
+      return node_load($cache[$title]);
+    }
+
+    // Create a new node.
+    $node = (object)array(
+      'type' => 'product_page',
+      'title' => $title,
+    );
+
+    node_object_prepare($node);
+    $node->uid = 1;
+
+    node_save($node);
+    $cache[$title] = $node->nid;
+    return $node;
   }
 }
