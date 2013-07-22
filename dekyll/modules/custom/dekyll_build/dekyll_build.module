@@ -100,7 +100,7 @@ function dekyll_build_build_jekyll_site_remote($branch_id, Message $message = NU
   $dumper = new Dumper();
   $yaml = array();
 
-  $url = $wrapper->field_build_remote_url->value()
+  $url = $wrapper->field_build_remote_url->value();
   $url .= str_replace('public://repos', '/builds/', dekyll_repository_get_repo_path($branch_id));
 
   $yaml['production_url'] = $url;
