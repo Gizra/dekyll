@@ -31,6 +31,63 @@ function dekyll_build_get_build_path($nid, $real_path = FALSE) {
  * Build a local Jekyll site.
  */
 function dekyll_build_build_jekyll_site($branch_id, Message $message = NULL) {
+  $wrapper = entity_metadata_wrapper('node', $branch_id);
+
+  if (!$wrapper->field_build_remote_path->value()) {
+    return dekyll_build_build_jekyll_site_local($branch_id, $message);
+  }
+
+  dekyll_build_build_jekyll_site_remote($branch_id, $message);
+}
+
+/**
+ * Build site locally.
+ */
+function dekyll_build_build_jekyll_site_local($branch_id, Message $message = NULL) {
+  $path = dekyll_repository_get_repo_path($branch_id);
+  $build_path = dekyll_build_get_build_path($branch_id);
+
+  // Create an overriding _config file under .git/ and change the BASE_PATH to
+  // point to the "build path".
+  $dummy_config_path = $path . '/.git/_config.yml';
+
+  // @todo: Inject parser and dumper.
+  $dumper = new Dumper();
+  $yaml = array();
+
+  $url = file_create_url($build_path);
+
+  $yaml['production_url'] = $url;
+  $yaml['JB']['BASE_PATH'] = $url;
+  // Use "safe" mode, so BASE_PATH is used.
+  $yaml['safe'] = TRUE;
+
+  file_put_contents($dummy_config_path,  $dumper->dump($yaml, 5));
+
+  $path = drupal_realpath($path);
+  $build_path = drupal_realpath($build_path);
+
+  // Execute "jekyll build" command using the original config, and the dummy
+  // config that overrides the
+  $output = array();
+
+  exec("jekyll build --source $path --destination $build_path --config $path/_config.yml,$path/.git/_config.yml", $output);
+
+  if (drupal_is_cli()) {
+    drush_log(dt('Branch @id jekyll site was built on @dest', array('@id' => $branch_id, '@dest' => $build_path)));
+  }
+
+  if (!empty($message)) {
+    $message_wrapper = entity_metadata_wrapper('message', $message);
+    $message_wrapper->field_jekyll_build_status->set(DEKYLL_MESSAGE_BUILD_DONE);
+    $message_wrapper->save();
+  }
+}
+
+/**
+ * Build site remotely.
+ */
+function dekyll_build_build_jekyll_site_remote($branch_id, Message $message = NULL) {
   $path = dekyll_repository_get_repo_path($branch_id);
   $build_path = dekyll_build_get_build_path($branch_id);
   $wrapper = entity_metadata_wrapper('node', $branch_id);
@@ -43,12 +100,8 @@ function dekyll_build_build_jekyll_site($branch_id, Message $message = NULL) {
   $dumper = new Dumper();
   $yaml = array();
 
-  if ($url = $wrapper->field_build_remote_url->value()) {
-    $url .= str_replace('public://repos', '/builds/', dekyll_repository_get_repo_path($branch_id));
-  }
-  else {
-    $url = file_create_url($build_path);
-  }
+  $url = $wrapper->field_build_remote_url->value()
+  $url .= str_replace('public://repos', '/builds/', dekyll_repository_get_repo_path($branch_id));
 
   $yaml['production_url'] = $url;
   $yaml['JB']['BASE_PATH'] = $url;
