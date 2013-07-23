@@ -270,22 +270,12 @@ class ExportManagerBase implements ExportManagerInterface {
           $route_item = $routes[$item_identifier];
           $jekyll_name = $route_item['jekyll_name'];
 
-          // If no Jekyll name (i.e. the root), or parents or self.
+          // If no Jekyll name, or parents or self.
           if (!$jekyll_name || in_array($type, array('parents', 'self'))) {
             $yaml_item = &$yaml;
           }
           else {
-            // Get the hierarchy up to the root.
-            $yaml_item = &$yaml;
-            $parents = $route_item['parents'];
-            array_shift($parents);
-
-            foreach (array_reverse($parents) as $parent) {
-              $parent_jekyll_name = $routes[$parent]['jekyll_name'];
-              $yaml_item = &$yaml_item[$parent_jekyll_name][$parent];
-            };
-
-            $yaml_item = &$yaml_item[$jekyll_name][$item_identifier];
+            $yaml_item = &$yaml[$jekyll_name][];
           }
 
           // Get the text.
