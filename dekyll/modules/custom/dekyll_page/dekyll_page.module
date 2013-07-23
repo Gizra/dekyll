@@ -283,12 +283,11 @@ function dekyll_page_node_view_alter(&$build) {
     return;
   }
 
-  $wrapper = entity_metadata_wrapper('node', $node);
-
-  if (!isset($wrapper->field_file_path)) {
+  if (!og_is_group_content_type('node', $node->type) || $node->type == 'branch') {
     return;
   }
 
+  $wrapper = entity_metadata_wrapper('node', $node);
   if (!$setting = $wrapper->field_repo_branch->field_jekyll_base_path->value()) {
     return;
   }
