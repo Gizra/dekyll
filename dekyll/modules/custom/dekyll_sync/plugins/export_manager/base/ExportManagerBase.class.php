@@ -381,8 +381,8 @@ class ExportManagerBase implements ExportManagerInterface {
         drush_log(dt('Pushing to git.'));
       }
       $git
-        ->pull()
         ->commit('Changes of file.')
+        ->pull()
         ->push();
     }
     catch (GitException $e){
