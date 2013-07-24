@@ -44,15 +44,10 @@ class ContentSyncImageStyle extends ContentSyncImage {
         foreach ($instance['settings']['content_sync']['settings']['style_names'] as $style_name) {
 
           // @todo: Check if the file doesn't already exist.
-
-          // Create the image in the right style.
-          if (file_exists($file['uri'])) {
-            // Copy the existing file.
-            file_unmanaged_copy($file['uri'], $image_full_path . '/' . $style_name . '-' . $file['filename'], FILE_EXISTS_REPLACE);
-          }
-          else {
-            $uri = image_style_url($style_name, $file['uri']);
-            // file_put_contents($image_full_path . '/' . $style_name . '-' . $file['filename'], file_get_contents($uri));
+          $style = image_style_load($style_name);
+          if (!image_style_create_derivative($style, $file['uri'], $image_full_path)) {
+            // @todo: Throw exception?
+            continue;
           }
 
           // Add the new file names.
