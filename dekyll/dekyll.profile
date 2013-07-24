@@ -268,9 +268,8 @@ function dekyll_menus_setup() {
  * @todo: Move to Imanimo specific tasks.
  */
 function dekyll_og_vocab_setup() {
-  $vocab_name = 'layout';
+  $machine_name = $vocab_name = 'layout';
   $branch_id = 2;
-  $machine_name = "{$vocab_name}_{$branch_id}";
 
   if (!$vocabulary = taxonomy_vocabulary_machine_name_load($machine_name)) {
     // Create a vocabulary.

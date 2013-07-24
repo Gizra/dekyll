@@ -7,6 +7,7 @@ class ImanimoProductPageNodes extends Migration {
 
   public $dependencies = array(
     'ImanimoBranchNodes',
+    'ImanimoLayoutTerms',
   );
 
   public $csvColumns = array(
@@ -56,9 +57,10 @@ class ImanimoProductPageNodes extends Migration {
 
 
     // Add "product_page" layout.
-    $term = taxonomy_get_term_by_name('product_page', 'layout_2');
-    $term = reset($term);
-    $this->addFieldMapping(OG_VOCAB_FIELD)->defaultValue($term->tid);
+    $this->addFieldMapping(OG_VOCAB_FIELD)
+      ->defaultValue('product_page')
+      ->sourceMigration('ImanimoLayoutTerms');
+
 
     $this
       ->addFieldMapping('uid')
