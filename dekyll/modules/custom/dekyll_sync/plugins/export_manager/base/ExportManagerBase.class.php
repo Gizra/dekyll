@@ -278,10 +278,6 @@ class ExportManagerBase implements ExportManagerInterface {
             $yaml_item = &$yaml[$jekyll_name][];
           }
 
-          // Add the file path info.
-          // @todo: move to plugin.
-          $yaml_item['file_path'] = $route_item['file_path'];
-
           // Get the text.
           // @todo: Make configurable.
           $wrapper = $route_item['wrapper'];
