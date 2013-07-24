@@ -51,6 +51,10 @@ class ImanimoProductPageNodes extends Migration {
       ->arguments(array('format' => 'full_html'));
 
     $this
+      ->addFieldMapping('field_file_path', 'title')
+      ->callbacks(array($this, 'prepareFieldFilePath'));
+
+    $this
       ->addFieldMapping('uid')
       ->defaultValue(1);
   }
@@ -70,5 +74,13 @@ class ImanimoProductPageNodes extends Migration {
 
     // If node exists, return FALSE to prevent re-processing the same node.
     return !$result;
+  }
+
+  /**
+   * Auto create the file path from the title.
+   */
+  public function prepareFieldFilePath($value) {
+    ctools_include('cleanstring');
+    return 'products/' . ctools_cleanstring($value, array('lower case' => TRUE));
   }
 }
