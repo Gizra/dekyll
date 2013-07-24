@@ -45,13 +45,17 @@ class ContentSyncImageStyle extends ContentSyncImage {
 
           // @todo: Check if the file doesn't already exist.
           $style = image_style_load($style_name);
-          if (!image_style_create_derivative($style, $file['uri'], $image_full_path)) {
+          // We need to delete an existing file, otherwise image style will
+          // return an error.
+          // file_unmanaged_delete($image_full_path);
+          $file_name_image_style = $style_name . '-' . $file['filename'];
+          if (!image_style_create_derivative($style, $file['uri'], $image_full_path . '/' . $file_name_image_style)) {
             // @todo: Throw exception?
             continue;
           }
 
           // Add the new file names.
-          $file_name = $image_path . '/' . $style_name . '-' . $file['filename'];
+          $file_name = $image_path . '/' . $file_name_image_style;
           $file_names[] = $file_name;
 
           // We expect that {{ BASE_PATH }} will prefix the file name
