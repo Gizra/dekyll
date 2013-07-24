@@ -197,10 +197,7 @@ class ExportManagerBase implements ExportManagerInterface {
       $path_parts = pathinfo($parent_file_path);
 
       $parent_dirname = $path_parts['dirname'] . '/';
-      $parent_basename = $path_parts['basename'];
     }
-
-    $parent_basename = !empty($parent_basename) ? $parent_basename : 'index.html';
 
     // Prepare the file path.
     if (isset($wrapper->field_file_path) && $file_path = $wrapper->field_file_path->value()) {
@@ -210,7 +207,7 @@ class ExportManagerBase implements ExportManagerInterface {
     // No field path, so use the label.
     ctools_include('cleanstring');
     $label = ctools_cleanstring($wrapper->label(), array('lower case' => TRUE));
-    return $parent_dirname . $label . '/' . $parent_basename;
+    return $parent_dirname . $label . '/index.html';
   }
 
 
