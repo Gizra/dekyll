@@ -216,12 +216,14 @@ function dekyll_sync_export_queue_worker($data) {
  *   The node ID.
  */
 function dekyll_sync_export($nid) {
+  if (!node_load($nid)) {
+    throw new Exception(format_string('Node ID @nid does not exist.', array('@nid' => $nid)));
+  }
   $wrapper = entity_metadata_wrapper('node', $nid);
   $bundle = $wrapper->getBundle();
 
   if (!isset($wrapper->field_file_path)) {
-    drush_log(dt('Cannot export node of type @type', array('@type' => $bundle)), 'error');
-    return;
+    throw new Exception(format_string('Cannot export node of type @type', array('@type' => $bundle)));
   }
 
   ctools_include('plugins');
