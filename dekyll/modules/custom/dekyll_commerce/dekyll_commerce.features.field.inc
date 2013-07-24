@@ -601,7 +601,11 @@ function dekyll_commerce_field_default_fields() {
     ),
     'field_instance' => array(
       'bundle' => 'product_page',
-      'default_value' => NULL,
+      'default_value' => array(
+        0 => array(
+          'value' => '/',
+        ),
+      ),
       'deleted' => '0',
       'description' => '',
       'display' => array(
@@ -625,10 +629,7 @@ function dekyll_commerce_field_default_fields() {
       'required' => 0,
       'settings' => array(
         'content_sync' => array(
-          'plugin_name' => 'raw',
-          'settings' => array(
-            'jekyll_name' => 'permalink',
-          ),
+          'plugin_name' => '',
         ),
         'text_processing' => '0',
         'user_register_form' => FALSE,
