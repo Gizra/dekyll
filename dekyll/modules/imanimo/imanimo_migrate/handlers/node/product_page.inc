@@ -54,6 +54,12 @@ class ImanimoProductPageNodes extends Migration {
       ->addFieldMapping('field_file_path', 'title')
       ->callbacks(array($this, 'prepareFieldFilePath'));
 
+
+    // Add "product_page" layout.
+    $term = taxonomy_get_term_by_name('product_page', 'layout_2');
+    $term = reset($term);
+    $this->addFieldMapping(OG_VOCAB_FIELD)->defaultValue($term->tid);
+
     $this
       ->addFieldMapping('uid')
       ->defaultValue(1);

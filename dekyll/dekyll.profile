@@ -55,6 +55,11 @@ function dekyll_install_tasks() {
     'display' => FALSE,
   );
 
+  $tasks['dekyll_og_vocab_setup'] = array(
+    'display_name' => st('Setup OG vocabularies'),
+    'display' => FALSE,
+  );
+
   return $tasks;
 }
 
@@ -255,4 +260,39 @@ function dekyll_menus_setup() {
     'menu_name' => 'user-menu',
   );
   menu_link_save($item);
+}
+
+/**
+ * Profile task; create OG vocabs.
+ *
+ * @todo: Move to Imanimo specific tasks.
+ */
+function dekyll_og_vocab_setup() {
+  $vocab_name = 'layout';
+  $branch_id = 2;
+  $machine_name = "{$vocab_name}_{$branch_id}";
+
+  if (!$vocabulary = taxonomy_vocabulary_machine_name_load($machine_name)) {
+    // Create a vocabulary.
+    $vocabulary = new stdClass();
+    $vocabulary->name = trim($vocab_name);
+    $vocabulary->machine_name = $machine_name;
+    taxonomy_vocabulary_save($vocabulary);
+
+    // Associate with the group.
+    og_vocab_relation_save($vocabulary->vid, 'node', $branch_id);
+  }
+
+  foreach (array('post', 'page', 'product_page') as $bundle) {
+    // Create an OG-vocab.
+    $og_vocab = og_vocab_load_og_vocab($vocabulary->vid, 'node', $bundle, NULL, TRUE);
+    $og_vocab->settings = array(
+      'required' => TRUE,
+      'cardinality' => 1,
+      'widget_type' => 'options_select',
+    );
+
+    $og_vocab->save();
+  }
+
 }

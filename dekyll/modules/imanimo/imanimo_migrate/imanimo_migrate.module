@@ -23,6 +23,7 @@ function imanimo_migrate_migrate_api() {
     'ImanimoRepositoryNodes',
 
     // Taxonomy term.
+    'ImanimoLayoutTerms',
     'ImanimoProductColorTerms',
   );
 
