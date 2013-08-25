@@ -30,7 +30,7 @@ projects[diff][subdir] = "contrib"
 projects[diff][version] = "3.2"
 
 projects[entity][subdir] = "contrib"
-projects[entity][version] = "1.1"
+projects[entity][version] = "1.2"
 projects[entity][patch][] = "https://drupal.org/files/entity-entity_access-1780646-107.patch"
 
 projects[entityreference][subdir] = "contrib"
