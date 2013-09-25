@@ -46,6 +46,7 @@ dependencies[] = libraries
 dependencies[] = message_notify
 dependencies[] = migrate_ui
 dependencies[] = module_filter
+dependencies[] = nodejs
 dependencies[] = nodequeue
 dependencies[] = og_context
 dependencies[] = og_ui

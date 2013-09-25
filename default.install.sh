@@ -30,11 +30,8 @@ echo "---------------------------------------------------------------------"
 echo "Installation complete, starting queue workers - you can use Dekyll now"
 echo "---------------------------------------------------------------------"
 
-# Open browser (Mac)
-open http://localhost/dekyll/www
-
-# Open browser (Linux)
-xdg-open http://localhost/dekyll/www
+# Login user
+drush uli --uri=http://localhost/dekyll/www
 
 # Execute Dekyll queue workers.
 . ../dekyll.sh
