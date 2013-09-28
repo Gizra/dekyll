@@ -35,10 +35,9 @@ function dekyll_build_build_jekyll_site($branch_id, Message $message = NULL) {
   $nodejs_message = (object) array(
     'broadcast' => TRUE,
     'data' => (object) array(
-      'build' => TRUE,
+      'build' => FALSE,
     ),
   );
-  nodejs_enqueue_message($nodejs_message);
 
   $path = dekyll_repository_get_repo_path($branch_id);
   $build_path = dekyll_build_get_build_path($branch_id);
@@ -88,7 +87,10 @@ function dekyll_build_build_jekyll_site($branch_id, Message $message = NULL) {
   $remote_path = rtrim($wrapper->field_build_remote_path->value(), '/');
   $remote_ssh = str_replace('ssh ', '', $wrapper->field_build_remote_ssh->value());
 
+  $nodejs_message->data->build = FALSE;
+
   if (!$remote_path || !$remote_ssh) {
+    nodejs_enqueue_message($nodejs_message);
     return;
   }
 
@@ -107,7 +109,7 @@ function dekyll_build_build_jekyll_site($branch_id, Message $message = NULL) {
     drush_log(dt('Branch @id rsynced to @dest', array('@id' => $branch_id, '@dest' => "$remote_ssh:$remote_path")));
   }
 
-  $nodejs_message->data->build = FALSE;
+
   nodejs_enqueue_message($nodejs_message);
 
   $message_wrapper->field_rsync_status->set(DEKYLL_MESSAGE_BUILD_RSYNC_DONE);
