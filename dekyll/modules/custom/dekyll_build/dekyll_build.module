@@ -31,6 +31,15 @@ function dekyll_build_get_build_path($nid, $real_path = FALSE) {
  * Build a local Jekyll site.
  */
 function dekyll_build_build_jekyll_site($branch_id, Message $message = NULL) {
+  // Notify client via Socket.io, build is starting.
+  $nodejs_message = (object) array(
+    'broadcast' => TRUE,
+    'data' => (object) array(
+      'build' => TRUE,
+    ),
+  );
+  nodejs_enqueue_message($nodejs_message);
+
   $path = dekyll_repository_get_repo_path($branch_id);
   $build_path = dekyll_build_get_build_path($branch_id);
   $wrapper = entity_metadata_wrapper('node', $branch_id);
@@ -97,6 +106,9 @@ function dekyll_build_build_jekyll_site($branch_id, Message $message = NULL) {
   if (drupal_is_cli()) {
     drush_log(dt('Branch @id rsynced to @dest', array('@id' => $branch_id, '@dest' => "$remote_ssh:$remote_path")));
   }
+
+  $nodejs_message->data->build = FALSE;
+  nodejs_enqueue_message($nodejs_message);
 
   $message_wrapper->field_rsync_status->set(DEKYLL_MESSAGE_BUILD_RSYNC_DONE);
   $message_wrapper->save();
