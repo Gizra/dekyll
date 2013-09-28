@@ -90,7 +90,7 @@ function dekyll_build_build_jekyll_site($branch_id, Message $message = NULL) {
   $nodejs_message->data->build = FALSE;
 
   if (!$remote_path || !$remote_ssh) {
-    nodejs_enqueue_message($nodejs_message);
+    nodejs_send_message($nodejs_message);
     return;
   }
 
@@ -110,7 +110,7 @@ function dekyll_build_build_jekyll_site($branch_id, Message $message = NULL) {
   }
 
 
-  nodejs_enqueue_message($nodejs_message);
+  nodejs_send_message($nodejs_message);
 
   $message_wrapper->field_rsync_status->set(DEKYLL_MESSAGE_BUILD_RSYNC_DONE);
   $message_wrapper->save();

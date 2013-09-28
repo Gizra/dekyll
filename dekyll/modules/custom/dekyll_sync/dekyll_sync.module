@@ -240,7 +240,7 @@ function dekyll_sync_export($nid) {
       'build' => TRUE,
     ),
   );
-  nodejs_enqueue_message($nodejs_message);
+  nodejs_send_message($nodejs_message);
 
   $plugin = dekyll_sync_get_export_manager($plugin_name);
   $export_manager = new $class($plugin, $nid);
