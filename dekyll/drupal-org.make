@@ -87,6 +87,9 @@ projects[mimemail][subdir] = "contrib"
 projects[module_filter][subdir] = "contrib"
 projects[module_filter][version] = 1.7
 
+projects[nodejs][subdir] = "contrib"
+projects[nodejs][version] = "1.6"
+
 projects[nodequeue][subdir] = "contrib"
 projects[nodequeue][version] = "2.0-beta1"
 

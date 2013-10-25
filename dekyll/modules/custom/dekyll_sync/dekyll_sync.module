@@ -234,6 +234,14 @@ function dekyll_sync_export($nid) {
     return;
   }
 
+  $nodejs_message = (object) array(
+    'broadcast' => TRUE,
+    'data' => (object) array(
+      'build' => TRUE,
+    ),
+  );
+  nodejs_send_message($nodejs_message);
+
   $plugin = dekyll_sync_get_export_manager($plugin_name);
   $export_manager = new $class($plugin, $nid);
   $export_manager->export();

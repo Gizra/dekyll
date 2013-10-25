@@ -26,15 +26,18 @@ drush vset dekyll_ssh_key "$(cat ~/.ssh/id_rsa.pub)"
 drush vset github_connect_client_id "6b8801a904e18533efaa"
 drush vset github_connect_client_secret "e667b19b21e4e6a60a8d1f656d41a5b81da5d4de"
 
+# Setup NodeJs token.
+# See http://www.gizra.com/content/drupal-nodejs-pantheon-and-heroku
+drush vset nodejs_service_key "beejeebusRocks"
+drush vset nodejs_server_port "5000"
+
+
 echo "---------------------------------------------------------------------"
 echo "Installation complete, starting queue workers - you can use Dekyll now"
 echo "---------------------------------------------------------------------"
 
-# Open browser (Mac)
-open http://localhost/dekyll/www
-
-# Open browser (Linux)
-xdg-open http://localhost/dekyll/www
+# Login user
+drush uli --uri=http://localhost/dekyll/www
 
 # Execute Dekyll queue workers.
 . ../dekyll.sh
