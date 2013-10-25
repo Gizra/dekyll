@@ -89,6 +89,7 @@ projects[module_filter][version] = 1.7
 
 projects[nodejs][subdir] = "contrib"
 projects[nodejs][version] = "1.6"
+projects[nodejs][patch][] = "https://drupal.org/files/2120761-nodejs-install-1.patch"
 
 projects[nodequeue][subdir] = "contrib"
 projects[nodequeue][version] = "2.0-beta1"
