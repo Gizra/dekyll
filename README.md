@@ -1,3 +1,5 @@
+**Deprectaed, see [blog post](www.gizra.com/content/zariz-means-agile/) about Zariz.**
+
 Drush commands
 ==============
 Either execute the commands manually:
