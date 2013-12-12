@@ -1,4 +1,4 @@
-**Deprectaed, see [blog post](www.gizra.com/content/zariz-means-agile/) about Zariz.**
+**Deprectaed, see [blog post](http://gizra.com/content/zariz-means-agile/) about Zariz.**
 
 Drush commands
 ==============
